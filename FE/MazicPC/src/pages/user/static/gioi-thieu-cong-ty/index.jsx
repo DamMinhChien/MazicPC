@@ -9,7 +9,7 @@ const GioiThieuCongTy = () => {
       <h5 className="fw-bold">CÔNG TY TNHH MAZICPC VIỆT NAM </h5>
       <Container fluid>
         <p>
-          LaptopAZ là thương hiệu bán laptop, linh kiện laptop cao cấp được
+          MazicPc là thương hiệu bán laptop, linh kiện laptop cao cấp được
           thành lập và đi vào hoạt động bán lẻ từ năm 2008.
         </p>
         <p>
@@ -29,14 +29,14 @@ const GioiThieuCongTy = () => {
         </p>
         <p>
           Với kinh nghiệm nhiều năm trong nghề cùng với đội ngũ kỹ sư chuyên
-          nghiệp tận tâm LaptopAZ luôn luôn nỗ lực để đem tới khách hàng những
+          nghiệp tận tâm MAZICPC luôn luôn nỗ lực để đem tới khách hàng những
           sản phẩm có chất lượng tốt nhất, chế độ bảo hành và hỗ trợ tốt nhất,
           mức giá thành cạnh tranh phù hợp nhất, xứng đáng với từng số tiền mà
           khách hàng bỏ ra.
         </p>
         <p>
           Nếu bạn còn đang gặp khó khăn trong việc lựa chọn cho mình 1 chiếc
-          laptop phù hợp với nhu cầu sử dụng thì hãy tới ngay Showroom LaptopAZ
+          laptop phù hợp với nhu cầu sử dụng thì hãy tới ngay Showroom MazicPc
           để trải nghiệm sản phẩm và lực chọn cho mình những sản phẩm phù hợp
           nhất đáp ứng tốt nhu cầu sử dụng và xứng đáng với số tiền mình bỏ ra.
         </p>
@@ -63,7 +63,7 @@ const GioiThieuCongTy = () => {
       </Container>
       <Container fluid>
         <strong className="fw-bold fs-5">
-          Các dịch vụ hiện tại LaptopAZ cung cấp:
+          Các dịch vụ hiện tại MazicPc cung cấp:
         </strong>
         <ul>
           <li>- Các dòng Laptop nhập khẩu, chính hãng</li>
@@ -75,7 +75,7 @@ const GioiThieuCongTy = () => {
       </Container>
       <Container fluid>
         <strong className="fw-bold fs-5">
-          Cam kết của LaptopAZ với khách hàng:
+          Cam kết của MazicPc với khách hàng:
         </strong>
         <ul>
           <li>
@@ -100,7 +100,7 @@ const GioiThieuCongTy = () => {
       </Container>
       <Container fluid>
         <strong className="fw-bold fs-6">
-          LaptopAZ.vn hân hạnh được phục vụ bạn trên con đường khám phá các sản
+          MazicPc.vn hân hạnh được phục vụ bạn trên con đường khám phá các sản
           phẩm công nghệ!
         </strong>
       </Container>
@@ -111,10 +111,10 @@ const GioiThieuCongTy = () => {
         ngày 11/03/2025
       </h6>
       <Container fluid>
-        <strong className="fw-bold fs-5">🏠HỆ THỐNG CỬA HÀNG LAPTOPAZ</strong>
+        <strong className="fw-bold fs-5">🏠HỆ THỐNG CỬA HÀNG MAZICPC</strong>
         <ul>
-          <li>🎯 LaptopAZ cơ sở 1: Số 18 ngõ 121, Thái Hà, Đống Đa, Hà Nội</li>
-          <li>🎯 LaptopAZ cơ sở 2: Số 56 Trần Phú, Hà Đông, Hà Nội</li>
+          <li>🎯 MazicPc cơ sở 1: Số 18 ngõ 121, Thái Hà, Đống Đa, Hà Nội</li>
+          <li>🎯 MazicPc cơ sở 2: Số 56 Trần Phú, Hà Đông, Hà Nội</li>
           <li>
             📲 Hotline: <a href="tel:0825233233">0825 233 233</a>
           </li>
@@ -170,7 +170,7 @@ const GioiThieuCongTy = () => {
           </li>
           <li>
             📩 Email:{" "}
-            <a href="mailto:laptopaz2025@gmail.com">laptopaz2025@gmail.com</a>
+            <a href="mailto:MazicPc2025@gmail.com">MazicPc2025@gmail.com</a>
           </li>
           <li>
             🕐 Thời gian làm việc: 8h30 - 21h30 (tất cả các ngày trong tuần)
@@ -256,7 +256,7 @@ const GioiThieuCongTy = () => {
 
       <Container fluid className="text-center">
         <strong className="d-block fw-bold fs-5">
-          LaptopAZ.vn - Hệ thống mua bán Laptop uy tín tại Hà Nội và trên toàn
+          MazicPc.vn - Hệ thống mua bán Laptop uy tín tại Hà Nội và trên toàn
           quốc
         </strong>
         <strong className="d-block fw-bold fs-5">Hotline 0825 233 233</strong>

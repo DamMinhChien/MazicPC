@@ -105,9 +105,9 @@ const Footer = () => {
 
           {/* Col 4 */}
           <Col lg={3} md={6} sm>
-            <h6 className="fw-bold">HỆ THỐNG CỬA HÀNG LAPTOPAZ</h6>
+            <h6 className="fw-bold">HỆ THỐNG CỬA HÀNG MAZICPC</h6>
             <ul className="list-unstyled">
-              <li className="fw-bold">LaptopAZ cơ sở Thái Hà</li>
+              <li className="fw-bold">MAZICPC cơ sở Thái Hà</li>
               <li>Số 18, ngõ 121, Thái Hà, Đống Đa, Hà Nội</li>
               <li>
                 <a href="tel:0825233233">Hotline: 0825 233 233</a>
