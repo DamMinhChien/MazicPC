@@ -1,8 +1,34 @@
 import { useState } from "react";
 import styles from "./style.module.css";
+import authService from "../../../apis/authService";
 
 const AuthPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
+
+  //register
+  const [formRegister, setFormRegister] = useState({
+    fullName: "",
+    userName: "",
+    password: "",
+    email: "",
+  });
+
+  const handleRegisterChange = (e) => {
+    setFormRegister({
+      ...formRegister,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await authService.register(formRegister);
+      alert("OK: " + res);
+    } catch (error) {
+      alert("Lỗi: " + error);
+    }
+  };
 
   return (
     <div className={styles.authWrapper}>
@@ -12,11 +38,36 @@ const AuthPage = () => {
       >
         {/* Form Đăng ký */}
         <div className={`${styles.formContainer} ${styles.signUp}`}>
-          <form>
+          <form onSubmit={handleRegisterSubmit}>
             <h1>Đăng ký</h1>
-            <input type="text" placeholder="Họ và tên" />
-            <input type="text" placeholder="Tài khoản" />
-            <input type="password" placeholder="Mật khẩu" />
+            <input
+              type="text"
+              placeholder="Họ và tên"
+              name="fullName"
+              value={formRegister.fullName}
+              onChange={handleRegisterChange}
+            />
+            <input
+              type="text"
+              placeholder="Tài khoản"
+              name="userName"
+              value={formRegister.userName}
+              onChange={handleRegisterChange}
+            />
+            <input
+              type="password"
+              placeholder="Mật khẩu"
+              name="password"
+              value={formRegister.password}
+              onChange={handleRegisterChange}
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              name="email"
+              value={formRegister.email}
+              onChange={handleRegisterChange}
+            />
             <button type="submit">Đăng ký</button>
           </form>
         </div>
