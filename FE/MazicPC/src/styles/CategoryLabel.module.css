@@ -1,0 +1,17 @@
+.categoryLabel {
+  background-color: var(--bs-primary); /* xanh bootstrap */
+  clip-path: polygon(0 0, 95% 0, 100% 50%, 95% 100%, 0 100%);
+  padding: 10px 20px;
+  display: inline-block;
+  transition: color 0.3s ease; /* hiệu ứng mượt */
+}
+
+.categoryLabel h4 {
+  margin: 0;
+  font-weight: bold;
+  color: var(--bs-light); /* chữ trắng */
+}
+
+.categoryLabel:hover h4 {
+  color: var(--bs-warning); /* khi hover đổi sang vàng */
+}

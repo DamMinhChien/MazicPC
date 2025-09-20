@@ -1,0 +1,6 @@
+.category-menu .dropdown-menu {
+  width: 80vw !important;
+  max-width: none;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}

@@ -1,0 +1,117 @@
+import { useState } from "react";
+import styles from "./style.module.css";
+import authService from "../../../apis/authService";
+
+const AuthPage = () => {
+  const [isSignUp, setIsSignUp] = useState(false);
+
+  //register
+  const [formRegister, setFormRegister] = useState({
+    fullName: "",
+    userName: "",
+    password: "",
+    email: "",
+  });
+
+  const handleRegisterChange = (e) => {
+    setFormRegister({
+      ...formRegister,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await authService.register(formRegister);
+      alert("OK: " + res);
+    } catch (error) {
+      alert("Lỗi: " + error);
+    }
+  };
+
+  return (
+    <div className={styles.authWrapper}>
+      <div
+        className={`${styles.container} ${isSignUp ? styles.active : ""}`}
+        id="container"
+      >
+        {/* Form Đăng ký */}
+        <div className={`${styles.formContainer} ${styles.signUp}`}>
+          <form onSubmit={handleRegisterSubmit}>
+            <h1>Đăng ký</h1>
+            <input
+              type="text"
+              placeholder="Họ và tên"
+              name="fullName"
+              value={formRegister.fullName}
+              onChange={handleRegisterChange}
+            />
+            <input
+              type="text"
+              placeholder="Tài khoản"
+              name="userName"
+              value={formRegister.userName}
+              onChange={handleRegisterChange}
+            />
+            <input
+              type="password"
+              placeholder="Mật khẩu"
+              name="password"
+              value={formRegister.password}
+              onChange={handleRegisterChange}
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              name="email"
+              value={formRegister.email}
+              onChange={handleRegisterChange}
+            />
+            <button type="submit">Đăng ký</button>
+          </form>
+        </div>
+
+        {/* Form Đăng nhập */}
+        <div className={`${styles.formContainer} ${styles.signIn}`}>
+          <form>
+            <h1>Đăng nhập</h1>
+            <input type="text" placeholder="Tài khoản" />
+            <input type="password" placeholder="Mật khẩu" />
+            <button type="submit">Đăng nhập</button>
+          </form>
+        </div>
+
+        {/* Toggle */}
+        <div className={styles.toggleContainer}>
+          <div className={styles.toggle}>
+            <div className={`${styles.togglePanel} ${styles.toggleLeft}`}>
+              <h1>Chào mừng trở lại!</h1>
+              <p>Nhập thông tin để đăng nhập</p>
+              <button
+                type="button"
+                className={styles.hidden}
+                onClick={() => setIsSignUp(false)}
+              >
+                Đăng nhập
+              </button>
+            </div>
+            <div className={`${styles.togglePanel} ${styles.toggleRight}`}>
+              <h1>Xin chào!</h1>
+              <p>Đăng ký để trải nghiệm đầy đủ tính năng</p>
+              <button
+                type="button"
+                className={styles.hidden}
+                onClick={() => setIsSignUp(true)}
+              >
+                Đăng ký
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AuthPage;
