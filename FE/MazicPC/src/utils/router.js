@@ -9,6 +9,9 @@ const ROUTERS = {
     CHINH_SACH_VAN_CHUYEN: "/chinh-sach-van-chuyen",
     CHINH_SACH_VE_SINH_LAPTOP: "/chinh-sach-ve-sinh-laptop",
   },
+  COMMON: {
+    AUTH: "/auth",
+  },
 };
 
 export default ROUTERS;

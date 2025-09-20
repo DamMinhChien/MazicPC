@@ -1,0 +1,13 @@
+.cardImage {
+  transition: transform 0.3s ease;
+}
+.cardCard:hover .cardImage {
+  transform: scale(0.9);
+}
+
+.cardTitle {
+  transition: color 0.3s ease;
+}
+.cardTitle:hover {
+  color: var(--bs-primary);
+}

@@ -9,6 +9,8 @@ import ChinhSachChatLuong from "./pages/user/static/chinh-sach-chat-luong";
 import ChinhSachDoiTra from "./pages/user/static/chinh-sach-doi-tra";
 import ChinhSachVanChuyen from "./pages/user/static/chinh-sach-van-chuyen";
 import ChinhSachVeSinhLapTop from "./pages/user/static/chinh-sach-ve-sinh-laptop";
+import AuthPage from "./pages/common/authPage";
+import NotFoundPage from "./pages/common/notFoundPage";
 
 const RouterCustom = () => {
   const userRouter = [
@@ -44,17 +46,37 @@ const RouterCustom = () => {
       path: ROUTERS.USER.CHINH_SACH_VE_SINH_LAPTOP,
       component: <ChinhSachVeSinhLapTop />,
     },
+    {
+      path: ROUTERS.COMMON.AUTH,
+      component: <AuthPage />,
+      layout: false,
+    },
+    /* Route 404 (luôn để cuối cùng) */
+    {
+      path: "*",
+      component: <NotFoundPage />,
+      layout: false,
+    }
   ];
 
   return (
     <Routes>
-      {userRouter.map((item, key) => (
-        <Route
-          key={key}
-          path={item.path}
-          element={<MasterLayout>{item.component}</MasterLayout>}
-        />
-      ))}
+      {userRouter.map((item, key) => {
+        const useLayout = item.layout ?? true; // mặc định true nếu không khai báo
+        return (
+          <Route
+            key={key}
+            path={item.path}
+            element={
+              useLayout ? (
+                <MasterLayout>{item.component}</MasterLayout>
+              ) : (
+                item.component
+              )
+            }
+          />
+        );
+      })}
     </Routes>
   );
 };
