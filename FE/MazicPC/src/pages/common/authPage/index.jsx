@@ -1,32 +1,76 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./style.module.css";
 import authService from "../../../apis/authService";
+import registerSchema from "@/schemas/registerSchema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import MyToast from "../../../components/MyToast";
+import loginSchema from "@/schemas/loginSchema";
 
 const AuthPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [toastBg, setToastBg] = useState("success");
 
-  //register
-  const [formRegister, setFormRegister] = useState({
-    fullName: "",
-    userName: "",
-    password: "",
-    email: "",
+  const schema = isSignUp ? registerSchema : loginSchema;
+  // Khởi tạo useForm
+  // Form đăng ký
+  const registerForm = useForm({
+    resolver: zodResolver(registerSchema),
+    mode: "onBlur",
   });
 
-  const handleRegisterChange = (e) => {
-    setFormRegister({
-      ...formRegister,
-      [e.target.name]: e.target.value,
-    });
-  };
+  // Form đăng nhập
+  const loginForm = useForm({
+    resolver: zodResolver(loginSchema),
+    mode: "onBlur",
+  });
 
-  const handleRegisterSubmit = async (e) => {
-    e.preventDefault();
+  // Lắng nghe lỗi và show toast
+  useEffect(() => {
+    const errors = isSignUp
+      ? registerForm.formState.errors
+      : loginForm.formState.errors;
+
+    if (Object.keys(errors).length > 0) {
+      const firstError = Object.values(errors)[0]?.message;
+      setToastMessage(firstError);
+      setToastBg("danger");
+      setShowToast(true);
+    }
+  }, [registerForm.formState.errors, loginForm.formState.errors, isSignUp]);
+
+  const onSubmit = async (data) => {
     try {
-      const res = await authService.register(formRegister);
-      alert("OK: " + res);
+      let res;
+      if (isSignUp) {
+        res = await authService.register(data);
+        setToastMessage("Đăng ký thành công!");
+      } else {
+        res = await authService.login(data);
+        setToastMessage("Đăng nhập thành công!");
+      }
+
+      setToastBg("success");
+      setShowToast(true);
     } catch (error) {
-      alert("Lỗi: " + error);
+      const validationErrors = error.response?.data;
+
+      // Nếu là mảng lỗi validation
+      if (Array.isArray(validationErrors) && validationErrors.length > 0) {
+        const messages = validationErrors
+          .map((err) => err.errorMessage)
+          .join(", ");
+        setToastMessage(messages);
+      } else if (typeof validationErrors === "string") {
+        // server trả plain text (Unauthorized("..."))
+        setToastMessage(validationErrors);
+      } else {
+        setToastMessage(error.message); // fallback
+      }
+      setToastBg("danger");
+      setShowToast(true);
     }
   };
 
@@ -38,35 +82,27 @@ const AuthPage = () => {
       >
         {/* Form Đăng ký */}
         <div className={`${styles.formContainer} ${styles.signUp}`}>
-          <form onSubmit={handleRegisterSubmit}>
+          <form onSubmit={registerForm.handleSubmit(onSubmit)}>
             <h1>Đăng ký</h1>
             <input
               type="text"
               placeholder="Họ và tên"
-              name="fullName"
-              value={formRegister.fullName}
-              onChange={handleRegisterChange}
+              {...registerForm.register("fullName")}
             />
             <input
               type="text"
               placeholder="Tài khoản"
-              name="userName"
-              value={formRegister.userName}
-              onChange={handleRegisterChange}
+              {...registerForm.register("userName")}
             />
             <input
               type="password"
               placeholder="Mật khẩu"
-              name="password"
-              value={formRegister.password}
-              onChange={handleRegisterChange}
+              {...registerForm.register("password")}
             />
             <input
               type="email"
               placeholder="Email"
-              name="email"
-              value={formRegister.email}
-              onChange={handleRegisterChange}
+              {...registerForm.register("email")}
             />
             <button type="submit">Đăng ký</button>
           </form>
@@ -74,10 +110,18 @@ const AuthPage = () => {
 
         {/* Form Đăng nhập */}
         <div className={`${styles.formContainer} ${styles.signIn}`}>
-          <form>
+          <form onSubmit={loginForm.handleSubmit(onSubmit)}>
             <h1>Đăng nhập</h1>
-            <input type="text" placeholder="Tài khoản" />
-            <input type="password" placeholder="Mật khẩu" />
+            <input
+              type="text"
+              placeholder="Tài khoản"
+              {...loginForm.register("userName")}
+            />
+            <input
+              type="password"
+              placeholder="Mật khẩu"
+              {...loginForm.register("password")}
+            />
             <button type="submit">Đăng nhập</button>
           </form>
         </div>
@@ -110,6 +154,16 @@ const AuthPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Toast */}
+      <MyToast
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        message={toastMessage}
+        bg={toastBg}
+        delay={3000}
+        position="top-end"
+      />
     </div>
   );
 };
