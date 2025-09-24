@@ -6,14 +6,25 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import MyToast from "../../../components/MyToast";
 import loginSchema from "@/schemas/loginSchema";
+import { Spinner } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMe } from "../../../redux/slices/authSlice";
+import { useNavigate } from "react-router-dom";
+import ROUTERS from "../../../utils/router";
 
 const AuthPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [showToast, setShowToast] = useState(false);
   const [toastBg, setToastBg] = useState("success");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const schema = isSignUp ? registerSchema : loginSchema;
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+
+  const navigate = useNavigate();
+
+  //const schema = isSignUp ? registerSchema : loginSchema;
   // Khởi tạo useForm
   // Form đăng ký
   const registerForm = useForm({
@@ -39,9 +50,25 @@ const AuthPage = () => {
       setToastBg("danger");
       setShowToast(true);
     }
-  }, [registerForm.formState.errors, loginForm.formState.errors, isSignUp]);
+
+    if (user) {
+      if (user.role.toLowerCase() === "admin") {
+        navigate(ROUTERS.ADMIN.DASHBOARD);
+      } else {
+        navigate(ROUTERS.USER.HOME);
+      }
+    }
+  }, [
+    registerForm.formState.errors,
+    loginForm.formState.errors,
+    isSignUp,
+    user,
+    navigate,
+  ]);
 
   const onSubmit = async (data) => {
+    if (isLoading) return;
+    setIsLoading(true);
     try {
       let res;
       if (isSignUp) {
@@ -50,6 +77,9 @@ const AuthPage = () => {
       } else {
         res = await authService.login(data);
         setToastMessage("Đăng nhập thành công!");
+
+        // Lưu state trong Redux và localstore
+        dispatch(fetchMe());
       }
 
       setToastBg("success");
@@ -71,6 +101,8 @@ const AuthPage = () => {
       }
       setToastBg("danger");
       setShowToast(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -104,7 +136,23 @@ const AuthPage = () => {
               placeholder="Email"
               {...registerForm.register("email")}
             />
-            <button type="submit">Đăng ký</button>
+            <button type="submit" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                  Đang xử lý...
+                </>
+              ) : (
+                "Đăng ký"
+              )}
+            </button>
           </form>
         </div>
 
@@ -122,7 +170,23 @@ const AuthPage = () => {
               placeholder="Mật khẩu"
               {...loginForm.register("password")}
             />
-            <button type="submit">Đăng nhập</button>
+            <button type="submit" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                  Đang xử lý...
+                </>
+              ) : (
+                "Đăng nhập"
+              )}
+            </button>
           </form>
         </div>
 

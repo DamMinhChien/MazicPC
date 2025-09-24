@@ -36,8 +36,8 @@ namespace MazicPC.Validators
                 .Matches("^[a-zA-ZÀ-ỹ\\s]+$").WithMessage("Họ và tên chỉ được chứa chữ cái và khoảng trắng.");
 
             RuleFor(x => x.Role)
-                    .Must(role => role == null || role == "Customer" || role == "Admin")
-                    .WithMessage("Vai trò không hợp lệ. Chỉ chấp nhận: Customer, Admin.");
+                    .Must(role => role == null || role == "User" || role == "Admin")
+                    .WithMessage("Vai trò không hợp lệ. Chỉ chấp nhận: User, Admin.");
 
             RuleFor(x => x.IsActive)
                 .Must(active => active == true || active == false || active == null)

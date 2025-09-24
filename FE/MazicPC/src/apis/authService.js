@@ -10,5 +10,15 @@ const login = async (data) => {
   return res.data;
 };
 
-const authService = { register, login };
+const logout = async (data) => {
+  const res = await axiosClient.post("logout", data);
+  return res.data;
+};
+
+const me = async () => {
+  const res = await axiosClient.get("me");
+  return res.data;
+};
+
+const authService = { register, login, logout, me };
 export default authService;
