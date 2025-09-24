@@ -4,6 +4,7 @@ using MazicPC.DTOs.Mapper;
 using MazicPC.Models;
 using MazicPC.Services;
 using MazicPC.Validators;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -29,6 +30,19 @@ builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", option =>
     {
         var config = builder.Configuration.GetSection("JwtSettings");
+
+        // Thay vì lấy token trong Header (mặc định) thì lấy trong cookie (httponly)
+        option.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Cookies["accessToken"];
+                if (!string.IsNullOrEmpty(accessToken))
+                    context.Token = accessToken;
+                return Task.CompletedTask;
+            }
+        };
+
         option.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -71,7 +85,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod();
+        policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 

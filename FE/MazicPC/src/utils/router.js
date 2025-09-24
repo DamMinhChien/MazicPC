@@ -11,6 +11,10 @@ const ROUTERS = {
   },
   COMMON: {
     AUTH: "/auth",
+    NOT_FOUND: "*",
+  },
+  ADMIN: {
+    DASHBOARD: "/admin/dashboard",
   },
 };
 

@@ -29,5 +29,5 @@ public partial class Account
 
     public virtual ICollection<ShippingAddress> ShippingAddresses { get; set; } = new List<ShippingAddress>();
 
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    public virtual User? User { get; set; }
 }

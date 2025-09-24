@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 public static class Roles
 {
     public const string Admin = "Admin";
-    public const string Customer = "Customer";
+    public const string User = "User";
 }
 
 namespace MazicPC.Controllers
@@ -57,7 +57,7 @@ namespace MazicPC.Controllers
                 Password = BCrypt.Net.BCrypt.HashPassword(account.Password),
                 Email = account.Email,
                 IsActive = true,
-                Role = Roles.Customer
+                Role = Roles.User
             };
 
             var newUser = new User
@@ -84,7 +84,7 @@ namespace MazicPC.Controllers
                 Password = BCrypt.Net.BCrypt.HashPassword(account.Password),
                 Email = account.Email,
                 IsActive = account.IsActive ?? true,
-                Role = account.Role ?? Roles.Customer
+                Role = account.Role ?? Roles.User
             };
 
             var newUser = new User

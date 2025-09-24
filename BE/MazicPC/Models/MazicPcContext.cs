@@ -56,7 +56,6 @@ public partial class MazicPcContext : DbContext
     public virtual DbSet<Spec> Specs { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -670,6 +669,8 @@ public partial class MazicPcContext : DbContext
 
             entity.ToTable("users", tb => tb.HasTrigger("trg_update_users"));
 
+            entity.HasIndex(e => e.AccountId, "UQ_users_account_id").IsUnique();
+
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AccountId).HasColumnName("account_id");
             entity.Property(e => e.Address)
@@ -693,9 +694,10 @@ public partial class MazicPcContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("updated_at");
 
-            entity.HasOne(d => d.Account).WithMany(p => p.Users)
-                .HasForeignKey(d => d.AccountId)
-                .HasConstraintName("FK__users__account_i__412EB0B6");
+            entity.HasOne(d => d.Account).WithOne(p => p.User)
+                .HasForeignKey<User>(d => d.AccountId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_users_accounts");
         });
 
         OnModelCreatingPartial(modelBuilder);
