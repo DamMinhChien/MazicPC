@@ -15,6 +15,9 @@ const ROUTERS = {
   },
   ADMIN: {
     DASHBOARD: "/admin/dashboard",
+    ACCOUNT: "/admin/account",
+    PRODUCT: "/admin/product",
+    CATEGORY: "admin/category"
   },
 };
 
