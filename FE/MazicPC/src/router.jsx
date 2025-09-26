@@ -12,6 +12,9 @@ import ChinhSachVeSinhLapTop from "./pages/user/static/chinh-sach-ve-sinh-laptop
 import AuthPage from "./pages/common/authPage";
 import NotFoundPage from "./pages/common/notFoundPage";
 import DashboardPage from "./pages/admin/dashboard";
+import Account from "./pages/admin/ContentPage/Account";
+import Product from "./pages/admin/ContentPage/Product";
+import Category from "./pages/admin/ContentPage/Category";
 
 const RouterCustom = () => {
   const userRouter = [
@@ -52,9 +55,25 @@ const RouterCustom = () => {
       component: <AuthPage />,
       layout: false,
     },
+    /* ADMIN */
     {
       path: ROUTERS.ADMIN.DASHBOARD,
       component: <DashboardPage />,
+      layout: false,
+    },
+    {
+      path: ROUTERS.ADMIN.ACCOUNT,
+      component: <Account />,
+      layout: false,
+    },
+    {
+      path: ROUTERS.ADMIN.PRODUCT,
+      component: <Product />,
+      layout: false,
+    },
+    {
+      path: ROUTERS.ADMIN.CATEGORY,
+      component: <Category />,
       layout: false,
     },
     /* Route 404 (luôn để cuối cùng) */
