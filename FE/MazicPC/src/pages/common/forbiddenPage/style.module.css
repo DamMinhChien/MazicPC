@@ -1,0 +1,160 @@
+.page {
+  margin: 0;
+  padding: 0;
+  background: #000121;
+  color: #fff;
+  font-family: "Roboto", sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.mainContainer {
+  position: relative;
+  width: min(90%, 800px);
+  aspect-ratio: 4 / 3;
+  margin-top: 40px;
+  background: url("/403/HauntedHouseBackground.png") no-repeat center;
+  background-size: cover;
+  background-position: center center;
+
+  overflow: hidden;
+}
+
+.bat {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  z-index: 3;
+}
+
+.body {
+  width: 50px;
+  margin: 0 -10px;
+}
+
+.wing {
+  width: 120px;
+}
+
+.leftWing {
+  animation: flapLeft 0.8s infinite ease-in-out;
+}
+
+.rightWing {
+  transform: scaleX(-1);
+  animation: flapRight 0.8s infinite ease-in-out;
+}
+
+.foregroundImg {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: auto;
+  z-index: 5;
+}
+
+.errorCode {
+  margin-top: 20px;
+  font-family: "Creepster", cursive;
+  font-size: clamp(3rem, 8vw, 6rem);
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+
+.errorText {
+  margin-top: 10px;
+  font-size: clamp(1rem, 3vw, 1.8rem);
+  text-align: center;
+  color: #fbd130;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: 0.3s;
+  display: inline-block;
+}
+
+.errorText:hover {
+  color: #fff;
+  text-shadow: 0 0 8px #fbd130, 0 0 15px #ffea4d;
+  transform: scale(1.05);
+}
+
+/* === Animations === */
+@keyframes flapLeft {
+  0%,
+  100% {
+    transform: rotateZ(0);
+  }
+  50% {
+    transform: rotateZ(10deg) rotateY(40deg);
+  }
+}
+
+@keyframes flapRight {
+  0%,
+  100% {
+    transform: scaleX(-1) rotateZ(0);
+  }
+  50% {
+    transform: scaleX(-1) rotateZ(10deg) rotateY(40deg);
+  }
+}
+
+.fly1 {
+  animation: fly1 12s 1s infinite linear;
+}
+
+.fly2 {
+  animation: fly2 15s 2s infinite linear;
+}
+
+.fly3 {
+  animation: fly3 18s 3s infinite linear;
+}
+
+@keyframes fly1 {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  50% {
+    transform: translate(-200%, -150%) scale(0.4);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+}
+
+@keyframes fly2 {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+  50% {
+    transform: translate(150%, -180%) scale(0.3);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+}
+
+@keyframes fly3 {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.35);
+  }
+  50% {
+    transform: translate(-250%, -120%) scale(0.35);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.35);
+  }
+}

@@ -15,6 +15,8 @@ import DashboardPage from "./pages/admin/dashboard";
 import Account from "./pages/admin/ContentPage/Account";
 import Product from "./pages/admin/ContentPage/Product";
 import Category from "./pages/admin/ContentPage/Category";
+import ProtectedRoute from "./utils/ProtectedRoute";
+import ForbiddenPage from "./pages/common/forbiddenPage";
 
 const RouterCustom = () => {
   const userRouter = [
@@ -58,7 +60,18 @@ const RouterCustom = () => {
     /* ADMIN */
     {
       path: ROUTERS.ADMIN.DASHBOARD,
-      component: <DashboardPage />,
+      component: (
+        <ProtectedRoute
+          component={<DashboardPage />}
+          allowedRoles={["admin"]}
+        />
+      ),
+      layout: false,
+    },
+    /* 403 */
+    {
+      path: ROUTERS.COMMON.FORBIDDEN,
+      component: <ForbiddenPage />,
       layout: false,
     },
     /* Route 404 (luôn để cuối cùng) */
