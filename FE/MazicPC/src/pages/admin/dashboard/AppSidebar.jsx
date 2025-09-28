@@ -17,20 +17,26 @@ import {
   cilPuzzle,
   cilSpeedometer,
 } from "@coreui/icons";
-import { Link } from "react-router-dom";
-import ROUTERS from "../../../utils/router";
 import { useDispatch } from "react-redux";
 import { setCurrentPage } from "../../../redux/slices/currentPageSlice";
+import { useEffect } from "react";
 
 const AppSidebar = () => {
   const dispatch = useDispatch();
   const handleSelect = (page) => {
     dispatch(setCurrentPage(page));
   };
+
+  useEffect(() => {
+    handleSelect("dashboard");
+  }, []);
   return (
     <CSidebar className="border-end" unfoldable>
       <CSidebarHeader className="border-bottom">
-        <CSidebarBrand as={Link} to={ROUTERS.ADMIN.ACCOUNT}>
+        <CSidebarBrand
+          onClick={() => handleSelect("dashboard")}
+          style={{ cursor: "pointer" }}
+        >
           <img
             src="/logo-black.png"
             className="sidebar-brand-narrow"

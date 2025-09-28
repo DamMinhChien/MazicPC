@@ -175,5 +175,13 @@ namespace MazicPC.Controllers
 
             return NoContent();
         }
+
+        [Authorize(Roles = Roles.Admin)]
+        [HttpGet("exist/{username}")]
+        public async Task<IActionResult> ExistAccount(string username)
+        {
+            bool isExist =  await db.Accounts.AnyAsync(acc=>acc.Username == username);
+            return Ok(isExist);
+        }
     }
 }

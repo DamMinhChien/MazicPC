@@ -71,6 +71,7 @@ const authSlice = createSlice({
       .addCase(logoutAsync.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+        localStorage.removeItem("user");
       });
   },
 });

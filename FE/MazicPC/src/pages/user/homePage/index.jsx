@@ -3,7 +3,7 @@ import BannerCarousel from "../../../components/BannerCarousel";
 import ShowRoom from "../../../components/ShowRoom";
 import CategorySection from "../../../components/CategorySection";
 import { useEffect, useState } from "react";
-import getCategoriesWithProducts from "@/apis/categoriesService";
+import categoryServices from "../../../apis/categoryService";
 
 const HomePage = () => {
   const [categories, setCategories] = useState([]);
@@ -11,7 +11,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await getCategoriesWithProducts();
+        const res = await categoryServices.getCategoriesWithProducts();
         setCategories(res.data);
       } catch (error) {
         console.error("Error fetching categories:", error);

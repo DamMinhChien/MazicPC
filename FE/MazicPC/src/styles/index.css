@@ -17,3 +17,33 @@ ul {
 :global(.nav-link) {
   text-decoration: none;
 }
+
+/* Luôn hiện thanh cuộn ngang cho mọi table-container */
+.table-scroll-x {
+  width: 100%;
+  max-width: 90vw; /* Giới hạn chiều rộng tối đa */
+  overflow-x: auto !important;
+  background: #f8f9fa;
+}
+.table-scroll-x table {
+  background: #fff;
+}
+
+.wrapper,
+.body,
+.container-fluid {
+  width: 100% !important;
+}
+
+/* Thêm vào file App.css hoặc tương ứng */
+.custom-switch-lg .form-check-input {
+  width: 3rem !important;
+  height: 1.5rem;
+}
+.custom-switch-lg .form-check-input:checked {
+  background-color: #198754;
+}
+.custom-switch-lg .form-check-label {
+  font-size: 1.2rem;
+  margin-left: 0.75rem;
+}
