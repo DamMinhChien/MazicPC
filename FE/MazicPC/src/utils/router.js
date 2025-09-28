@@ -12,12 +12,10 @@ const ROUTERS = {
   COMMON: {
     AUTH: "/auth",
     NOT_FOUND: "*",
+    FORBIDDEN: "/403",
   },
   ADMIN: {
     DASHBOARD: "/admin/dashboard",
-    ACCOUNT: "/admin/account",
-    PRODUCT: "/admin/product",
-    CATEGORY: "admin/category"
   },
 };
 
