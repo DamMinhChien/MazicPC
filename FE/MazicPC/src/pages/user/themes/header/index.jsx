@@ -5,7 +5,7 @@ import {
   NavDropdown,
   Offcanvas,
 } from "react-bootstrap";
-import { FaShoppingCart } from "react-icons/fa";
+import { FaShoppingCart } from "react-icons/fa"; 
 import { IoPerson } from "react-icons/io5";
 import "./header.css";
 import { useDispatch, useSelector } from "react-redux";
