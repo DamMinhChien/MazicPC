@@ -12,8 +12,7 @@ const Account = () => {
   const [error, setError] = useState("");
 
   // ------------------- Gọi API thành công -------------------
-  const [success, setSuccess] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
+  const [success, setSuccess] = useState("");
 
   useEffect(() => {
     const fetAccounts = async () => {
@@ -26,6 +25,7 @@ const Account = () => {
         setError(err.message || "Có lỗi xảy ra khi tải tài khoản");
       } finally {
         setLoading(false);
+        setError("");
       }
     };
     fetAccounts();
@@ -43,47 +43,69 @@ const Account = () => {
       label: "Vai trò",
       type: "select",
       options: [
-        { value: "user", label: "User" },
-        { value: "admin", label: "Admin" },
+        { value: "User", label: "User" },
+        { value: "Admin", label: "Admin" },
       ],
     },
     { name: "isActive", label: "Kích hoạt", type: "switch" },
   ];
 
   // --------------------- Xử lý logic Form ------------------------------------
-  const handleAdd = (data) => {};
-  const handleEdit = (data) => {};
+  const handleAdd = async (acc) => {
+    console.log("Thêm tài khoản từ Account.jsx:", acc);
+    try {
+      setLoading(true);
+      const res = await accountServices.createAccount(acc);
+      setSuccess("Thêm tài khoản thành công");
+      setAccounts((prev) => [...prev, res]);
+    } catch (error) {
+      setLoading(false);
+      const errors = error.response?.data || error.message;
+      if (Array.isArray(errors)) {
+        setError(errors.map((e) => e.message).join(", "));
+      } else {
+        setError(errors.message || error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleEdit = (acc) => {};
   const handleDel = (id) => {};
   const handleDelMany = (ids) => {};
 
   return (
     <>
       <SubmitContext.Provider
-        value={{title, handleAdd, handleEdit, handleDel, handleDelMany }}
+        value={{ title, handleAdd, handleEdit, handleDel, handleDelMany }}
       >
-        <AdminLayout
-          data={accounts}
-          fields={fields}
-          schema={accountSchema}
-        />
+        <AdminLayout data={accounts} fields={fields} schema={accountSchema} />
       </SubmitContext.Provider>
 
-      {/* Toast hiển thị lỗi */}
+      {/* <MyToast
+        show={!!error || !!success}
+        onClose={() => {
+          setError("");
+          setSuccess("");
+        }}
+        message={error || success}
+        title={error ? "Lỗi" : "Thành công"}
+        bg={error ? "danger" : "success"}
+      /> */}
+
       <MyToast
-        show={!!error}
-        onClose={() => setError("")}
-        message={error}
         title="Lỗi"
         bg="danger"
+        show={!!error}
+        message={error}
+        onClose={() => setError("")}
       />
-
-      {/* Toast hiển thị thành công */}
       <MyToast
-        show={success}
-        onClose={() => setSuccess(false)}
-        message={successMessage}
         title="Thành công"
         bg="success"
+        show={!!success}
+        message={success}
+        onClose={() => setSuccess("")}
       />
 
       <MyFullSpinner show={loading} />

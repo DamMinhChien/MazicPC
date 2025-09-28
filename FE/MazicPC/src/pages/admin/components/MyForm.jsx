@@ -33,6 +33,7 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
       handleEdit(data);
     } else {
       handleAdd(data);
+      console.log("Thêm từ MyForm:", data);
     }
   };
 
@@ -98,6 +99,7 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
 
       <div className="d-flex gap-2 align-items-center justify-content-center mt-5">
         <ButtonIcon
+          type="submit"
           bg={mode === "edit" ? "warning" : "success"}
           label={mode === "edit" ? "Cập nhật" : "Thêm mới"}
           icon={mode === "edit" ? <FaEdit /> : <FaPlus />}
