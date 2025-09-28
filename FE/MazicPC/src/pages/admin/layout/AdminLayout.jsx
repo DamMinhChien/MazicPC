@@ -1,24 +1,32 @@
-import React, { memo, useState } from "react";
+import { useState, useContext } from "react";
 import { Container, Form } from "react-bootstrap";
-import { useSelector } from "react-redux";
-import SearchBar from "../components/SearchBar";
-import ButtonIcon from "../../../components/ButtonIcon";
-import { FaPlus, FaTrashAlt } from "react-icons/fa";
+import { FaTrashAlt, FaPlus } from "react-icons/fa";
+import SubmitContext from "@utils/SubmitContext";
 import DataTable from "../components/DataTable";
 import MyOffcanvas from "../components/MyOffcanvas";
+import ButtonIcon from "@components/ButtonIcon";
+import ConfirmModal from "@components/ConfirmModal";
+import SearchBar from "../components/SearchBar";
 
-const AdminLayout = ({ title, data, fields, schema }) => {
+const AdminLayout = ({ data, fields, schema, onSubmit }) => {
   const [pageSize, setPageSize] = useState(10);
   const [globalFilter, setGlobalFilter] = useState("");
-  // state cho form
+
+  // form state
   const [showForm, setShowForm] = useState(false);
   const [editData, setEditData] = useState(null);
+
+  // confirm delete state
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+
+  // lấy title, handleDel, handleDelMany từ context
+  const { title, handleDel, handleDelMany } = useContext(SubmitContext);
 
   // mở form thêm
   const handleAdd = () => {
     setEditData(null);
     setShowForm(true);
-    console.log("editData", editData);
   };
 
   // mở form sửa
@@ -26,8 +34,22 @@ const AdminLayout = ({ title, data, fields, schema }) => {
     setEditData(row);
     setShowForm(true);
   };
-  // xóa
-  const handleDelete = (row) => console.log("Delete", row);
+
+  // mở confirm xoá
+  const handleDelete = (id) => {
+    setDeleteId(id);
+    setShowConfirm(true);
+  };
+
+  // xác nhận xoá
+  const confirmDelete = () => {
+    if (deleteId) {
+      handleDel(deleteId);
+    }
+    setShowConfirm(false);
+    setDeleteId(null);
+  };
+
   const handleSearch = (q) => setGlobalFilter(q);
 
   return (
@@ -38,7 +60,7 @@ const AdminLayout = ({ title, data, fields, schema }) => {
         className="d-flex justify-content-between align-items-center px-4 py-2 bg-dark"
       >
         <div className="d-flex gap-3 align-items-center">
-          <h5 style={{ whiteSpace: "nowrap" }} className="text-white mb-0">{`Quản lý ${title}`}</h5>
+          <h5 className="text-white mb-0">{`Quản lý ${title}`}</h5>
           <Form.Select
             className="bg-info text-light"
             size="sm"
@@ -50,20 +72,35 @@ const AdminLayout = ({ title, data, fields, schema }) => {
             <option value={20}>20 / trang</option>
           </Form.Select>
         </div>
-        
+
         <SearchBar onSearch={handleSearch} />
         <div className="d-flex gap-2">
-          <ButtonIcon bg="danger" icon={<FaTrashAlt />} label="Xóa" />
-          <ButtonIcon bg="success" icon={<FaPlus />} onClick={handleAdd} label="Thêm mới" />
+          {/* Xoá nhiều */}
+          <ButtonIcon
+            bg="danger"
+            icon={<FaTrashAlt />}
+            label="Xóa"
+            onClick={() => {
+              if (window.confirm("Bạn có chắc chắn muốn xoá các mục đã chọn?")) {
+                handleDelMany();
+              }
+            }}
+          />
+          {/* Thêm mới */}
+          <ButtonIcon
+            bg="success"
+            icon={<FaPlus />}
+            onClick={handleAdd}
+            label="Thêm mới"
+          />
         </div>
       </Container>
 
       {/* table */}
       <DataTable
         data={data}
-        onAdd={handleAdd}
         onEdit={handleEdit}
-        onDelete={handleDelete}
+        onDelete={handleDelete} // xoá 1 bản ghi
         pageSize={pageSize}
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
@@ -82,6 +119,14 @@ const AdminLayout = ({ title, data, fields, schema }) => {
           setShowForm(false);
         }}
         mode={editData ? "edit" : "add"}
+      />
+
+      {/* confirm modal */}
+      <ConfirmModal
+        message={`Bạn có chắc chắn muốn xóa ${title} này không?`}
+        show={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        onConfirm={confirmDelete}
       />
     </>
   );

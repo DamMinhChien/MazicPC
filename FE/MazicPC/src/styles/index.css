@@ -47,3 +47,29 @@ ul {
   font-size: 1.2rem;
   margin-left: 0.75rem;
 }
+
+.table-scroll-x {
+  overflow-x: auto; /* Cho phép scroll ngang */
+}
+
+/* Sticky cột đầu tiên (checkbox chọn) */
+.table-scroll-x table th:first-child,
+.table-scroll-x table td:first-child {
+  position: sticky;
+  left: 0;
+  background: #fff;   /* nền trắng để che nội dung trôi bên dưới */
+  z-index: 3;
+}
+
+/* Sticky cột cuối cùng (Thao tác) */
+.table-scroll-x table th:last-child,
+.table-scroll-x table td:last-child {
+  position: sticky;
+  right: 0;
+  background: #fff;
+  z-index: 2;
+}
+
+.table-scroll-x table th:last-child {
+  z-index: 4; /* header phải nổi hơn cell */
+}

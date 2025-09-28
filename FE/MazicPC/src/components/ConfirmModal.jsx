@@ -7,7 +7,7 @@ const ConfirmModal = ({ show, title, message, onClose, onConfirm }) => {
       <Modal.Header closeButton>
         <Modal.Title>{title || "Xác nhận"}</Modal.Title>
       </Modal.Header>
-      <Modal.Body>{message || "Bạn có chắc chắn?"}</Modal.Body>
+      <Modal.Body>{message || "Bạn có chắc chắn?"}</Modal.Body> 
       <Modal.Footer>
         <Button variant="secondary" onClick={onClose}>
           Hủy

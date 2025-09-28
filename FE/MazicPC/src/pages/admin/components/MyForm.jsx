@@ -3,9 +3,10 @@ import ButtonIcon from "../../../components/ButtonIcon";
 import { FaBroom, FaEdit, FaPlus } from "react-icons/fa";
 import { Row, Col, Form } from "react-bootstrap";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
+import SubmitContext from "@utils/SubmitContext";
 
-const MyForm = ({ schema, defaultValues, fields, onSubmit, mode }) => {
+const MyForm = ({ schema, defaultValues, fields, mode }) => {
   const {
     register,
     handleSubmit,
@@ -24,6 +25,16 @@ const MyForm = ({ schema, defaultValues, fields, onSubmit, mode }) => {
       setFocus(fields[0].name);
     }
   }, [fields, setFocus]);
+
+  const { handleAdd, handleEdit } = useContext(SubmitContext);
+
+  const onSubmit = (data) => {
+    if (mode === "edit") {
+      handleEdit(data);
+    } else {
+      handleAdd(data);
+    }
+  };
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
