@@ -43,7 +43,7 @@ const accountSchema = z.object({
       message: "Họ và tên chỉ được chứa chữ cái và khoảng trắng.",
     }),
 
-  role: z.enum(["user", "admin"], {
+  role: z.enum(["User", "Admin"], {
     message: "Vai trò không hợp lệ. Chỉ chấp nhận: User, Admin.",
   }),
 

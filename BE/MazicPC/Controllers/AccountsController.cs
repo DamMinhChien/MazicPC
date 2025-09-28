@@ -178,10 +178,11 @@ namespace MazicPC.Controllers
 
         [Authorize(Roles = Roles.Admin)]
         [HttpGet("exist/{username}")]
-        public async Task<IActionResult> ExistAccount(string username)
+        public async Task<IActionResult> ExistAccount(string? username)
         {
+            if (string.IsNullOrEmpty(username)) username = string.Empty;
             bool isExist =  await db.Accounts.AnyAsync(acc=>acc.Username == username);
-            return Ok(isExist);
+            return Ok(!isExist);
         }
     }
 }
