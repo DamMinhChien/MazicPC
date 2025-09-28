@@ -4,10 +4,17 @@ import accountServices from "../../../apis/accountService";
 import MyToast from "../../../components/MyToast";
 import MyFullSpinner from "@components/MyFullSpinner";
 import accountSchema from "../../../schemas/admin/postAccountSchema";
+import SubmitContext from "@utils/SubmitContext";
+
 const Account = () => {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // ------------------- Gọi API thành công -------------------
+  const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
   useEffect(() => {
     const fetAccounts = async () => {
       try {
@@ -24,19 +31,42 @@ const Account = () => {
     fetAccounts();
   }, []);
 
+  const title = "tài khoản";
   // ------------------- Các trường input -------------------
   const fields = [
-    { name: "username", label: "Tên đăng nhập"},
+    { name: "username", label: "Tên đăng nhập" },
     { name: "email", label: "Email" },
     { name: "password", label: "Mật khẩu" },
     { name: "fullName", label: "Họ và tên" },
-    { name: "role", label: "Vai trò" , type: "select", options: [{ value: "user", label: "User" }, { value: "admin", label: "Admin" }]},
+    {
+      name: "role",
+      label: "Vai trò",
+      type: "select",
+      options: [
+        { value: "user", label: "User" },
+        { value: "admin", label: "Admin" },
+      ],
+    },
     { name: "isActive", label: "Kích hoạt", type: "switch" },
   ];
 
+  // --------------------- Xử lý logic Form ------------------------------------
+  const handleAdd = (data) => {};
+  const handleEdit = (data) => {};
+  const handleDel = (id) => {};
+  const handleDelMany = (ids) => {};
+
   return (
     <>
-      <AdminLayout title="tài khoản" data={accounts} fields={fields} schema={accountSchema}/>
+      <SubmitContext.Provider
+        value={{title, handleAdd, handleEdit, handleDel, handleDelMany }}
+      >
+        <AdminLayout
+          data={accounts}
+          fields={fields}
+          schema={accountSchema}
+        />
+      </SubmitContext.Provider>
 
       {/* Toast hiển thị lỗi */}
       <MyToast
@@ -45,6 +75,15 @@ const Account = () => {
         message={error}
         title="Lỗi"
         bg="danger"
+      />
+
+      {/* Toast hiển thị thành công */}
+      <MyToast
+        show={success}
+        onClose={() => setSuccess(false)}
+        message={successMessage}
+        title="Thành công"
+        bg="success"
       />
 
       <MyFullSpinner show={loading} />

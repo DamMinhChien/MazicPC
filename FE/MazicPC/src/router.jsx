@@ -61,21 +61,6 @@ const RouterCustom = () => {
       component: <DashboardPage />,
       layout: false,
     },
-    {
-      path: ROUTERS.ADMIN.ACCOUNT,
-      component: <Account />,
-      layout: false,
-    },
-    {
-      path: ROUTERS.ADMIN.PRODUCT,
-      component: <Product />,
-      layout: false,
-    },
-    {
-      path: ROUTERS.ADMIN.CATEGORY,
-      component: <Category />,
-      layout: false,
-    },
     /* Route 404 (luôn để cuối cùng) */
     {
       path: ROUTERS.COMMON.NOT_FOUND,

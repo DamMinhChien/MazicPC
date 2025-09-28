@@ -12,6 +12,7 @@ export default defineConfig({
       "@styles": path.resolve(__dirname, "src/styles"),
       "@public": path.resolve(__dirname, "public"),
       "@api": path.resolve(__dirname, "src/api"),
+      "@utils": path.resolve(__dirname, "src/utils"),
     },
   },
 });

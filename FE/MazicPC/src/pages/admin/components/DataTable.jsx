@@ -113,7 +113,7 @@ const DataTable = ({
               bg={"danger"}
               label="Xóa"
               size="sm"
-              onClick={() => onDelete(row.original)}
+              onClick={() => onDelete(row.original.id)}
               icon={<FaTrash />}
             />
           </div>
