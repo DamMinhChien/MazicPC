@@ -8,9 +8,9 @@ namespace MazicPC.DTOs.Mapper
     {
         public AccountProfile()
         {   // a--->b
-            CreateMap<Account, GetAccountDto>();
+            CreateMap<Account, GetAccountDto>().ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User!.FullName)); ;
             CreateMap<Account, UserPutAccountDto>();
-            CreateMap<UserPutAccountDto, Account>()
+            CreateMap<AdminPutAccountDto, Account>().ForPath(dest => dest.User!.FullName, opt => opt.MapFrom(src => src.FullName))
            .ForAllMembers(opts =>
                opts.Condition((src, dest, srcMember) => srcMember != null));
         }

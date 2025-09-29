@@ -12,9 +12,6 @@ import ChinhSachVeSinhLapTop from "./pages/user/static/chinh-sach-ve-sinh-laptop
 import AuthPage from "./pages/common/authPage";
 import NotFoundPage from "./pages/common/notFoundPage";
 import DashboardPage from "./pages/admin/dashboard";
-import Account from "./pages/admin/ContentPage/Account";
-import Product from "./pages/admin/ContentPage/Product";
-import Category from "./pages/admin/ContentPage/Category";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import ForbiddenPage from "./pages/common/forbiddenPage";
 

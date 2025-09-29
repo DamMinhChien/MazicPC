@@ -8,7 +8,7 @@ import ButtonIcon from "@components/ButtonIcon";
 import ConfirmModal from "@components/ConfirmModal";
 import SearchBar from "../components/SearchBar";
 
-const AdminLayout = ({ data, fields, schema, onSubmit }) => {
+const AdminLayout = ({ data, fields, postSchema, putSchema, onSubmit }) => {
   const [pageSize, setPageSize] = useState(10);
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -111,7 +111,8 @@ const AdminLayout = ({ data, fields, schema, onSubmit }) => {
         show={showForm}
         onHide={() => setShowForm(false)}
         title={title}
-        schema={schema}
+        postSchema={postSchema}
+        putSchema={putSchema}
         defaultValues={editData || {}}
         fields={fields}
         onSubmit={(formData) => {

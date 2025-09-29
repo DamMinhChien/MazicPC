@@ -5,7 +5,8 @@ const MyOffcanvas = ({
   show,
   onHide,
   title,
-  schema,
+  postSchema,
+  putSchema,
   fields,
   defaultValues,
   onSubmit,
@@ -27,7 +28,7 @@ const MyOffcanvas = ({
       </Offcanvas.Header>
       <Offcanvas.Body>
         <MyForm
-          schema={schema}
+          schema={mode === "edit" ? putSchema : postSchema}
           defaultValues={defaultValues}
           fields={fields}
           onSubmit={(formData) => {

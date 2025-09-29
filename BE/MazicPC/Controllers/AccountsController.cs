@@ -32,7 +32,7 @@ namespace MazicPC.Controllers
         [Authorize(Roles = Roles.Admin)]
         public async Task<ActionResult<IEnumerable<GetAccountDto>>> GetAccounts()
         {
-            var accounts = await db.Accounts.ToListAsync();
+            var accounts = await db.Accounts.Include(acc=>acc.User).ToListAsync();
             return Ok(mapper.Map<IEnumerable<GetAccountDto>>(accounts));
         }
 
@@ -133,8 +133,17 @@ namespace MazicPC.Controllers
                 if (account.Role != acc.Role || account.IsActive != acc.IsActive)
                     return Forbid("Không thể thay đổi Role hoặc trạng thái tài khoản của chính mình.");
 
-            mapper.Map(account, acc);
-            acc.Password = BCrypt.Net.BCrypt.HashPassword(account.Password);
+            //mapper.Map(account, acc);
+            acc.Username = account.Username;
+            acc.Email = account.Email;
+            acc.Password = string.IsNullOrEmpty(account.Password)
+                ? acc.Password
+                : BCrypt.Net.BCrypt.HashPassword(account.Password);
+            acc.User.FullName = account.FullName;
+            acc.Role = account.Role;
+            acc.IsActive = account.IsActive ?? acc.IsActive;
+
+
 
             await db.SaveChangesAsync();
 
