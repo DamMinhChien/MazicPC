@@ -1,15 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  useReactTable,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel, 
-  getPaginationRowModel,
-  flexRender,
-} from "@tanstack/react-table";
+import { useState, useEffect, useMemo } from "react";
 import { Table, Form, Button } from "react-bootstrap";
+import { useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from "@tanstack/react-table";
+import { FaSort, FaSortUp, FaSortDown, FaEdit, FaTrash } from "react-icons/fa";
 import ButtonIcon from "../../../components/ButtonIcon";
-import { FaEdit, FaTrash, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 
 const DataTable = ({
   data,
@@ -18,30 +11,24 @@ const DataTable = ({
   pageSize = 10,
   globalFilter,
   onGlobalFilterChange,
+  selectedIds,
+  onSelectedIdsChange,
 }) => {
-  const [selectedIds, setSelectedIds] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: pageSize,
-  });
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize });
 
-  // auto toggle checkbox "chọn tất cả"
+  // Toggle checkbox "select all"
   useEffect(() => {
-    setSelectAll(selectedIds.length === data.length);
+    setSelectAll(selectedIds.length === data.length && data.length > 0);
   }, [selectedIds, data]);
 
   useEffect(() => {
-    setPagination((prev) => ({
-      ...prev,
-      pageSize: pageSize,
-    }));
+    setPagination((prev) => ({ ...prev, pageSize }));
   }, [pageSize]);
 
+  // Render cell tùy loại dữ liệu
   const renderCell = (value) => {
-    if (typeof value === "boolean") {
-      return <Form.Check type="checkbox" checked={value} disabled />;
-    }
+    if (typeof value === "boolean") return <Form.Check type="checkbox" checked={value} disabled />;
     if (typeof value === "object" && value !== null) {
       const keys = Object.keys(value);
       if (keys.length >= 2) {
@@ -56,15 +43,15 @@ const DataTable = ({
     return value?.toString();
   };
 
+  // Columns
   const columns = useMemo(() => {
-    const baseCols =
-      data && data.length > 0
-        ? Object.keys(data[0]).map((key) => ({
-            header: key,
-            accessorKey: key,
-            cell: (info) => renderCell(info.getValue()),
-          }))
-        : [];
+    const baseCols = data && data.length > 0
+      ? Object.keys(data[0]).map((key) => ({
+          header: key,
+          accessorKey: key,
+          cell: (info) => renderCell(info.getValue()),
+        }))
+      : [];
 
     return [
       {
@@ -74,11 +61,8 @@ const DataTable = ({
             type="checkbox"
             checked={selectAll}
             onChange={() => {
-              if (selectAll) {
-                setSelectedIds([]);
-              } else {
-                setSelectedIds(data.map((row) => row.id));
-              }
+              if (selectAll) onSelectedIdsChange([]);
+              else onSelectedIdsChange(data.map((row) => row.id));
               setSelectAll(!selectAll);
             }}
           />
@@ -89,9 +73,10 @@ const DataTable = ({
             checked={selectedIds.includes(row.original.id)}
             onChange={() => {
               const id = row.original.id;
-              setSelectedIds((prev) =>
-                prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-              );
+              const newSelected = selectedIds.includes(id)
+                ? selectedIds.filter(x => x !== id)
+                : [...selectedIds, id];
+              onSelectedIdsChange(newSelected);
             }}
           />
         ),
@@ -103,35 +88,29 @@ const DataTable = ({
         cell: ({ row }) => (
           <div className="d-flex gap-2 justify-content-center">
             <ButtonIcon
-              bg={"warning"}
+              bg="warning"
               label="Sửa"
               size="sm"
-              onClick={() => {
-                console.log("row.original:", row.original);
-                onEdit(row.original);
-              }}
               icon={<FaEdit />}
+              onClick={() => onEdit(row.original)}
             />
             <ButtonIcon
-              bg={"danger"}
+              bg="danger"
               label="Xóa"
               size="sm"
-              onClick={() => onDelete(row.original.id)}
               icon={<FaTrash />}
+              onClick={() => onDelete(row.original.id)}
             />
           </div>
         ),
       },
     ];
-  }, [data, selectAll, selectedIds]);
+  }, [data, selectedIds, selectAll]);
 
   const table = useReactTable({
     data,
     columns,
-    state: {
-      globalFilter,
-      pagination,
-    },
+    state: { globalFilter, pagination },
     onGlobalFilterChange,
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
@@ -141,6 +120,7 @@ const DataTable = ({
   });
 
   if (!data || data.length === 0) return <p>Không có dữ liệu</p>;
+
   return (
     <div className="table-scroll-x">
       <Table striped bordered hover>
@@ -153,29 +133,14 @@ const DataTable = ({
                   <th
                     key={header.id}
                     style={{ cursor: canSort ? "pointer" : "default" }}
-                    onClick={
-                      canSort
-                        ? header.column.getToggleSortingHandler()
-                        : undefined
-                    }
+                    onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
                   >
                     <div className="d-flex justify-content-between align-items-center">
+                      <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
                       <span>
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                      </span>
-                      <span>
-                        {canSort && !header.column.getIsSorted() && (
-                          <FaSort className="ms-2 text-primary" />
-                        )}
-                        {header.column.getIsSorted() === "asc" && (
-                          <FaSortUp className="ms-2 text-primary" />
-                        )}
-                        {header.column.getIsSorted() === "desc" && (
-                          <FaSortDown className="ms-2 text-primary" />
-                        )}
+                        {canSort && !header.column.getIsSorted() && <FaSort className="ms-2 text-primary" />}
+                        {header.column.getIsSorted() === "asc" && <FaSortUp className="ms-2 text-primary" />}
+                        {header.column.getIsSorted() === "desc" && <FaSortDown className="ms-2 text-primary" />}
                       </span>
                     </div>
                   </th>
@@ -184,11 +149,11 @@ const DataTable = ({
             </tr>
           ))}
         </thead>
-        <tbody className="table-group-divider">
+        <tbody>
           {table.getRowModel().rows.map((row) => (
             <tr key={row.id}>
               {row.getVisibleCells().map((cell) => (
-                <td style={{ whiteSpace: "nowrap" }} key={cell.id}>
+                <td key={cell.id} style={{ whiteSpace: "nowrap" }}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
@@ -197,11 +162,10 @@ const DataTable = ({
         </tbody>
       </Table>
 
-      {/* pagination */}
+      {/* Pagination */}
       <div className="d-flex justify-content-between align-items-center mt-2">
         <div>
-          Trang {table.getState().pagination.pageIndex + 1} /{" "}
-          {table.getPageCount()}
+          Trang {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
         </div>
         <div className="d-flex gap-2">
           <Button
