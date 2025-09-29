@@ -7,10 +7,20 @@ const MyToast = ({
   title = "Thông báo",
   bg = "danger",
   delay = 3000,
-  position = "top-end",
+  position = "top-end", // top-start, top-end, bottom-start, bottom-end
 }) => {
+  // map position prop sang style fixed
+  const positionStyle = {
+    position: "fixed",
+    zIndex: 9999,
+    top: position.includes("top") ? "1rem" : "auto",
+    bottom: position.includes("bottom") ? "1rem" : "auto",
+    right: position.includes("end") ? "1rem" : "auto",
+    left: position.includes("start") ? "1rem" : "auto",
+  };
+
   return (
-    <ToastContainer position={position} className="p-3">
+    <ToastContainer className="p-0" style={positionStyle}>
       <Toast
         show={show}
         onClose={onClose}

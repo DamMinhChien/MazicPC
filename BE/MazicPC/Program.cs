@@ -24,7 +24,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(Program));
 // ConnectionString
 builder.Services.AddDbContext<MazicPcContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .UseLazyLoadingProxies());
 // Jwt config
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", option =>

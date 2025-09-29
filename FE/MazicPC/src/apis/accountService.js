@@ -17,13 +17,11 @@ const createAccount = async (account) => {
 }
 
 const updateAccount = async (account) => {
-  const res = await axiosClient.put(`accounts/${account.id}`, account);
-  return res.data;
+  await axiosClient.put(`accounts/${account.id}`, account);
 }
 
 const deleteAccount = async (id) => {
-  const res = await axiosClient.delete(`accounts/${id}`);
-  return res.data;
+  await axiosClient.delete(`accounts/${id}`);
 }
 
 const accountServices = { getAccounts, isExistAccount, createAccount, updateAccount, deleteAccount };

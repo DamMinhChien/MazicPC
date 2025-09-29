@@ -30,22 +30,40 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
 
   const onSubmit = (data) => {
     if (mode === "edit") {
+      // console.log("Sửa từ MyForm:", data);
+      // console.log("DefaultValues:", defaultValues);
+      // console.log("fields:", fields);
+      // console.log("schema:", Object.keys(schema.shape));
       handleEdit(data);
     } else {
-      handleAdd(data);
-      console.log("Thêm từ MyForm:", data);
+      // Không gửi id khi thêm mới
+      const { id, ...rest } = data;
+      handleAdd(rest);
+      console.log("Thêm từ MyForm:", rest);
     }
   };
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
+      {/* Hidden fields */}
+      {fields
+        .filter((f) => f.type === "hidden")
+        .map((field) => (
+          <input
+            key={field.name}
+            type="hidden"
+            {...register(field.name)}
+          />
+        ))}
+
       <Row>
-        {fields.map((field) => {
-          //console.log("Field:", field.name, "Type:", field.type);
-          return (
+        {fields
+          .filter((f) => f.type !== "hidden")
+          .map((field) => (
             <Col md={6} key={field.name}>
               <Form.Group className="mb-3">
                 <Form.Label>{field.label}</Form.Label>
+
                 {field.type === "select" ? (
                   <Form.Select
                     {...register(field.name)}
@@ -58,6 +76,14 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
                       </option>
                     ))}
                   </Form.Select>
+                ) : field.type === "disabled" ? (
+                  <>
+                    <Form.Control
+                      type="text"
+                      {...register(field.name)}
+                      
+                    />
+                  </>
                 ) : field.type === "checkbox" ? (
                   <Form.Check
                     type="checkbox"
@@ -69,7 +95,7 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
                   <Form.Check
                     type="switch"
                     className="custom-switch-lg"
-                    size={"lg"}
+                    size="lg"
                     label={field.label}
                     {...register(field.name)}
                     isInvalid={!!errors[field.name]}
@@ -88,13 +114,13 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
                     isInvalid={!!errors[field.name]}
                   />
                 )}
+
                 <Form.Control.Feedback type="invalid">
                   {errors[field.name]?.message}
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>
-          );
-        })}
+          ))}
       </Row>
 
       <div className="d-flex gap-2 align-items-center justify-content-center mt-5">
@@ -107,7 +133,7 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
         <ButtonIcon
           bg="secondary"
           label="Nhập lại"
-          onClick={() => reset(defaultValues)}
+          onClick={() => mode === "edit" ? reset(defaultValues) : reset()}
           icon={<FaBroom />}
         />
       </div>

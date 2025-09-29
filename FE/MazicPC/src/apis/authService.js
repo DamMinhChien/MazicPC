@@ -20,5 +20,10 @@ const me = async () => {
   return res.data;
 };
 
-const authService = { register, login, logout, me };
+const isLogin = async () => {
+  const res = await axiosClient.get("status");
+  return res.data;
+}
+
+const authService = { register, login, logout, me, isLogin };
 export default authService;

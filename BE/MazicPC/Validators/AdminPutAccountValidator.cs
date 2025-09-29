@@ -14,8 +14,7 @@ namespace MazicPC.Validators
             // Username
             RuleFor(x => x.Username)
                     .NotEmpty().WithMessage("Tên đăng nhập không được để trống.")
-                    .MinimumLength(3).WithMessage("Tên đăng nhập phải có ít nhất 3 ký tự.")
-                    .MustAsync(async (username, context, _) => !await db.Accounts.AnyAsync(a => a.Username == username.Username)).WithMessage("Tên đăng nhập đã tồn tại."); ;
+                    .MinimumLength(3).WithMessage("Tên đăng nhập phải có ít nhất 3 ký tự.");
 
             // Email
             RuleFor(x => x.Email)

@@ -1,6 +1,7 @@
 ﻿using BCrypt.Net;
 using MazicPC.DTOs.AuthenticationDTO;
 using MazicPC.Models;
+using MazicPC.Extensions;
 using MazicPC.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -95,5 +96,12 @@ namespace MazicPC.Controllers
             return Ok("Đăng xuất thành công!");
         }
 
+        [HttpGet]
+        [Route("api/status")]
+        public IActionResult IsLogin()
+        {
+            bool isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+            return Ok(isAuthenticated);
+        }
     }
 }

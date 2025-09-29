@@ -3,7 +3,7 @@ import {
   useReactTable,
   getCoreRowModel,
   getFilteredRowModel,
-  getSortedRowModel,
+  getSortedRowModel, 
   getPaginationRowModel,
   flexRender,
 } from "@tanstack/react-table";
@@ -106,7 +106,10 @@ const DataTable = ({
               bg={"warning"}
               label="Sửa"
               size="sm"
-              onClick={() => onEdit(row.original)}
+              onClick={() => {
+                console.log("row.original:", row.original);
+                onEdit(row.original);
+              }}
               icon={<FaEdit />}
             />
             <ButtonIcon
