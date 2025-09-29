@@ -108,7 +108,24 @@ const Account = () => {
       setLoading(false);
     }
   };
-  const handleDelMany = (ids) => {};
+  const handleDelMany = async (ids) => {
+    try {
+      setLoading(true);
+      await accountServices.deleteAccounts(ids);
+      setSuccess(`Xóa thành công ${ids.length} tài khoản`);
+      fetAccounts();
+    } catch (error) {
+      setLoading(false);
+      const errors = error.response?.data || error.message;
+      if (Array.isArray(errors)) {
+        setError(errors.map((e) => e.message).join(", "));
+      } else {
+        setError(errors.message || error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>

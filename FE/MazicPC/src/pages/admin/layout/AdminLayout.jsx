@@ -7,10 +7,25 @@ import MyOffcanvas from "../components/MyOffcanvas";
 import ButtonIcon from "@components/ButtonIcon";
 import ConfirmModal from "@components/ConfirmModal";
 import SearchBar from "../components/SearchBar";
+import MyToast from "../../../components/MyToast";
 
 const AdminLayout = ({ data, fields, postSchema, putSchema, onSubmit }) => {
   const [pageSize, setPageSize] = useState(10);
   const [globalFilter, setGlobalFilter] = useState("");
+
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [error, setError] = useState("");
+
+  // form state delete multiple
+  const [showConfirmBulk, setShowConfirmBulk] = useState(false);
+  const confirmDeleteBulk = () => {
+    if (selectedIds.length > 0) {
+      handleDelMany(selectedIds);
+      setSelectedIds([]);
+    }
+    setShowConfirmBulk(false);
+    setError("");
+  };
 
   // form state
   const [showForm, setShowForm] = useState(false);
@@ -81,9 +96,11 @@ const AdminLayout = ({ data, fields, postSchema, putSchema, onSubmit }) => {
             icon={<FaTrashAlt />}
             label="Xóa"
             onClick={() => {
-              if (window.confirm("Bạn có chắc chắn muốn xoá các mục đã chọn?")) {
-                handleDelMany();
+              if (selectedIds.length === 0) {
+                setError("Vui lòng chọn ít nhất 1 mục để xóa");
+                return;
               }
+              setShowConfirmBulk(true);
             }}
           />
           {/* Thêm mới */}
@@ -101,6 +118,8 @@ const AdminLayout = ({ data, fields, postSchema, putSchema, onSubmit }) => {
         data={data}
         onEdit={handleEdit}
         onDelete={handleDelete} // xoá 1 bản ghi
+        selectedIds={selectedIds}
+        onSelectedIdsChange={setSelectedIds}
         pageSize={pageSize}
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
@@ -128,6 +147,22 @@ const AdminLayout = ({ data, fields, postSchema, putSchema, onSubmit }) => {
         show={showConfirm}
         onClose={() => setShowConfirm(false)}
         onConfirm={confirmDelete}
+      />
+
+      {/* confirm modal */}
+      <ConfirmModal
+        message={`Bạn có chắc chắn muốn xóa ${selectedIds.length} ${title} này không?`}
+        show={showConfirmBulk}
+        onClose={() => setShowConfirmBulk(false)}
+        onConfirm={confirmDeleteBulk}
+      />
+
+      <MyToast
+        title="Lỗi"
+        bg="danger"
+        show={!!error}
+        message={error}
+        onClose={() => setError("")}
       />
     </>
   );

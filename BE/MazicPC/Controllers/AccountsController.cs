@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 public static class Roles
 {
     public const string Admin = "Admin";
@@ -184,6 +185,33 @@ namespace MazicPC.Controllers
 
             return NoContent();
         }
+
+        [Authorize(Roles = Roles.Admin)]
+        [HttpDelete("bulk")]
+        public async Task<IActionResult> AdminDeleteManyAccounts([FromBody] List<int> ids)
+        {
+            if (ids == null || !ids.Any())
+                return BadRequest("Danh sách id không được rỗng.");
+
+            var currentUserId = this.GetCurrentUserId();
+
+            // Nếu currentUserId null thì bỏ qua bước check tự xoá
+            if (currentUserId.HasValue && ids.Contains(currentUserId.Value))
+                return Forbid("Bạn không thể tự xóa chính mình qua quyền admin.");
+
+            var accounts = await db.Accounts
+                                  .Where(a => ids.Contains(a.Id))
+                                  .ToListAsync();
+
+            if (!accounts.Any())
+                return NotFound("Không tìm thấy tài khoản nào.");
+
+            db.Accounts.RemoveRange(accounts);
+            await db.SaveChangesAsync();
+
+            return NoContent();
+        }
+
 
         [Authorize(Roles = Roles.Admin)]
         [HttpGet("exist/{username}")]
