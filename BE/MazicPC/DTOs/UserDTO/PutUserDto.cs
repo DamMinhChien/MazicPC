@@ -8,6 +8,6 @@
 
         public string? Address { get; set; }
 
-        public string? AvatarUrl { get; set; }
+        //public string? AvatarUrl { get; set; }
     }
 }

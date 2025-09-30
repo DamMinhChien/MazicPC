@@ -17,8 +17,28 @@ const userService = {
     await axiosClient.put("users/me", data);
   },
 
-  updateUser: async (id, data) => {
-    await axiosClient.put(`users/${id}`, data);
+  updateUser: async (data) => {
+    const formData = new FormData();
+
+    Object.keys(data).forEach((key) => {
+      if (data[key] !== undefined && data[key] !== null) {
+        if (key === "file") {
+          // nếu có file thì append kiểu file
+          formData.append("file", data[key]);
+        } else {
+          // ép boolean sang string để backend parse đúng
+          const value =
+            typeof data[key] === "boolean" ? data[key].toString() : data[key];
+          formData.append(key, value);
+        }
+      }
+    });
+
+    await axiosClient.put(`users/${data.id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
   },
 
   deleteUser: async (id) => {

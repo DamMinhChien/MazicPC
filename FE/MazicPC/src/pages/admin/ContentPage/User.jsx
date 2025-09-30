@@ -37,7 +37,7 @@ const User = () => {
     { name: "id", label: "ID", type: "hidden" },
     { name: "phone", label: "Số điện thoại" },
     { name: "address", label: "Địa chỉ" },
-    { name: "avatarUrl", label: "Avatar URL" },
+    { name: "file", label: "Ảnh đại diện", type: "file" },
     { name: "fullName", label: "Họ và tên" },
   ];
 
@@ -48,7 +48,7 @@ const User = () => {
     console.log("Sửa từ User:", user);
     try {
       setLoading(true);
-      await userService.updateUser(user.id, user);
+      await userService.updateUser(user);
       
       setSuccess("Cập nhật người dùng thành công");
       fetchUsers();

@@ -19,12 +19,6 @@ namespace MazicPC.Validators.UserValidator
                 .When(x => !string.IsNullOrWhiteSpace(x.Address))
                 .WithMessage("Địa chỉ phải có ít nhất 5 ký tự.");
 
-            // AvatarUrl: cho phép null nhưng nếu có thì phải là URL hợp lệ
-            RuleFor(x => x.AvatarUrl)
-                .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _))
-                .When(x => !string.IsNullOrWhiteSpace(x.AvatarUrl))
-                .WithMessage("AvatarUrl phải là đường dẫn URL hợp lệ.");
-
             RuleFor(x => x.FullName)
                 .NotEmpty().WithMessage("Họ và tên không được để trống.")
                 .MinimumLength(2).WithMessage("Họ và tên phải có ít nhất 2 ký tự.")

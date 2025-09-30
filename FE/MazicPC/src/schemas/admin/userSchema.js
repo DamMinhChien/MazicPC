@@ -15,11 +15,21 @@ const userSchema = {
       .optional()
       .or(z.literal("").transform(() => undefined)),
 
-    avatarUrl: z
-      .string({ message: "AvatarUrl phải là chuỗi." })
-      .url({ message: "AvatarUrl phải là đường dẫn URL hợp lệ." })
+    file: z
+      .any()
+      .transform((val) => (val instanceof FileList ? val[0] : val))
       .optional()
-      .or(z.literal("").transform(() => undefined)),
+      .refine((f) => !f || f.size < 10 * 1024 * 1024, {
+        message: "File phải nhỏ hơn 10MB",
+      })
+      .refine(
+        (f) =>
+          !f ||
+          ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(
+            f.type
+          ),
+        { message: "Chỉ được upload ảnh" }
+      ),
 
     fullName: z
       .string({ message: "Họ và tên phải là chuỗi." })

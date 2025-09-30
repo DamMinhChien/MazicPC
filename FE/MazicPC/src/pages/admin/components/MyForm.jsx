@@ -3,7 +3,7 @@ import ButtonIcon from "../../../components/ButtonIcon";
 import { FaBroom, FaEdit, FaPlus } from "react-icons/fa";
 import { Row, Col, Form } from "react-bootstrap";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import SubmitContext from "@utils/SubmitContext";
 
 const MyForm = ({ schema, defaultValues, fields, mode }) => {
@@ -18,6 +18,8 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
     defaultValues,
     mode: "all",
   });
+
+  const [preview, setPreview] = useState(null);
 
   // Focus input đầu tiên khi form render
   useEffect(() => {
@@ -34,6 +36,9 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
       // console.log("DefaultValues:", defaultValues);
       // console.log("fields:", fields);
       // console.log("schema:", Object.keys(schema.shape));
+      // Lấy file (nếu có)
+      //const fileField = fields.find((f) => f.type === "file")?.name;
+      //const file = fileField ? data[fileField]?.[0] : null; // data[fieldName] là FileList
       handleEdit(data);
     } else {
       // Không gửi id khi thêm mới
@@ -49,11 +54,7 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
       {fields
         .filter((f) => f.type === "hidden")
         .map((field) => (
-          <input
-            key={field.name}
-            type="hidden"
-            {...register(field.name)}
-          />
+          <input key={field.name} type="hidden" {...register(field.name)} />
         ))}
 
       <Row>
@@ -78,11 +79,7 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
                   </Form.Select>
                 ) : field.type === "disabled" ? (
                   <>
-                    <Form.Control
-                      type="text"
-                      {...register(field.name)}
-                      
-                    />
+                    <Form.Control type="text" {...register(field.name)} />
                   </>
                 ) : field.type === "checkbox" ? (
                   <Form.Check
@@ -91,6 +88,31 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
                     {...register(field.name)}
                     isInvalid={!!errors[field.name]}
                   />
+                ) : field.type === "file" ? (
+                  <>
+                    <Form.Control
+                      type="file"
+                      {...register(field.name, {
+                        onChange: (e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            // tạo URL tạm để preview
+                            setPreview(URL.createObjectURL(file));
+                          } else {
+                            setPreview(null);
+                          }
+                        }, // chỉ lấy file đầu tiên
+                      })}
+                      isInvalid={!!errors[field.name]}
+                    />
+                    {preview && (
+                      <img
+                        src={preview}
+                        alt="Preview"
+                        className="img-thumbnail mt-2" width={150}
+                      />
+                    )}
+                  </>
                 ) : field.type === "switch" ? (
                   <Form.Check
                     type="switch"
@@ -133,7 +155,7 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
         <ButtonIcon
           bg="secondary"
           label="Nhập lại"
-          onClick={() => mode === "edit" ? reset(defaultValues) : reset()}
+          onClick={() => (mode === "edit" ? reset(defaultValues) : reset())}
           icon={<FaBroom />}
         />
       </div>
