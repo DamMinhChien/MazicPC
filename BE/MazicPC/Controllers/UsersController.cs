@@ -48,7 +48,7 @@ namespace MazicPC.Controllers
                 return NotFound();
             }
 
-            return mapper.Map<AdminGetUserDto>(user);
+            return Ok(mapper.Map<AdminGetUserDto>(user));
         }
 
         // PUT: api/Users/5
@@ -126,6 +126,8 @@ namespace MazicPC.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = Roles.Admin)]
+        [HttpGet("exist/{id}")]
         public Task<bool> UserExists(int id)
         {
             return _context.Users.AnyAsync(e => e.Id == id);
