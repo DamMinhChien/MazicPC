@@ -3,6 +3,7 @@ import { Table, Form, Button } from "react-bootstrap";
 import { useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from "@tanstack/react-table";
 import { FaSort, FaSortUp, FaSortDown, FaEdit, FaTrash } from "react-icons/fa";
 import ButtonIcon from "../../../components/ButtonIcon";
+import columnLabels from "../../../utils/columnLabels";
 
 const DataTable = ({
   data,
@@ -40,6 +41,18 @@ const DataTable = ({
       }
       return JSON.stringify(value).slice(0, 10) + "...";
     }
+
+    // Nếu là string và là link ảnh
+  if (typeof value === "string" && (value.startsWith("http://") || value.startsWith("https://"))) {
+    const ext = value.split(".").pop().toLowerCase();
+    const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp", "svg"];
+    if (imageExtensions.includes(ext)) {
+      return <img src={value} alt="" className="img-thumbnail" width={100} />;
+    }
+    // Nếu không phải ảnh, vẫn hiển thị link bình thường
+    return <a href={value} target="_blank" rel="noopener noreferrer">{value}</a>;
+  }
+
     return value?.toString();
   };
 
@@ -47,7 +60,7 @@ const DataTable = ({
   const columns = useMemo(() => {
     const baseCols = data && data.length > 0
       ? Object.keys(data[0]).map((key) => ({
-          header: key,
+          header: columnLabels[key] || key,
           accessorKey: key,
           cell: (info) => renderCell(info.getValue()),
         }))
@@ -131,6 +144,7 @@ const DataTable = ({
                 const canSort = header.column.getCanSort();
                 return (
                   <th
+                  className="text-nowrap"
                     key={header.id}
                     style={{ cursor: canSort ? "pointer" : "default" }}
                     onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
@@ -151,9 +165,9 @@ const DataTable = ({
         </thead>
         <tbody>
           {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
+            <tr key={row.id} className="align-middle">
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} style={{ whiteSpace: "nowrap" }}>
+                <td key={cell.id} className="text-nowrap">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}

@@ -5,6 +5,7 @@ using MazicPC.Models;
 using MazicPC.Services;
 using MazicPC.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -88,6 +89,12 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
+});
+
+// Giới hạn file tải lên
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10 MB
 });
 
 var app = builder.Build();

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,10 +21,12 @@ namespace MazicPC.Controllers
     {
         private readonly MazicPcContext _context;
         private readonly IMapper mapper;
+        private readonly IWebHostEnvironment _env;
 
-        public UsersController(MazicPcContext context, IMapper mapper)
+        public UsersController(MazicPcContext context, IMapper mapper, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
             this.mapper = mapper;
         }
 
@@ -53,9 +56,10 @@ namespace MazicPC.Controllers
 
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [RequestSizeLimit(10 * 1024 * 1024)]
         [Authorize]
         [HttpPut("me")]
-        public async Task<IActionResult> PutUser([FromBody] PutUserDto userDto)
+        public async Task<IActionResult> PutUser([FromForm] PutUserDto userDto, IFormFile? file)
         {
 
             var user = await _context.Users.FindAsync(this.GetCurrentUserId());
@@ -63,21 +67,54 @@ namespace MazicPC.Controllers
 
             mapper.Map(userDto, user);
 
+            if (file != null)
+            {
+                try
+                {
+                    user.AvatarUrl = await FileHelper.SaveImageAsync(file, _env, Request, user.AvatarUrl);
+                }
+                catch (ArgumentException ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, "Lỗi khi lưu file: " + ex.Message);
+                }
+            }
+
             await _context.SaveChangesAsync();
 
             return NoContent();
 
         }
 
+        [RequestSizeLimit(10 * 1024 * 1024)]
         [Authorize(Roles = Roles.Admin)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, [FromBody] PutUserDto userDto)
+        public async Task<IActionResult> PutUser(int id, [FromForm] PutUserDto userDto, IFormFile? file)
         {
 
             var user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound();
 
             mapper.Map(userDto, user);
+
+            if (file != null)
+            {
+                try
+                {
+                    user.AvatarUrl = await FileHelper.SaveImageAsync(file, _env, Request, user.AvatarUrl);
+                }
+                catch (ArgumentException ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, "Lỗi khi lưu file: " + ex.Message);
+                }
+            }
 
             await _context.SaveChangesAsync();
 
