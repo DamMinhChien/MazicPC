@@ -9,7 +9,14 @@ import ConfirmModal from "@components/ConfirmModal";
 import SearchBar from "../components/SearchBar";
 import MyToast from "../../../components/MyToast";
 
-const AdminLayout = ({ data, fields, postSchema, putSchema, onSubmit }) => {
+const AdminLayout = ({
+  data,
+  fields,
+  postSchema,
+  putSchema,
+  onSubmit,
+  addButtonShow,
+}) => {
   const [pageSize, setPageSize] = useState(10);
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -75,7 +82,7 @@ const AdminLayout = ({ data, fields, postSchema, putSchema, onSubmit }) => {
         className="d-flex justify-content-between align-items-center px-4 py-2 bg-dark"
       >
         <div className="d-flex gap-3 align-items-center">
-          <h5 className="text-white mb-0">{`Quản lý ${title}`}</h5>
+          <h5 className="text-white text-nowrap mb-0">{`Quản lý ${title}`}</h5>
           <Form.Select
             className="bg-info text-light"
             size="sm"
@@ -104,12 +111,14 @@ const AdminLayout = ({ data, fields, postSchema, putSchema, onSubmit }) => {
             }}
           />
           {/* Thêm mới */}
-          <ButtonIcon
-            bg="success"
-            icon={<FaPlus />}
-            onClick={handleAdd}
-            label="Thêm mới"
-          />
+          {!addButtonShow && (
+            <ButtonIcon
+              bg="success"
+              icon={<FaPlus />}
+              onClick={handleAdd}
+              label="Thêm mới"
+            />
+          )}
         </div>
       </Container>
 

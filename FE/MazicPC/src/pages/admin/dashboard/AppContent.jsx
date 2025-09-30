@@ -5,6 +5,8 @@ import Product from "../ContentPage/Product";
 import Category from "../ContentPage/Category";
 import NotFoundPage from "../../common/notFoundPage";
 import Dashboard from "../ContentPage/Dashboard";
+import User from "../ContentPage/User";
+import Manufacturer from "../ContentPage/Manufacturer";
 
 const AppContent = () => {
   const currentPage = useSelector((state) => state.currentPage.currentPage);
@@ -17,6 +19,10 @@ const AppContent = () => {
       return <Product />;
     case "category":
       return <Category />;
+    case "user":
+      return <User />;
+    case "manufacturer":
+      return <Manufacturer />;
     default:
       return <NotFoundPage />;
   }
