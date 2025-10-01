@@ -16,6 +16,9 @@ const columnLabels = {
   logoUrl: "Logo",
   description: "Mô Tả",
   website: "Website",
+  imageUrl: "Ảnh",
+  title: "Tiêu Đề",
+  productName: "Tên Sản Phẩm",
 };
 
 export default columnLabels;

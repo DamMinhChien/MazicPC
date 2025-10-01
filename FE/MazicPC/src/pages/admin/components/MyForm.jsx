@@ -20,6 +20,29 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
   });
 
   const [preview, setPreview] = useState(null);
+  const [options, setOptions] = useState({});
+
+  //const { handleLoadOptions } = useContext(SubmitContext);
+  useEffect(() => {
+    fields.forEach(async (field) => {
+      if (field.type === "select" && field.loadOptions) {
+        const opts = await field.loadOptions();
+        setOptions((prev) => ({ ...prev, [field.name]: opts }));
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    const fileField = fields.find((f) => f.type === "file")?.name;
+    if (
+      mode === "edit" &&
+      defaultValues &&
+      fileField &&
+      defaultValues[fileField]
+    ) {
+      setPreview(defaultValues[fileField]); // URL hiện tại từ DB
+    }
+  }, [mode, defaultValues, fields]);
 
   // Focus input đầu tiên khi form render
   useEffect(() => {
@@ -33,7 +56,7 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
   const onSubmit = (data) => {
     if (mode === "edit") {
       // console.log("Sửa từ MyForm:", data);
-      // console.log("DefaultValues:", defaultValues);
+      console.log("DefaultValues:", defaultValues);
       // console.log("fields:", fields);
       // console.log("schema:", Object.keys(schema.shape));
       // Lấy file (nếu có)
@@ -64,14 +87,13 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
             <Col md={6} key={field.name}>
               <Form.Group className="mb-3">
                 <Form.Label>{field.label}</Form.Label>
-
                 {field.type === "select" ? (
                   <Form.Select
                     {...register(field.name)}
                     isInvalid={!!errors[field.name]}
                   >
                     <option value="">-- Chọn --</option>
-                    {field.options?.map((opt) => (
+                    {(options[field.name] || []).map((opt) => (
                       <option key={opt.value} value={opt.value}>
                         {opt.label}
                       </option>
@@ -99,7 +121,7 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
                             // tạo URL tạm để preview
                             setPreview(URL.createObjectURL(file));
                           } else {
-                            setPreview(null);
+                            setPreview(defaultValues?.[field.name] || null);
                           }
                         }, // chỉ lấy file đầu tiên
                       })}
@@ -109,7 +131,8 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
                       <img
                         src={preview}
                         alt="Preview"
-                        className="img-thumbnail mt-2" width={150}
+                        className="img-thumbnail mt-2"
+                        width={150}
                       />
                     )}
                   </>
