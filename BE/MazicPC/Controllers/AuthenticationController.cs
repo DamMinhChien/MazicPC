@@ -32,7 +32,7 @@ namespace MazicPC.Controllers
             var account = await db.Accounts.FirstOrDefaultAsync(acc=>acc.Username == request.Username);
             if (account == null) 
                 return Unauthorized("Tài khoản không tồn tại!");
-            if (!account.IsActive)
+            if (!account.IsActive ?? false)
                 return Unauthorized("Tài khoản đã bị khóa!");
             bool isPasswordValid = BCrypt.Net.BCrypt.Verify(request.Password, account.Password);
             if (!isPasswordValid)
@@ -54,7 +54,7 @@ namespace MazicPC.Controllers
             return Ok(new LoginResponseDto
             {
                 Username = account.Username,
-                Role = account.Role
+                Role = account.Role!
             });
         }
         

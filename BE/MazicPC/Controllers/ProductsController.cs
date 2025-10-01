@@ -1,4 +1,8 @@
 ﻿using AutoMapper;
+using MazicPC.DTOs.Product;
+using MazicPC.DTOs.ProductDTO;
+using MazicPC.DTOs.UserDTO;
+using MazicPC.Extensions;
 using MazicPC.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -9,35 +13,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
-using static MazicPC.DTOs.Product.GetProductDto;
 
 namespace MazicPC.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class ProductsController : ControllerBase
     {
         private readonly MazicPcContext db;
         private readonly IMapper mapper;
+        private readonly IWebHostEnvironment _env;
 
-        public ProductsController(MazicPcContext context, IMapper mapper)
+        public ProductsController(MazicPcContext context, IMapper mapper, IWebHostEnvironment env)
         {
             db = context;
             this.mapper = mapper;
+            _env = env;
         }
 
         // GET: api/Products
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductUserDto>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<object>>> GetProducts()
         {
             var products = await db.Products.ToListAsync();
-            return Ok(mapper.Map<IEnumerable<ProductUserDto>>(products));
+
+            if (User.IsInRole(Roles.Admin))
+            {
+                return Ok(mapper.Map<IEnumerable<AdminGetProductDto>>(products));
+            }
+
+            return Ok(mapper.Map<IEnumerable<UserGetProductDto>>(products));
         }
 
         // GET: api/Products/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<object>> GetProduct(int id)
         {
             var product = await db.Products.FindAsync(id);
 
@@ -46,54 +56,78 @@ namespace MazicPC.Controllers
                 return NotFound();
             }
 
-            var data = mapper.Map<ProductUserDto>(product);
+            if (User.IsInRole(Roles.Admin))
+                return Ok(mapper.Map<AdminGetProductDto>(product));
 
-            return product;
+            return mapper.Map<UserGetProductDto>(product);
         }
 
         // PUT: api/Products/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [RequestSizeLimit(10 * 1024 * 1024)]
+        [Authorize(Roles = Roles.Admin)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(int id, Product product)
+        public async Task<IActionResult> PutProduct(int id, [FromForm] ProductDto productDto, IFormFile? file)
         {
-            if (id != product.Id)
-            {
-                return BadRequest();
-            }
+            var product = await db.Products.FindAsync(id);
+            if (product == null) return NotFound();
 
-            db.Entry(product).State = EntityState.Modified;
+            mapper.Map(productDto, product);
 
-            try
+            if (file != null)
             {
-                await db.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProductExists(id))
+                try
                 {
-                    return NotFound();
+                    product.ImageUrl = await FileHelper.SaveImageAsync(file, _env, Request, product.ImageUrl);
                 }
-                else
+                catch (ArgumentException ex)
                 {
-                    throw;
+                    return BadRequest(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, "Lỗi khi lưu file: " + ex.Message);
                 }
             }
+
+            await db.SaveChangesAsync();
 
             return NoContent();
         }
 
         // POST: api/Products
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [RequestSizeLimit(10 * 1024 * 1024)]
+        [Authorize(Roles = Roles.Admin)]
         [HttpPost]
-        public async Task<ActionResult<Product>> PostProduct(Product product)
+        public async Task<ActionResult<AdminGetProductDto>> PostProduct([FromForm] ProductDto productDto, IFormFile? file)
         {
+            var product = mapper.Map<Product>(productDto);
+
+            if (file != null)
+            {
+                try
+                {
+                    product.ImageUrl = await FileHelper.SaveImageAsync(file, _env, Request, product.ImageUrl);
+                }
+                catch (ArgumentException ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, "Lỗi khi lưu file: " + ex.Message);
+                }
+            }
+
             db.Products.Add(product);
             await db.SaveChangesAsync();
 
-            return CreatedAtAction("GetProduct", new { id = product.Id }, product);
+            var result = mapper.Map<AdminGetProductDto>(product);
+
+            return CreatedAtAction("GetProduct", new { id = product.Id }, result);
         }
 
         // DELETE: api/Products/5
+        [Authorize(Roles = Roles.Admin)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
@@ -109,9 +143,28 @@ namespace MazicPC.Controllers
             return NoContent();
         }
 
-        private bool ProductExists(int id)
+        [Authorize(Roles = Roles.Admin)]
+        [HttpDelete("bulk")]
+        public async Task<IActionResult> DeleteProducts([FromBody] List<int> ids)
         {
-            return db.Products.Any(e => e.Id == id);
+            if (ids == null || !ids.Any())
+                return BadRequest("Danh sách id không được rỗng.");
+
+            var products = await db.Products.Where(product => ids.Contains(product.Id)).ToListAsync();
+
+            if (!products.Any())
+                return NotFound("Không tìm thấy danh mục nào.");
+
+            db.Products.RemoveRange(products);
+            await db.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpGet("exist/{id}")]
+        public async Task<bool> ProductExists(int id)
+        {
+            return await db.Products.AnyAsync(e => e.Id == id);
         }
     }
 }

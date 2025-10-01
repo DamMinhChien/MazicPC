@@ -93,7 +93,5 @@ public partial class Product
 
     public virtual ICollection<ProductPromotion> ProductPromotions { get; set; } = new List<ProductPromotion>();
 
-    public virtual ICollection<ProductSpec> ProductSpecs { get; set; } = new List<ProductSpec>();
-
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 }

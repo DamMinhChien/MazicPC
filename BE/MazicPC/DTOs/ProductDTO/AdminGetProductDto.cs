@@ -1,6 +1,6 @@
-﻿namespace MazicPC.DTOs.CategoryDTO
+﻿namespace MazicPC.DTOs.ProductDTO
 {
-    public class CategoryAdminDto : CategoryUserDto
+    public class AdminGetProductDto : UserGetProductDto
     {
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
