@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 using static MazicPC.DTOs.Product.GetProductDto;
 
@@ -28,9 +29,10 @@ namespace MazicPC.Controllers
 
         // GET: api/Products
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductUserDto>>> GetProducts()
         {
-            return await db.Products.ToListAsync();
+            var products = await db.Products.ToListAsync();
+            return Ok(mapper.Map<IEnumerable<ProductUserDto>>(products));
         }
 
         // GET: api/Products/5

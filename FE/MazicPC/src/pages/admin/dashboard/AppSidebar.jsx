@@ -95,6 +95,15 @@ const AppSidebar = () => {
 
         <CNavItem>
           <CNavLink
+            onClick={() => handleSelect("banner")}
+            style={{ cursor: "pointer" }}
+          >
+            <CIcon customClassName="nav-icon" icon={cilSpeedometer} /> Banner
+          </CNavLink>
+        </CNavItem>
+
+        <CNavItem>
+          <CNavLink
             onClick={() => handleSelect("product")}
             style={{ cursor: "pointer" }}
           >

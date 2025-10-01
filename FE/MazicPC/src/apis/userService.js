@@ -7,7 +7,7 @@ const userService = {
     return res.data;
   },
 
-  getUserById: async (id) => {
+  getUserById: async (id) => { 
     const res = await axiosClient.get(`users/${id}`);
     return res.data;
   },

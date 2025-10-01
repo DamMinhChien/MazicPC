@@ -125,31 +125,55 @@ namespace MazicPC.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> AdminPutAccount(int id, [FromBody] AdminPutAccountDto account)
         {
-            var acc = await db.Accounts.FindAsync(id);
+            var acc = await db.Accounts.Include(a => a.User).FirstOrDefaultAsync(a => a.Id == id);
             if (acc == null)
                 return NotFound();
 
-            // Không cho phép admin thay đổi role hoặc is_active của chính họ
-            if(id == this.GetCurrentUserId())
+            var currentUserId = this.GetCurrentUserId();
+
+            // Ngăn admin đổi Role hoặc IsActive của chính mình
+            if (id == currentUserId)
+            {
                 if (account.Role != acc.Role || account.IsActive != acc.IsActive)
                     return Forbid("Không thể thay đổi Role hoặc trạng thái tài khoản của chính mình.");
+            }
 
-            //mapper.Map(account, acc);
+            // Ngăn admin đổi Role hoặc IsActive của admin khác
+            if (acc.Role == Roles.Admin && id != currentUserId)
+            {
+                if (account.Role != acc.Role || account.IsActive != acc.IsActive)
+                    return Forbid("Không thể thay đổi Role hoặc trạng thái của admin khác.");
+            }
+
+            // Ngăn đổi mật khẩu admin khác
+            if (acc.Role == Roles.Admin && id != currentUserId && !string.IsNullOrEmpty(account.Password))
+            {
+                return Forbid("Không thể thay đổi mật khẩu của admin khác.");
+            }
+
+            // Cập nhật các field khác
             acc.Username = account.Username;
             acc.Email = account.Email;
-            acc.Password = string.IsNullOrEmpty(account.Password)
-                ? acc.Password
-                : BCrypt.Net.BCrypt.HashPassword(account.Password);
+
+            if (!string.IsNullOrEmpty(account.Password))
+            {
+                acc.Password = BCrypt.Net.BCrypt.HashPassword(account.Password);
+            }
+
             acc.User.FullName = account.FullName;
-            acc.Role = account.Role;
-            acc.IsActive = account.IsActive ?? acc.IsActive;
 
-
+            // Chỉ cập nhật Role và IsActive nếu không bị cấm
+            if (!(acc.Role == Roles.Admin))
+            {
+                acc.Role = account.Role;
+                acc.IsActive = account.IsActive ?? acc.IsActive;
+            }
 
             await db.SaveChangesAsync();
 
             return NoContent();
         }
+
 
         [Authorize]
         [HttpDelete("me")]

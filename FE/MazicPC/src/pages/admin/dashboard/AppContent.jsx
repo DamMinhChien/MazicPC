@@ -7,6 +7,7 @@ import NotFoundPage from "../../common/notFoundPage";
 import Dashboard from "../ContentPage/Dashboard";
 import User from "../ContentPage/User";
 import Manufacturer from "../ContentPage/Manufacturer";
+import Banner from "../ContentPage/Banner";
 
 const AppContent = () => {
   const currentPage = useSelector((state) => state.currentPage.currentPage);
@@ -23,6 +24,8 @@ const AppContent = () => {
       return <User />;
     case "manufacturer":
       return <Manufacturer />;
+    case "banner":
+      return <Banner />;
     default:
       return <NotFoundPage />;
   }
