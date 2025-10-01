@@ -43,8 +43,6 @@ public partial class MazicPcContext : DbContext
 
     public virtual DbSet<ProductPromotion> ProductPromotions { get; set; }
 
-    public virtual DbSet<ProductSpec> ProductSpecs { get; set; }
-
     public virtual DbSet<Promotion> Promotions { get; set; }
 
     public virtual DbSet<Review> Reviews { get; set; }
@@ -52,8 +50,6 @@ public partial class MazicPcContext : DbContext
     public virtual DbSet<ShippingAddress> ShippingAddresses { get; set; }
 
     public virtual DbSet<ShippingMethod> ShippingMethods { get; set; }
-
-    public virtual DbSet<Spec> Specs { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -360,7 +356,11 @@ public partial class MazicPcContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__products__3213E83F2C93AB4C");
 
-            entity.ToTable("products", tb => tb.HasTrigger("trg_update_products"));
+            entity.ToTable("products", tb =>
+                {
+                    tb.HasTrigger("trg_products_update");
+                    tb.HasTrigger("trg_update_products");
+                });
 
             entity.HasIndex(e => e.CategoryId, "idx_product_category");
 
@@ -490,6 +490,9 @@ public partial class MazicPcContext : DbContext
                 .HasDefaultValue(false)
                 .HasColumnName("is_primary");
             entity.Property(e => e.ProductId).HasColumnName("product_id");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("updated_at");
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductImages)
                 .HasForeignKey(d => d.ProductId)
@@ -516,30 +519,6 @@ public partial class MazicPcContext : DbContext
                 .HasForeignKey(d => d.PromotionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__product_p__promo__6754599E");
-        });
-
-        modelBuilder.Entity<ProductSpec>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__product___3213E83FD9705C24");
-
-            entity.ToTable("product_specs");
-
-            entity.HasIndex(e => new { e.SpecId, e.Value }, "idx_product_specs");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.ProductId).HasColumnName("product_id");
-            entity.Property(e => e.SpecId).HasColumnName("spec_id");
-            entity.Property(e => e.Value)
-                .HasMaxLength(255)
-                .HasColumnName("value");
-
-            entity.HasOne(d => d.Product).WithMany(p => p.ProductSpecs)
-                .HasForeignKey(d => d.ProductId)
-                .HasConstraintName("FK__product_s__produ__5DCAEF64");
-
-            entity.HasOne(d => d.Spec).WithMany(p => p.ProductSpecs)
-                .HasForeignKey(d => d.SpecId)
-                .HasConstraintName("FK__product_s__spec___5EBF139D");
         });
 
         modelBuilder.Entity<Promotion>(entity =>
@@ -651,18 +630,6 @@ public partial class MazicPcContext : DbContext
                 .HasColumnName("name");
         });
 
-        modelBuilder.Entity<Spec>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__specs__3213E83F68B0AE26");
-
-            entity.ToTable("specs");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Name)
-                .HasMaxLength(100)
-                .HasColumnName("name");
-        });
-
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__users__3213E83F579EBAC0");
@@ -696,7 +663,6 @@ public partial class MazicPcContext : DbContext
 
             entity.HasOne(d => d.Account).WithOne(p => p.User)
                 .HasForeignKey<User>(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_users_accounts");
         });
 

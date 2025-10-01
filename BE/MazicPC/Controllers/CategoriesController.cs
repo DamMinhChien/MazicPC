@@ -1,14 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using MazicPC.DTOs.CategoryDTO;
+using MazicPC.DTOs.ManufacturerDTO;
+using MazicPC.Extensions;
+using MazicPC.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MazicPC.Models;
-using AutoMapper;
-using MazicPC.DTOs.CategoryDTO;
-using AutoMapper.QueryableExtensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MazicPC.Controllers
 {
@@ -25,11 +28,26 @@ namespace MazicPC.Controllers
             this.mapper = mapper;
         }
 
+        // API cho user -> trả về dạng cây
+        [HttpGet("tree")]
+        public async Task<IActionResult> GetCategoryTree()
+        {
+            var categories = await _context.Categories
+                .ProjectTo<CategoryUserDto>(mapper.ConfigurationProvider)
+                .ToListAsync();
+
+            var nestedCategories = CategoryHelper.BuildCategoryTree(categories);
+            return Ok(nestedCategories);
+        }
+
         // GET: api/Categories
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
-            var categories = await _context.Categories.ProjectTo<CategoryUserDto>(mapper.ConfigurationProvider).ToListAsync();
+            var categories = await _context.Categories
+                .ProjectTo<CategoryAdminDto>(mapper.ConfigurationProvider)
+                .ToListAsync();
+
             return Ok(categories);
         }
 
@@ -46,7 +64,7 @@ namespace MazicPC.Controllers
 
         // GET: api/Categories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetCategory(int id)
+        public async Task<ActionResult<CategoryAdminDto>> GetCategory(int id)
         {
             var category = await _context.Categories.FindAsync(id);
 
@@ -55,52 +73,44 @@ namespace MazicPC.Controllers
                 return NotFound();
             }
 
-            return category;
+            return Ok(mapper.Map<CategoryAdminDto>(category));
         }
 
         // PUT: api/Categories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = Roles.Admin)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, Category category)
+        public async Task<IActionResult> PutCategory(int id, CategoryDto categoryDto)
         {
-            if (id != category.Id)
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(category).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CategoryExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+            mapper.Map(categoryDto, category);
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
         // POST: api/Categories
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = Roles.Admin)]
         [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
+        public async Task<ActionResult<CategoryAdminDto>> PostCategory(CategoryDto categoryDto)
         {
+            var category = mapper.Map<Category>(categoryDto);
+
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCategory", new { id = category.Id }, category);
+            var result = mapper.Map<CategoryAdminDto>(category);
+
+            return CreatedAtAction("GetCategory", new { id = category.Id }, result);
         }
 
         // DELETE: api/Categories/5
+        [Authorize(Roles = Roles.Admin)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
@@ -116,9 +126,28 @@ namespace MazicPC.Controllers
             return NoContent();
         }
 
-        private bool CategoryExists(int id)
+        [Authorize(Roles = Roles.Admin)]
+        [HttpDelete("bulk")]
+        public async Task<IActionResult> DeleteCategories([FromBody] List<int> ids)
         {
-            return _context.Categories.Any(e => e.Id == id);
+            if (ids == null || !ids.Any())
+                return BadRequest("Danh sách id không được rỗng.");
+
+            var categories = await _context.Categories.Where(category => ids.Contains(category.Id)).ToListAsync();
+
+            if (!categories.Any())
+                return NotFound("Không tìm thấy danh mục nào.");
+
+            _context.Categories.RemoveRange(categories);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpGet("exist/{id}")]
+        public async Task<bool> CategoryExists(int id)
+        {
+            return await _context.Categories.AnyAsync(e => e.Id == id);
         }
     }
 }
