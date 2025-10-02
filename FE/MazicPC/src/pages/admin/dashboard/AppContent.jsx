@@ -8,6 +8,7 @@ import Dashboard from "../ContentPage/Dashboard";
 import User from "../ContentPage/User";
 import Manufacturer from "../ContentPage/Manufacturer";
 import Banner from "../ContentPage/Banner";
+import ProductImage from "../ContentPage/ProductImage";
 
 const AppContent = () => {
   const currentPage = useSelector((state) => state.currentPage.currentPage);
@@ -18,6 +19,8 @@ const AppContent = () => {
       return <Account />;
     case "product":
       return <Product />;
+    case "productImage":
+      return <ProductImage />;
     case "category":
       return <Category />;
     case "user":

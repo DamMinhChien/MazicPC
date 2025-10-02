@@ -7,6 +7,7 @@ using MazicPC.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -42,7 +43,7 @@ namespace MazicPC.Controllers
 
         // GET: api/Categories
         [HttpGet]
-        public async Task<IActionResult> GetCategories()
+        public async Task<ActionResult<IEnumerable<CategoryAdminDto>>> GetCategories()
         {
             var categories = await _context.Categories
                 .ProjectTo<CategoryAdminDto>(mapper.ConfigurationProvider)
@@ -57,6 +58,29 @@ namespace MazicPC.Controllers
         {
             var categories = await _context.Categories
                 .ProjectTo<CategoryWithProductsDto>(mapper.ConfigurationProvider)
+                .ToListAsync();
+
+            return Ok(categories);
+        }
+
+        // GET: api/Categories/root
+        [HttpGet("roots")]
+        public async Task<ActionResult<IEnumerable<CategoryAdminDto>>> GetRoot()
+        {
+            var categories = await _context.Categories
+                .Where(cat => cat.ParentId == null)
+                .ProjectTo<CategoryAdminDto>(mapper.ConfigurationProvider)
+                .ToListAsync();
+
+            return Ok(categories);
+        }
+
+        [HttpGet("not-roots")]
+        public async Task<ActionResult<IEnumerable<CategoryAdminDto>>> GetNotRoot()
+        {
+            var categories = await _context.Categories
+                .Where(cat => cat.ParentId != null)
+                .ProjectTo<CategoryAdminDto>(mapper.ConfigurationProvider)
                 .ToListAsync();
 
             return Ok(categories);
@@ -77,16 +101,21 @@ namespace MazicPC.Controllers
         }
 
         // PUT: api/Categories/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Roles = Roles.Admin)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, CategoryDto categoryDto)
+        public async Task<IActionResult> PutCategory(int id, [FromBody] CategoryDto categoryDto)
         {
+            if (categoryDto == null)
+                return BadRequest("Dữ liệu gửi lên không hợp lệ");
+
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
             {
                 return NotFound();
             }
+
+            if (categoryDto.ParentId == id)
+                return BadRequest("Danh mục không thể là cha của chính nó.");
 
             mapper.Map(categoryDto, category);
             await _context.SaveChangesAsync();
@@ -94,11 +123,13 @@ namespace MazicPC.Controllers
         }
 
         // POST: api/Categories
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Roles = Roles.Admin)]
         [HttpPost]
-        public async Task<ActionResult<CategoryAdminDto>> PostCategory(CategoryDto categoryDto)
+        public async Task<ActionResult<CategoryAdminDto>> PostCategory([FromBody] CategoryDto categoryDto)
         {
+            if (categoryDto == null)
+                return BadRequest("Dữ liệu gửi lên không hợp lệ");
+
             var category = mapper.Map<Category>(categoryDto);
 
             _context.Categories.Add(category);
@@ -120,12 +151,23 @@ namespace MazicPC.Controllers
                 return NotFound();
             }
 
+            // ⚡ Update con về null trước khi xoá
+            var children = await _context.Categories
+                .Where(c => c.ParentId == id)
+                .ToListAsync();
+
+            foreach (var child in children)
+            {
+                child.ParentId = null;
+            }
+
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
+        // DELETE: api/Categories/bulk
         [Authorize(Roles = Roles.Admin)]
         [HttpDelete("bulk")]
         public async Task<IActionResult> DeleteCategories([FromBody] List<int> ids)
@@ -133,16 +175,29 @@ namespace MazicPC.Controllers
             if (ids == null || !ids.Any())
                 return BadRequest("Danh sách id không được rỗng.");
 
-            var categories = await _context.Categories.Where(category => ids.Contains(category.Id)).ToListAsync();
+            var categories = await _context.Categories
+                .Where(category => ids.Contains(category.Id))
+                .ToListAsync();
 
             if (!categories.Any())
                 return NotFound("Không tìm thấy danh mục nào.");
+
+            // ⚡ Update con về null trước khi xoá cha
+            var children = await _context.Categories
+                .Where(c => c.ParentId.HasValue && ids.Contains(c.ParentId.Value))
+                .ToListAsync();
+
+            foreach (var child in children)
+            {
+                child.ParentId = null;
+            }
 
             _context.Categories.RemoveRange(categories);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
+
 
         [HttpGet("exist/{id}")]
         public async Task<bool> CategoryExists(int id)

@@ -60,7 +60,7 @@ namespace MazicPC.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProductImage(int id, [FromForm] ProductImageDto productImageDto, IFormFile? file)
         {
-            var productImage = await _context.Banners.FindAsync(id);
+            var productImage = await _context.ProductImages.FindAsync(id);
             if (productImage == null) return NotFound();
 
             _mapper.Map(productImageDto, productImage);
@@ -92,7 +92,7 @@ namespace MazicPC.Controllers
         [HttpPost]
         public async Task<IActionResult> PostProductImage([FromForm] ProductImageDto productImageDto, IFormFile file)
         {
-            var productImage = _mapper.Map<Banner>(productImageDto);
+            var productImage = _mapper.Map<ProductImage>(productImageDto);
 
             try
             {
@@ -107,7 +107,7 @@ namespace MazicPC.Controllers
                 return StatusCode(500, "Lỗi khi lưu file: " + ex.Message);
             }
 
-            _context.Banners.Add(productImage);
+            _context.ProductImages.Add(productImage);
             await _context.SaveChangesAsync();
 
             var result = _mapper.Map<AdminGetProductImageDto>(productImage);

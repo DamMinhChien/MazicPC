@@ -8,7 +8,9 @@ namespace MazicPC.DTOs.Mapper
     {
         public CategoryProfile()
         {
-            CreateMap<Category, CategoryAdminDto>();
+            CreateMap<Category, CategoryAdminDto>()
+                .ForMember(dest => dest.ParentName,
+                       opt => opt.MapFrom(src => src.Parent != null ? src.Parent.Name : null)); ;
             CreateMap<Category, CategoryUserDto>();
             CreateMap<Category, CategoryWithProductsDto>();
             CreateMap<Category, CategoryDto>();

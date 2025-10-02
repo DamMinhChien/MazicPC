@@ -19,13 +19,6 @@ namespace MazicPC.Validators.ProductValidator
             RuleFor(x => x.ManufacturerId)
                 .GreaterThan(0).WithMessage("Nhà sản xuất không hợp lệ");
 
-            RuleFor(x => x.Type)
-                .NotEmpty().WithMessage("Loại sản phẩm là bắt buộc")
-                .MaximumLength(100).WithMessage("Loại sản phẩm tối đa 100 ký tự");
-
-            RuleFor(x => x.Model)
-                .MaximumLength(100).WithMessage("Model tối đa 100 ký tự");
-
             RuleFor(x => x.ShortDescription)
                 .MaximumLength(500).WithMessage("Mô tả ngắn tối đa 500 ký tự");
 

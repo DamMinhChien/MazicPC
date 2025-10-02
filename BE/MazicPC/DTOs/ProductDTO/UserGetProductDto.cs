@@ -4,12 +4,8 @@
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
-
         public string CategoryName { get; set; } = null!;
         public string ManufacturerName { get; set; } = null!;
-
-        public string Type { get; set; } = null!;
-        public string? Model { get; set; }
         public string? ShortDescription { get; set; }
         public string? Description { get; set; }
 
