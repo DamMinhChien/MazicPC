@@ -56,7 +56,7 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
   const onSubmit = (data) => {
     if (mode === "edit") {
       // console.log("Sửa từ MyForm:", data);
-      console.log("DefaultValues:", defaultValues);
+      //console.log("DefaultValues:", defaultValues);
       // console.log("fields:", fields);
       // console.log("schema:", Object.keys(schema.shape));
       // Lấy file (nếu có)
@@ -89,7 +89,9 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
                 <Form.Label>{field.label}</Form.Label>
                 {field.type === "select" ? (
                   <Form.Select
-                    {...register(field.name)}
+                    {...register(field.name, {
+                      setValueAs: (v) => (v === "" ? null : v),
+                    })}
                     isInvalid={!!errors[field.name]}
                   >
                     <option value="">-- Chọn --</option>

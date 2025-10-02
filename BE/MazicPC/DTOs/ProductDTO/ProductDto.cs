@@ -3,16 +3,12 @@
 namespace MazicPC.DTOs.Product
 {
     public class ProductDto
-    {
+    { 
         public string Name { get; set; } = null!;
 
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
 
-        public int ManufacturerId { get; set; }
-
-        public string Type { get; set; } = null!;
-
-        public string? Model { get; set; }
+        public int? ManufacturerId { get; set; }
 
         public string? ShortDescription { get; set; }
 

@@ -44,7 +44,7 @@ const Account = () => {
       name: "role",
       label: "Vai trò",
       type: "select",
-      options: [
+      loadOptions: async () => [
         { value: "User", label: "User" },
         { value: "Admin", label: "Admin" },
       ],

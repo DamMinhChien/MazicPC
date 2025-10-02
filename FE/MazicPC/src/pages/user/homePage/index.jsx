@@ -12,7 +12,7 @@ const HomePage = () => {
     const fetchData = async () => {
       try {
         const res = await categoryServices.getCategoriesWithProducts();
-        setCategories(res.data);
+        setCategories(res);
       } catch (error) {
         console.error("Error fetching categories:", error);
         setCategories([]);
@@ -21,24 +21,6 @@ const HomePage = () => {
     fetchData();
   }, []);
 
-  // const categoriesData = [
-  //   {
-  //     id: 1,
-  //     name: "Học tập - Văn phòng",
-  //     products: [
-  //       { id: 101, name: "Laptop A", price: "10 triệu" },
-  //       { id: 102, name: "Laptop B", price: "15 triệu" },
-  //     ],
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Gaming",
-  //     products: [
-  //       { id: 201, name: "Laptop Gaming X", price: "20 triệu" },
-  //       { id: 202, name: "Laptop Gaming Y", price: "25 triệu" },
-  //     ],
-  //   },
-  // ];
   return (
     <main>
       <Container>

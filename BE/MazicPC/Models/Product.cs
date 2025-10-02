@@ -9,13 +9,9 @@ public partial class Product
 
     public string Name { get; set; } = null!;
 
-    public int CategoryId { get; set; }
+    public int? CategoryId { get; set; }
 
-    public int ManufacturerId { get; set; }
-
-    public string Type { get; set; } = null!;
-
-    public string? Model { get; set; }
+    public int? ManufacturerId { get; set; }
 
     public string? ShortDescription { get; set; }
 
@@ -81,11 +77,11 @@ public partial class Product
 
     public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
 
-    public virtual Category Category { get; set; } = null!;
+    public virtual Category? Category { get; set; }
 
     public virtual ICollection<InventoryLog> InventoryLogs { get; set; } = new List<InventoryLog>();
 
-    public virtual Manufacturer Manufacturer { get; set; } = null!;
+    public virtual Manufacturer? Manufacturer { get; set; }
 
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 

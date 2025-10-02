@@ -21,6 +21,7 @@ const DataTable = ({
   // Toggle checkbox "select all"
   useEffect(() => {
     setSelectAll(selectedIds.length === data.length && data.length > 0);
+    console.log("data:", data);
   }, [selectedIds, data]);
 
   useEffect(() => {

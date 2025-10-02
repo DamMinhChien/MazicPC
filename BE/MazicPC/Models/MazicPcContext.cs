@@ -116,6 +116,7 @@ public partial class MazicPcContext : DbContext
 
             entity.HasOne(d => d.Product).WithMany(p => p.Banners)
                 .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Banners_Products");
         });
 
@@ -160,12 +161,11 @@ public partial class MazicPcContext : DbContext
 
             entity.HasOne(d => d.Cart).WithMany(p => p.CartItems)
                 .HasForeignKey(d => d.CartId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__cart_item__cart___6FE99F9F");
 
             entity.HasOne(d => d.Product).WithMany(p => p.CartItems)
                 .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK__cart_item__produ__70DDC3D8");
         });
 
@@ -173,8 +173,8 @@ public partial class MazicPcContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__categori__3213E83F65BE2BB3");
 
-            entity.ToTable("categories");
 
+            entity.ToTable("categories");
             entity.HasIndex(e => e.Slug, "UQ__categori__32DD1E4C1F3AC59E").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
@@ -218,7 +218,6 @@ public partial class MazicPcContext : DbContext
 
             entity.HasOne(d => d.Product).WithMany(p => p.InventoryLogs)
                 .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__inventory__produ__17036CC0");
         });
 
@@ -279,6 +278,7 @@ public partial class MazicPcContext : DbContext
 
             entity.HasOne(d => d.ShippingMethod).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.ShippingMethodId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__orders__shipping__7A672E12");
         });
 
@@ -298,11 +298,11 @@ public partial class MazicPcContext : DbContext
 
             entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.OrderId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__order_ite__order__7D439ABD");
 
             entity.HasOne(d => d.Product).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK__order_ite__produ__7E37BEF6");
         });
 
@@ -348,7 +348,6 @@ public partial class MazicPcContext : DbContext
 
             entity.HasOne(d => d.Order).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.OrderId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__payments__order___07C12930");
         });
 
@@ -412,9 +411,6 @@ public partial class MazicPcContext : DbContext
             entity.Property(e => e.Material)
                 .HasMaxLength(50)
                 .HasColumnName("material");
-            entity.Property(e => e.Model)
-                .HasMaxLength(100)
-                .HasColumnName("model");
             entity.Property(e => e.Name)
                 .HasMaxLength(200)
                 .HasColumnName("name");
@@ -441,9 +437,6 @@ public partial class MazicPcContext : DbContext
             entity.Property(e => e.Storage)
                 .HasMaxLength(255)
                 .HasColumnName("storage");
-            entity.Property(e => e.Type)
-                .HasMaxLength(20)
-                .HasColumnName("type");
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
@@ -463,13 +456,13 @@ public partial class MazicPcContext : DbContext
 
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__products__catego__534D60F1");
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_Products_Categories");
 
             entity.HasOne(d => d.Manufacturer).WithMany(p => p.Products)
                 .HasForeignKey(d => d.ManufacturerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__products__manufa__5441852A");
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_Products_Manufacturers");
         });
 
         modelBuilder.Entity<ProductImage>(entity =>
@@ -512,12 +505,10 @@ public partial class MazicPcContext : DbContext
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductPromotions)
                 .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__product_p__produ__66603565");
 
             entity.HasOne(d => d.Promotion).WithMany(p => p.ProductPromotions)
                 .HasForeignKey(d => d.PromotionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__product_p__promo__6754599E");
         });
 
@@ -571,7 +562,6 @@ public partial class MazicPcContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.Reviews)
                 .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__reviews__account__0D7A0286");
 
             entity.HasOne(d => d.Product).WithMany(p => p.Reviews)
@@ -610,7 +600,6 @@ public partial class MazicPcContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.ShippingAddresses)
                 .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__shipping___accou__1332DBDC");
         });
 

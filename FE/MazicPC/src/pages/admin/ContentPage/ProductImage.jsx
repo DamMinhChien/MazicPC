@@ -1,77 +1,69 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../layout/AdminLayout";
-import categoryServices from "../../../apis/categoryService";
 import MyToast from "../../../components/MyToast";
 import MyFullSpinner from "@components/MyFullSpinner";
 import SubmitContext from "@utils/SubmitContext";
-import categorySchema from "../../../schemas/admin/categorySchema";
+import productImageSchema from "../../../schemas/admin/productImageSchema";
+import productImageService from "../../../apis/productImageService";
+import productService from "../../../apis/productService";
 
-const Category = () => {
-  const [categories, setCategories] = useState([]);
-  const [categoryRoots, setCategoryRoot] = useState([]);
+const ProductImage = () => {
+  const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   // ------------------- Fetch API -------------------
-  const fetchCategories = async () => {
+  const fetchImages = async () => {
     try {
       setLoading(true);
-      const res = await categoryServices.getCategories();
-      console.log("data fetchCategories:", res);
-      setCategories(res);
+      const res = await productImageService.getProductImages();
+      setImages(res);
     } catch (err) {
-      setError(err.message || "Có lỗi xảy ra khi tải danh mục");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchCategoriesRoot = async () => {
-    try {
-      setLoading(true);
-      const res = await categoryServices.getCategoriesRoot();
-      setCategoryRoot(res);
-    } catch (err) {
-      setError(err.message || "Có lỗi xảy ra khi tải danh mục gốc");
+      setError(err.message || "Có lỗi xảy ra khi tải ảnh sản phẩm");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCategories();
-    fetchCategoriesRoot();
+    fetchImages();
   }, []);
 
-  const title = "danh mục";
+  const title = "ảnh sản phẩm";
+
+  const handleLoadOptions = async () => {
+    try {
+      const products = await productService.getProducts();
+      return products.map((p) => ({ value: p.id, label: p.name }));
+    } catch (error) {
+      setError("Có lỗi xảy ra khi tải sản phẩm");
+      return [];
+    }
+  };
 
   // ------------------- Các trường input -------------------
   const fields = [
     { name: "id", label: "ID", type: "hidden" },
-    { name: "name", label: "Tên danh mục" },
-    { name: "slug", label: "Slug" },
     {
-      name: "parentId",
-      label: "Danh mục cha",
+      name: "productId",
+      label: "Sản phẩm",
       type: "select",
-      // load options từ chính categories
-      loadOptions: async () =>
-        categoryRoots.map((c) => ({ value: c.id, label: c.name })),
+      loadOptions: handleLoadOptions,
     },
+    { name: "file", label: "Ảnh", type: "file" },
+    { name: "isPrimary", label: "Ảnh chính", type: "switch" },
   ];
 
   // --------------------- Logic Form ---------------------
-  const handleAdd = async (category) => {
+  const handleAdd = async (image) => {
     try {
       setLoading(true);
-      const res = await categoryServices.createCategory(category);
-      setSuccess("Thêm danh mục thành công");
-      setCategories((prev) => [...prev, res]);
-      fetchCategories();
-      fetchCategoriesRoot();
+      const res = await productImageService.createProductImage(image);
+      setSuccess("Thêm ảnh thành công");
+      setImages((prev) => [...prev, res]);
+      fetchImages();
     } catch (error) {
-      setLoading(false);
       const errors = error.response?.data || error.message;
       if (Array.isArray(errors)) {
         setError(errors.map((e) => e.message).join(", "));
@@ -83,15 +75,13 @@ const Category = () => {
     }
   };
 
-  const handleEdit = async (category) => {
+  const handleEdit = async (image) => {
     try {
       setLoading(true);
-      await categoryServices.updateCategory(category);
-      setSuccess("Cập nhật danh mục thành công");
-      fetchCategories();
-      fetchCategoriesRoot();
+      await productImageService.updateProductImage(image);
+      setSuccess("Cập nhật ảnh thành công");
+      fetchImages();
     } catch (error) {
-      setLoading(false);
       const errors = error.response?.data || error.message;
       if (Array.isArray(errors)) {
         setError(errors.map((e) => e.message).join(", "));
@@ -106,11 +96,10 @@ const Category = () => {
   const handleDel = async (id) => {
     try {
       setLoading(true);
-      await categoryServices.deleteCategory(id);
-      setSuccess("Xóa danh mục thành công");
-      fetchCategories();
+      await productImageService.deleteProductImage(id);
+      setSuccess("Xóa ảnh thành công");
+      fetchImages();
     } catch (error) {
-      setLoading(false);
       const errors = error.response?.data || error.message;
       if (Array.isArray(errors)) {
         setError(errors.map((e) => e.message).join(", "));
@@ -125,11 +114,10 @@ const Category = () => {
   const handleDelMany = async (ids) => {
     try {
       setLoading(true);
-      await categoryServices.deleteCategories(ids);
-      setSuccess(`Xóa thành công ${ids.length} danh mục`);
-      fetchCategories();
+      await productImageService.deleteProductImages(ids);
+      setSuccess(`Xóa thành công ${ids.length} ảnh`);
+      fetchImages();
     } catch (error) {
-      setLoading(false);
       const errors = error.response?.data || error.message;
       if (Array.isArray(errors)) {
         setError(errors.map((e) => e.message).join(", "));
@@ -147,10 +135,10 @@ const Category = () => {
         value={{ title, handleAdd, handleEdit, handleDel, handleDelMany }}
       >
         <AdminLayout
-          data={categories}
+          data={images}
           fields={fields}
-          postSchema={categorySchema.post}
-          putSchema={categorySchema.put}
+          postSchema={productImageSchema.post}
+          putSchema={productImageSchema.put}
         />
       </SubmitContext.Provider>
 
@@ -174,4 +162,4 @@ const Category = () => {
   );
 };
 
-export default Category;
+export default ProductImage;
