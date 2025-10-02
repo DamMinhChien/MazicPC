@@ -50,7 +50,6 @@ namespace MazicPC.Controllers
         }
 
         // PUT: api/Manufacturers/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Roles = Roles.Admin)]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutManufacturer(int id, [FromBody] ManufacturerDto manufacturerDto)
@@ -65,7 +64,6 @@ namespace MazicPC.Controllers
         }
 
         // POST: api/Manufacturers
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Roles = Roles.Admin)]
         [HttpPost]
         public async Task<ActionResult<GetManufacturerDto>> PostManufacturer([FromBody] ManufacturerDto manufacturerDto)

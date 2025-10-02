@@ -152,20 +152,20 @@ namespace MazicPC.Controllers
             }
 
             // Cập nhật các field khác
-            acc.Username = account.Username;
-            acc.Email = account.Email;
+            acc.Username = account.Username!;
+            acc.Email = account.Email!;
 
             if (!string.IsNullOrEmpty(account.Password))
             {
                 acc.Password = BCrypt.Net.BCrypt.HashPassword(account.Password);
             }
 
-            acc.User.FullName = account.FullName;
+            acc.User!.FullName = account.FullName!;
 
             // Chỉ cập nhật Role và IsActive nếu không bị cấm
             if (!(acc.Role == Roles.Admin))
             {
-                acc.Role = account.Role;
+                acc.Role = account.Role!;
                 acc.IsActive = account.IsActive ?? acc.IsActive;
             }
 

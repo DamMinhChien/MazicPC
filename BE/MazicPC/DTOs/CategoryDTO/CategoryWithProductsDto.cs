@@ -1,4 +1,4 @@
-﻿using static MazicPC.DTOs.Product.GetProductDto;
+﻿using MazicPC.DTOs.ProductDTO;
 
 namespace MazicPC.DTOs.CategoryDTO
 {
@@ -9,6 +9,6 @@ namespace MazicPC.DTOs.CategoryDTO
         public string Slug { get; set; } = null!;
 
         public List<CategoryWithProductsDto> Children { get; set; } = new();
-        public List<ProductUserDto> Products { get; set; } = new();
+        public List<UserGetProductDto> Products { get; set; } = new();
     }
 }
