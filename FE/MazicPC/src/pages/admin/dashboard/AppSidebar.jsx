@@ -12,10 +12,19 @@ import {
 
 import CIcon from "@coreui/icons-react";
 import {
+  cilAccountLogout,
+  cilBasket,
   cilCloudDownload,
+  cilFactory,
+  cilImage,
   cilLayers,
+  cilList,
+  cilLockLocked,
   cilPuzzle,
   cilSpeedometer,
+  cilUser,
+  cilUserFollow,
+  cilWallpaper,
 } from "@coreui/icons";
 import { useDispatch } from "react-redux";
 import { setCurrentPage } from "../../../redux/slices/currentPageSlice";
@@ -69,7 +78,8 @@ const AppSidebar = () => {
             onClick={() => handleSelect("account")}
             style={{ cursor: "pointer" }}
           >
-            <CIcon customClassName="nav-icon" icon={cilSpeedometer} /> Tài khoản
+            <CIcon customClassName="nav-icon" icon={cilLockLocked} /> Tài
+            khoản
           </CNavLink>
         </CNavItem>
 
@@ -78,46 +88,7 @@ const AppSidebar = () => {
             onClick={() => handleSelect("user")}
             style={{ cursor: "pointer" }}
           >
-            <CIcon customClassName="nav-icon" icon={cilSpeedometer} /> Người
-            dùng
-          </CNavLink>
-        </CNavItem>
-
-        <CNavItem>
-          <CNavLink
-            onClick={() => handleSelect("manufacturer")}
-            style={{ cursor: "pointer" }}
-          >
-            <CIcon customClassName="nav-icon" icon={cilSpeedometer} /> Hãng sản
-            xuất
-          </CNavLink>
-        </CNavItem>
-
-        <CNavItem>
-          <CNavLink
-            onClick={() => handleSelect("banner")}
-            style={{ cursor: "pointer" }}
-          >
-            <CIcon customClassName="nav-icon" icon={cilSpeedometer} /> Banner
-          </CNavLink>
-        </CNavItem>
-
-        <CNavItem>
-          <CNavLink
-            onClick={() => handleSelect("product")}
-            style={{ cursor: "pointer" }}
-          >
-            <CIcon customClassName="nav-icon" icon={cilSpeedometer} /> Sản phẩm
-          </CNavLink>
-        </CNavItem>
-
-        <CNavItem>
-          <CNavLink
-            onClick={() => handleSelect("productImage")}
-            style={{ cursor: "pointer" }}
-          >
-            <CIcon customClassName="nav-icon" icon={cilSpeedometer} /> Ảnh sản
-            phẩm
+            <CIcon customClassName="nav-icon" icon={cilUser} /> Người dùng
           </CNavLink>
         </CNavItem>
 
@@ -126,7 +97,43 @@ const AppSidebar = () => {
             onClick={() => handleSelect("category")}
             style={{ cursor: "pointer" }}
           >
-            <CIcon customClassName="nav-icon" icon={cilSpeedometer} /> Danh mục
+            <CIcon customClassName="nav-icon" icon={cilList} /> Danh mục
+          </CNavLink>
+        </CNavItem>
+
+        <CNavItem>
+          <CNavLink
+            onClick={() => handleSelect("manufacturer")}
+            style={{ cursor: "pointer" }}
+          >
+            <CIcon customClassName="nav-icon" icon={cilFactory} /> Hãng sản xuất
+          </CNavLink>
+        </CNavItem>
+
+        <CNavItem>
+          <CNavLink
+            onClick={() => handleSelect("product")}
+            style={{ cursor: "pointer" }}
+          >
+            <CIcon customClassName="nav-icon" icon={cilBasket} /> Sản phẩm
+          </CNavLink>
+        </CNavItem>
+
+        <CNavItem>
+          <CNavLink
+            onClick={() => handleSelect("productImage")}
+            style={{ cursor: "pointer" }}
+          >
+            <CIcon customClassName="nav-icon" icon={cilImage} /> Ảnh sản phẩm
+          </CNavLink>
+        </CNavItem>
+
+        <CNavItem>
+          <CNavLink
+            onClick={() => handleSelect("banner")}
+            style={{ cursor: "pointer" }}
+          >
+            <CIcon customClassName="nav-icon" icon={cilWallpaper} /> Banner
           </CNavLink>
         </CNavItem>
 

@@ -33,70 +33,50 @@ const createProductSchema = z.object({
   }),
 
   price: z.coerce
-    .number({ invalid_type_error: "Giá sản phẩm phải là số" })
+    .number({ message: "Giá sản phẩm phải là số" })
     .min(0, { message: "Giá sản phẩm không được âm" }),
 
   stockQty: z.coerce
-    .number({ invalid_type_error: "Số lượng tồn kho phải là số" })
+    .number({ message: "Số lượng tồn kho phải là số" })
     .min(0, { message: "Số lượng tồn kho không hợp lệ" }),
 
   shortDescription: z
-    .string({ invalid_type_error: "Mô tả ngắn phải là chuỗi" })
+    .string({ message: "Mô tả ngắn phải là chuỗi" })
     .optional(),
 
-  description: z
-    .string({ invalid_type_error: "Mô tả chi tiết phải là chuỗi" })
-    .optional(),
+  description: z.string({ message: "Mô tả chi tiết phải là chuỗi" }).optional(),
 
   warrantyMonths: z.coerce
-    .number({ invalid_type_error: "Thời gian bảo hành phải là số" })
+    .number({ message: "Thời gian bảo hành phải là số" })
     .min(0, { message: "Bảo hành không được nhỏ hơn 0 tháng" })
     .max(120, { message: "Bảo hành tối đa 120 tháng" })
     .optional(),
 
   imageUrl: z
-    .string({ invalid_type_error: "Ảnh đại diện phải là chuỗi" })
+    .string({ message: "Ảnh đại diện phải là chuỗi" })
     .url({ message: "Ảnh đại diện phải là URL hợp lệ" })
     .optional(),
 
   // Thông số kỹ thuật
-  cpu: z.string({ invalid_type_error: "CPU phải là chuỗi" }).optional(),
-  ram: z.string({ invalid_type_error: "RAM phải là chuỗi" }).optional(),
-  storage: z
-    .string({ invalid_type_error: "Ổ lưu trữ phải là chuỗi" })
-    .optional(),
-  display: z
-    .string({ invalid_type_error: "Màn hình phải là chuỗi" })
-    .optional(),
-  gpu: z.string({ invalid_type_error: "GPU phải là chuỗi" }).optional(),
-  os: z.string({ invalid_type_error: "Hệ điều hành phải là chuỗi" }).optional(),
-  keyboard: z
-    .string({ invalid_type_error: "Bàn phím phải là chuỗi" })
-    .optional(),
+  cpu: z.string({ message: "CPU phải là chuỗi" }).optional(),
+  ram: z.string({ message: "RAM phải là chuỗi" }).optional(),
+  storage: z.string({ message: "Ổ lưu trữ phải là chuỗi" }).optional(),
+  display: z.string({ message: "Màn hình phải là chuỗi" }).optional(),
+  gpu: z.string({ message: "GPU phải là chuỗi" }).optional(),
+  os: z.string({ message: "Hệ điều hành phải là chuỗi" }).optional(),
+  keyboard: z.string({ message: "Bàn phím phải là chuỗi" }).optional(),
   fingerprintReader: z
-    .boolean({ invalid_type_error: "Đầu đọc vân tay phải là true/false" })
+    .boolean({ message: "Đầu đọc vân tay phải là true/false" })
     .optional(),
-  battery: z.string({ invalid_type_error: "Pin phải là chuỗi" }).optional(),
-  camera: z.string({ invalid_type_error: "Camera phải là chuỗi" }).optional(),
-  ports: z
-    .string({ invalid_type_error: "Cổng kết nối phải là chuỗi" })
-    .optional(),
-  wireless: z
-    .string({ invalid_type_error: "Kết nối không dây phải là chuỗi" })
-    .optional(),
-  dimensions: z
-    .string({ invalid_type_error: "Kích thước phải là chuỗi" })
-    .optional(),
-  weight: z
-    .string({ invalid_type_error: "Khối lượng phải là chuỗi" })
-    .optional(),
-  color: z.string({ invalid_type_error: "Màu sắc phải là chuỗi" }).optional(),
-  material: z
-    .string({ invalid_type_error: "Chất liệu phải là chuỗi" })
-    .optional(),
-  condition: z
-    .string({ invalid_type_error: "Tình trạng phải là chuỗi" })
-    .optional(),
+  battery: z.string({ message: "Pin phải là chuỗi" }).optional(),
+  camera: z.string({ message: "Camera phải là chuỗi" }).optional(),
+  ports: z.string({ message: "Cổng kết nối phải là chuỗi" }).optional(),
+  wireless: z.string({ message: "Kết nối không dây phải là chuỗi" }).optional(),
+  dimensions: z.string({ message: "Kích thước phải là chuỗi" }).optional(),
+  weight: z.string({ message: "Khối lượng phải là chuỗi" }).optional(),
+  color: z.string({ message: "Màu sắc phải là chuỗi" }).optional(),
+  material: z.string({ message: "Chất liệu phải là chuỗi" }).optional(),
+  condition: z.string({ message: "Tình trạng phải là chuỗi" }).optional(),
   manufactureYear: z
     .any()
     .refine(
@@ -117,15 +97,11 @@ const createProductSchema = z.object({
     )
     .optional(),
   warrantyInfo: z
-    .string({ invalid_type_error: "Thông tin bảo hành phải là chuỗi" })
+    .string({ message: "Thông tin bảo hành phải là chuỗi" })
     .optional(),
-  brand: z
-    .string({ invalid_type_error: "Thương hiệu phải là chuỗi" })
-    .optional(),
-  productType: z
-    .string({ invalid_type_error: "Loại sản phẩm phải là chuỗi" })
-    .optional(),
-  origin: z.string({ invalid_type_error: "Xuất xứ phải là chuỗi" }).optional(),
+  brand: z.string({ message: "Thương hiệu phải là chuỗi" }).optional(),
+  productType: z.string({ message: "Loại sản phẩm phải là chuỗi" }).optional(),
+  origin: z.string({ message: "Xuất xứ phải là chuỗi" }).optional(),
 });
 
 const updateProductSchema = z.object({
@@ -162,70 +138,48 @@ const updateProductSchema = z.object({
   }),
 
   price: z.coerce
-    .number({ invalid_type_error: "Giá sản phẩm phải là số" })
+    .number({ message: "Giá sản phẩm phải là số" })
     .min(0, { message: "Giá sản phẩm không được âm" }),
 
   stockQty: z.coerce
-    .number({ invalid_type_error: "Số lượng tồn kho phải là số" })
+    .number({ message: "Số lượng tồn kho phải là số" })
     .min(0, { message: "Số lượng tồn kho không hợp lệ" }),
 
   shortDescription: z
-    .string({ invalid_type_error: "Mô tả ngắn phải là chuỗi" })
+    .string({ message: "Mô tả ngắn phải là chuỗi" })
     .optional(),
 
-  description: z
-    .string({ invalid_type_error: "Mô tả chi tiết phải là chuỗi" })
-    .optional(),
+  description: z.string({ message: "Mô tả chi tiết phải là chuỗi" }).optional(),
 
   warrantyMonths: z.coerce
-    .number({ invalid_type_error: "Thời gian bảo hành phải là số" })
+    .number({ message: "Thời gian bảo hành phải là số" })
     .min(0, { message: "Bảo hành không được nhỏ hơn 0 tháng" })
     .max(120, { message: "Bảo hành tối đa 120 tháng" })
     .optional(),
 
   imageUrl: z
-    .string({ invalid_type_error: "Ảnh đại diện phải là chuỗi" })
+    .string({ message: "Ảnh đại diện phải là chuỗi" })
     .url({ message: "Ảnh đại diện phải là URL hợp lệ" })
     .optional(),
 
   // Thông số kỹ thuật
-  cpu: z.string({ invalid_type_error: "CPU phải là chuỗi" }).optional(),
-  ram: z.string({ invalid_type_error: "RAM phải là chuỗi" }).optional(),
-  storage: z
-    .string({ invalid_type_error: "Ổ lưu trữ phải là chuỗi" })
-    .optional(),
-  display: z
-    .string({ invalid_type_error: "Màn hình phải là chuỗi" })
-    .optional(),
-  gpu: z.string({ invalid_type_error: "GPU phải là chuỗi" }).optional(),
-  os: z.string({ invalid_type_error: "Hệ điều hành phải là chuỗi" }).optional(),
-  keyboard: z
-    .string({ invalid_type_error: "Bàn phím phải là chuỗi" })
-    .optional(),
-  fingerprintReader: z
-    .boolean({ invalid_type_error: "Đầu đọc vân tay phải là true/false" })
-    .optional(),
-  battery: z.string({ invalid_type_error: "Pin phải là chuỗi" }).optional(),
-  camera: z.string({ invalid_type_error: "Camera phải là chuỗi" }).optional(),
-  ports: z
-    .string({ invalid_type_error: "Cổng kết nối phải là chuỗi" })
-    .optional(),
-  wireless: z
-    .string({ invalid_type_error: "Kết nối không dây phải là chuỗi" })
-    .optional(),
-  dimensions: z
-    .string({ invalid_type_error: "Kích thước phải là chuỗi" })
-    .optional(),
-  weight: z
-    .string({ invalid_type_error: "Khối lượng phải là chuỗi" })
-    .optional(),
-  color: z.string({ invalid_type_error: "Màu sắc phải là chuỗi" }).optional(),
-  material: z
-    .string({ invalid_type_error: "Chất liệu phải là chuỗi" })
-    .optional(),
-  condition: z
-    .string({ invalid_type_error: "Tình trạng phải là chuỗi" })
-    .optional(),
+  cpu: z.any().optional(),
+  ram: z.any().optional(),
+  storage: z.any().optional(),
+  display: z.any().optional(),
+  gpu: z.any().optional(),
+  os: z.any().optional(),
+  keyboard: z.any().optional(),
+  fingerprintReader: z.boolean().optional(),
+  battery: z.any().optional(),
+  camera: z.any().optional(),
+  ports: z.any().optional(),
+  wireless: z.any().optional(),
+  dimensions: z.any().optional(),
+  weight: z.any().optional(),
+  color: z.any().optional(),
+  material: z.any().optional(),
+  condition: z.any().optional(),
   manufactureYear: z
     .any()
     .refine(
@@ -245,16 +199,10 @@ const updateProductSchema = z.object({
       val === undefined || val === null || val === "" ? undefined : Number(val)
     )
     .optional(),
-  warrantyInfo: z
-    .string({ invalid_type_error: "Thông tin bảo hành phải là chuỗi" })
-    .optional(),
-  brand: z
-    .string({ invalid_type_error: "Thương hiệu phải là chuỗi" })
-    .optional(),
-  productType: z
-    .string({ invalid_type_error: "Loại sản phẩm phải là chuỗi" })
-    .optional(),
-  origin: z.string({ invalid_type_error: "Xuất xứ phải là chuỗi" }).optional(),
+  warrantyInfo: z.any().optional(),
+  brand: z.any().optional(),
+  productType: z.any().optional(),
+  origin: z.any().optional(),
 });
 
 const productSchema = {

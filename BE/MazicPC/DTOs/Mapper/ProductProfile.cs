@@ -9,14 +9,17 @@ namespace MazicPC.DTOs.Mapper
         public ProductProfile()
         {
             CreateMap<Models.Product, UserGetProductDto>()
-            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
-            .ForMember(dest => dest.ManufacturerName, opt => opt.MapFrom(src => src.Manufacturer.Name))
-            .ForMember(dest => dest.ImageUrls, opt => opt.MapFrom(src => src.ProductImages.Select(pi => pi.ImageUrl)));
+                .ForMember(dest => dest.CategoryName,
+                    opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
+                .ForMember(dest => dest.ManufacturerName,
+                    opt => opt.MapFrom(src => src.Manufacturer != null ? src.Manufacturer.Name : string.Empty));
 
             CreateMap<Models.Product, AdminGetProductDto>()
-            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
-            .ForMember(dest => dest.ManufacturerName, opt => opt.MapFrom(src => src.Manufacturer.Name))
-            .ForMember(dest => dest.ImageUrls, opt => opt.MapFrom(src => src.ProductImages.Select(pi => pi.ImageUrl)));
+                .ForMember(dest => dest.CategoryName,
+                           opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
+                .ForMember(dest => dest.ManufacturerName,
+                           opt => opt.MapFrom(src => src.Manufacturer != null ? src.Manufacturer.Name : string.Empty));
+
 
             CreateMap<Models.Product, ProductDto>()
                 .ReverseMap()
