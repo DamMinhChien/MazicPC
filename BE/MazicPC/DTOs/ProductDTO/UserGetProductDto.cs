@@ -38,8 +38,5 @@
         public string? Brand { get; set; }
         public string? ProductType { get; set; }
         public string? Origin { get; set; }
-
-        // Danh sách ảnh chi tiết (nếu có)
-        public List<string> ImageUrls { get; set; } = new();
     }
 }

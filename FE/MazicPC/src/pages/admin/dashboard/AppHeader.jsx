@@ -7,7 +7,7 @@ import {
   CHeader,
   CHeaderBrand,
 } from "@coreui/react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setCurrentPage } from "../../../redux/slices/currentPageSlice";
 import { logoutAsync } from "../../../redux/slices/authSlice";
 import { useState } from "react";
@@ -22,6 +22,7 @@ const AppHeader = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
   const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
 
   const handleSelect = (page) => {
     dispatch(setCurrentPage(page));
@@ -56,15 +57,19 @@ const AppHeader = () => {
           </CHeaderBrand>
 
           {/* Ở giữa - Tiêu đề */}
-          <h4 className="m-0 fw-bold text-center flex-grow-1">MazicPC</h4>
+          <h4 className="m-0 fw-bold text-center flex-grow-1 text-gradient">
+            MazicPC
+          </h4>
 
           {/* Bên phải - Danger Administrator + avatar */}
           <div className="d-flex align-items-center">
-            <span className="text-danger fw-bold me-2">Administrator</span>
+            <span className="text-danger fw-bold me-4 text-capitalize">
+              Administrator {user.username}
+            </span>
             <CDropdown variant="nav-item">
               <CDropdownToggle className="p-0 border-0 bg-transparent">
                 <img
-                  src="/logo-black-new.png" // đổi sang avatar admin thật
+                  src={user.user.avatarUrl ?? "/logo-black-new.png"} // đổi sang avatar admin thật
                   alt="admin avatar"
                   width={40}
                   height={40}

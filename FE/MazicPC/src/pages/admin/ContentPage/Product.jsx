@@ -44,6 +44,7 @@ const Product = () => {
   useEffect(() => {
     fetchProducts();
     fetchCategoriesNotRoot();
+    loadManufacturers();
   }, []);
 
   const title = "sản phẩm";
@@ -125,6 +126,9 @@ const Product = () => {
       const res = await productService.createProduct(product);
       setSuccess("Thêm sản phẩm thành công");
       setProducts((prev) => [...prev, res]);
+      fetchProducts();
+      fetchCategoriesNotRoot();
+      loadManufacturers();
     } catch (error) {
       const errors = error.response?.data || error.message;
       if (Array.isArray(errors)) {
@@ -143,6 +147,8 @@ const Product = () => {
       await productService.updateProduct(product);
       setSuccess("Cập nhật sản phẩm thành công");
       fetchProducts();
+      fetchCategoriesNotRoot();
+      loadManufacturers();
     } catch (error) {
       const errors = error.response?.data || error.message;
       if (Array.isArray(errors)) {
@@ -161,6 +167,8 @@ const Product = () => {
       await productService.deleteProduct(id);
       setSuccess("Xóa sản phẩm thành công");
       fetchProducts();
+      fetchCategoriesNotRoot();
+      loadManufacturers();
     } catch (error) {
       const errors = error.response?.data || error.message;
       if (Array.isArray(errors)) {
@@ -179,6 +187,8 @@ const Product = () => {
       await productService.deleteProducts(ids);
       setSuccess(`Xóa thành công ${ids.length} sản phẩm`);
       fetchProducts();
+      fetchCategoriesNotRoot();
+      loadManufacturers();
     } catch (error) {
       const errors = error.response?.data || error.message;
       if (Array.isArray(errors)) {
