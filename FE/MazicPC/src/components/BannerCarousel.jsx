@@ -1,31 +1,36 @@
 import { Carousel } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import ROUTERS from "../utils/router";
 
-function BannerCarousel() {
+function BannerCarousel({ banners }) {
+  const navigate = useNavigate();
+
+  const handleClick = (productId) => {
+    if (productId) {
+      const path = ROUTERS.USER.PRODUCT_DETAIL.replace(":id", productId);
+      navigate(path);
+    }
+  };
+
   return (
     <Carousel interval={2000} pause="hover" ride="carousel">
-      <Carousel.Item>
-        <img
-          className="d-block w-100"
-          src="https://picsum.photos/id/1018/1200/400"
-          alt="First slide"
-        />
-        <Carousel.Caption>
-          <h3>Slide 1</h3>
-          <p>Mô tả cho slide 1</p>
-        </Carousel.Caption>
-      </Carousel.Item>
-
-      <Carousel.Item>
-        <img
-          className="d-block w-100"
-          src="https://picsum.photos/id/1015/1200/400"
-          alt="Second slide"
-        />
-        <Carousel.Caption>
-          <h3>Slide 2</h3>
-          <p>Mô tả cho slide 2</p>
-        </Carousel.Caption>
-      </Carousel.Item>
+      {banners.filter(banner => banner.isActive).map((banner) => (
+        <Carousel.Item
+          key={banner.id}
+          onClick={() => handleClick(banner.productId)}
+          style={{ cursor: banner.productId ? "pointer" : "default" }}
+        >
+          <img
+            className="d-block w-100"
+            src={banner.imageUrl}
+            alt={`Product ${banner.productId}`}
+          />
+          <Carousel.Caption>
+            <h3>{banner.productName}</h3>
+            <p>{banner.title}</p>
+          </Carousel.Caption>
+        </Carousel.Item>
+      ))}
     </Carousel>
   );
 }

@@ -5,7 +5,7 @@ import {
   NavDropdown,
   Offcanvas,
 } from "react-bootstrap";
-import { FaShoppingCart } from "react-icons/fa"; 
+import { FaShoppingCart } from "react-icons/fa";
 import { IoPerson } from "react-icons/io5";
 import "./header.css";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,7 +25,7 @@ const Header = () => {
 
   return (
     <header className="px-4">
-      <Navbar bg="light" expand="lg" className="mb-3">
+      <Navbar bg="light" variant="light" expand="lg" className="mb-3">
         <Container
           fluid
           className="d-flex align-items-center justify-content-between"

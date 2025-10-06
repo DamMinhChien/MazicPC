@@ -8,6 +8,8 @@ const ROUTERS = {
     CHINH_SACH_DOI_TRA: "/chinh-sach-doi-tra",
     CHINH_SACH_VAN_CHUYEN: "/chinh-sach-van-chuyen",
     CHINH_SACH_VE_SINH_LAPTOP: "/chinh-sach-ve-sinh-laptop",
+    HUONG_DAN_MUA_HANG: "/huong-dan-mua-hang",
+    PRODUCT_DETAIL: "/products/:id",
   },
   COMMON: {
     AUTH: "/auth",

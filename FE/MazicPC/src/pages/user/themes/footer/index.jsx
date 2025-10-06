@@ -100,6 +100,11 @@ const Footer = () => {
                   Chính sách vệ sinh Laptop
                 </Link>
               </li>
+              <li>
+                <Link to={ROUTERS.USER.HUONG_DAN_MUA_HANG}>
+                  Hướng dẫn mua hàng
+                </Link>
+              </li>
             </ul>
           </Col>
 

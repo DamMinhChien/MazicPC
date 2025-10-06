@@ -1,0 +1,31 @@
+.manufacturersSection {
+  margin: 2rem 0;
+}
+
+.manufacturersContainer {
+  display: flex;
+  flex-wrap: wrap;           /* xuống dòng khi không đủ chỗ */
+  justify-content: center;   /* căn giữa hàng */
+  gap: 1rem;                 /* khoảng cách giữa logo */
+  margin: 0 1rem;
+  padding: 0;
+}
+
+.manufacturerItem {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 0 1 auto; /* hoặc flex: 0 1 120px */
+  cursor: pointer;
+}
+
+.manufacturerLogo {
+  height: 2rem;              /* chiều cao cố định */
+  width: auto;               /* giữ tỉ lệ */
+  filter: grayscale(100%) opacity(0.4);
+  transition: all 0.3s ease;
+}
+
+.manufacturerLogo:hover {
+  filter: grayscale(0%) opacity(1);
+}

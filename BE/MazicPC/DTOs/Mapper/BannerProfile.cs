@@ -13,6 +13,8 @@ namespace MazicPC.DTOs.Mapper
             CreateMap<Banner, GetBannerDto>().ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Product!.Name));
             //CreateMap<User, AdminGetUserDto>().ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Account.Username));
             CreateMap<BannerDto, Banner>().ReverseMap();
+            CreateMap<Banner, GetBannerWithProductDto>().ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Product!.Name));
+
         }
     }
 }

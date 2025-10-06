@@ -126,6 +126,19 @@ namespace MazicPC.Controllers
             return CreatedAtAction("GetProduct", new { id = product.Id }, result);
         }
 
+        [HttpPost("abc")]
+        public async Task<ActionResult<AdminGetProductDto>> PostProductagfwafg([FromBody] ProductDto productDto)
+        {
+            var product = mapper.Map<Product>(productDto);
+
+            db.Products.Add(product);
+            await db.SaveChangesAsync();
+
+            var result = mapper.Map<AdminGetProductDto>(product);
+
+            return CreatedAtAction("GetProduct", new { id = product.Id }, result);
+        }
+
         // DELETE: api/Products/5
         [Authorize(Roles = Roles.Admin)]
         [HttpDelete("{id}")]

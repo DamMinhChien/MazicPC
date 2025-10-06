@@ -14,6 +14,8 @@ import NotFoundPage from "./pages/common/notFoundPage";
 import DashboardPage from "./pages/admin/dashboard";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import ForbiddenPage from "./pages/common/forbiddenPage";
+import ProductDetail from "./pages/user/ProductDetail";
+import HuongDanMuaHang from "./pages/user/static/huong-dan-mua-hang";
 
 const RouterCustom = () => {
   const userRouter = [
@@ -50,11 +52,23 @@ const RouterCustom = () => {
       component: <ChinhSachVeSinhLapTop />,
     },
     {
+      path: ROUTERS.USER.HUONG_DAN_MUA_HANG,
+      component: <HuongDanMuaHang />,
+    },
+    {
+      path: ROUTERS.USER.PRODUCT_DETAIL,
+      component: <ProductDetail />,
+    },
+
+
+    
+    /*--------------------------------- COMMON */
+    {
       path: ROUTERS.COMMON.AUTH,
       component: <AuthPage />,
       layout: false,
     },
-    /* ADMIN */
+    /*--------------------------------- ADMIN */
     {
       path: ROUTERS.ADMIN.DASHBOARD,
       component: (
