@@ -55,7 +55,7 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
 
   const onSubmit = (data) => {
     if (mode === "edit") {
-      // console.log("Sửa từ MyForm:", data);
+      console.log("Sửa từ MyForm:", data);
       //console.log("DefaultValues:", defaultValues);
       // console.log("fields:", fields);
       // console.log("schema:", Object.keys(schema.shape));
@@ -72,7 +72,15 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
   };
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
+    <Form
+  onSubmit={handleSubmit(
+    onSubmit,
+    (errors) => {
+      console.log("Form lỗi:", errors);
+    }
+  )}
+>
+
       {/* Hidden fields */}
       {fields
         .filter((f) => f.type === "hidden")

@@ -11,7 +11,7 @@ export default defineConfig({
       "@components": path.resolve(__dirname, "src/components"),
       "@styles": path.resolve(__dirname, "src/styles"),
       "@public": path.resolve(__dirname, "public"),
-      "@api": path.resolve(__dirname, "src/api"),
+      "@apis": path.resolve(__dirname, "src/apis"),
       "@utils": path.resolve(__dirname, "src/utils"),
       "@schemas": path.resolve(__dirname, "src/schemas"),
     },

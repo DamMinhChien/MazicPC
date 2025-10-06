@@ -2,8 +2,8 @@ import { Col, Container, Row } from "react-bootstrap";
 
 const ShowRoom = () => {
   return (
-    <Container fluid className="d-flex p-2">
-      <Row>
+    <Container className="p-2">
+      <Row className="justify-content-center g-4">
         <Col lg={6} md>
           <a href="https://maps.app.goo.gl/Yc2CxJwJKoEWKSU76">
             <img src="/showroom/1.jpg" alt="showroom" className="w-100" />

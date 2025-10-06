@@ -45,7 +45,7 @@ namespace MazicPC.Validators.ProductValidator
                 .MaximumLength(200).WithMessage("Ổ cứng tối đa 200 ký tự");
 
             RuleFor(x => x.Display)
-                .MaximumLength(200).WithMessage("Màn hình tối đa 200 ký tự");
+                .MaximumLength(300).WithMessage("Màn hình tối đa 200 ký tự");
 
             RuleFor(x => x.Gpu)
                 .MaximumLength(200).WithMessage("GPU tối đa 200 ký tự");

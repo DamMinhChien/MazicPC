@@ -5,7 +5,6 @@ import MyFullSpinner from "@components/MyFullSpinner";
 import SubmitContext from "@utils/SubmitContext";
 import productSchema from "../../../schemas/admin/productSchema";
 import productService from "../../../apis/productService";
-import categoryService from "../../../apis/categoryService";
 import manufacturerService from "../../../apis/manufacturerService";
 import categoryServices from "../../../apis/categoryService";
 
@@ -130,12 +129,25 @@ const Product = () => {
       fetchCategoriesNotRoot();
       loadManufacturers();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
+      let errMsg = "Đã xảy ra lỗi không xác định";
+
+      if (error.response) {
+        const data = error.response.data;
+
+        if (typeof data === "string") {
+          errMsg = data;
+        } else if (Array.isArray(data)) {
+          errMsg = data.map((e) => e.message || JSON.stringify(e)).join(", ");
+        } else if (typeof data === "object" && data !== null) {
+          errMsg = data.message || JSON.stringify(data);
+        } else {
+          errMsg = String(data);
+        }
       } else {
-        setError(errors.message || error.message);
+        errMsg = error.message;
       }
+
+      setError(errMsg);
     } finally {
       setLoading(false);
     }
@@ -144,18 +156,36 @@ const Product = () => {
   const handleEdit = async (product) => {
     try {
       setLoading(true);
+      console.log("đang sửa ở Product.jsx");
+
       await productService.updateProduct(product);
       setSuccess("Cập nhật sản phẩm thành công");
       fetchProducts();
       fetchCategoriesNotRoot();
       loadManufacturers();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
+      let errMsg = "Đã xảy ra lỗi không xác định";
+
+      if (error.response) {
+        const data = error.response.data;
+
+        if (typeof data === "string") {
+          // server trả về text thuần
+          errMsg = data;
+        } else if (Array.isArray(data)) {
+          // server trả về mảng lỗi
+          errMsg = data.map((e) => e.message || JSON.stringify(e)).join(", ");
+        } else if (typeof data === "object" && data !== null) {
+          // server trả về JSON object
+          errMsg = data.message || JSON.stringify(data);
+        } else {
+          errMsg = String(data);
+        }
       } else {
-        setError(errors.message || error.message);
+        errMsg = error.message;
       }
+
+      setError(errMsg);
     } finally {
       setLoading(false);
     }
@@ -192,9 +222,9 @@ const Product = () => {
     } catch (error) {
       const errors = error.response?.data || error.message;
       if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
+        setError(errors.map((e) => e.errorMessage).join(", "));
       } else {
-        setError(errors.message || error.message);
+        setError(errors.errorMessage || error.message);
       }
     } finally {
       setLoading(false);

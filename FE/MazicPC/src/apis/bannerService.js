@@ -7,6 +7,11 @@ const bannerServices = {
     return res.data;
   },
 
+  async getBannersWithProduct(){
+    const res = await axiosClient.get("Banners/with-product");
+    return res.data;
+  },
+
   // Lấy 1 banner theo id
   async getBanner(id) {
     const res = await axiosClient.get(`Banners/${id}`);

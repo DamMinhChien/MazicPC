@@ -40,6 +40,14 @@ namespace MazicPC.Controllers
             return Ok(_mapper.Map<IEnumerable<GetBannerDto>>(banners));
         }
 
+        // GET: api/banners-with-product
+        [HttpGet("with-product")]
+        public async Task<ActionResult<IEnumerable<GetBannerWithProductDto>>> GetBannersWithProduct()
+        {
+            var banners = await _context.Banners.ToListAsync();
+            return Ok(_mapper.Map<IEnumerable<GetBannerWithProductDto>>(banners));
+        }
+
         // GET: api/Banners/5
         [HttpGet("{id}")]
         public async Task<ActionResult<GetBannerDto>> GetBanner(int id)
