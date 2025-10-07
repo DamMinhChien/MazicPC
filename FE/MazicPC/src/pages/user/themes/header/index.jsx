@@ -7,7 +7,6 @@ import {
 } from "react-bootstrap";
 import { FaShoppingCart } from "react-icons/fa";
 import { IoPerson } from "react-icons/io5";
-import "./header.css";
 import { useDispatch, useSelector } from "react-redux";
 import ROUTERS from "../../../../utils/router";
 import {
@@ -21,19 +20,19 @@ const Header = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const isLogin = !!user;
-  console.log("Trạng thái: ", user);
 
   return (
     <header className="px-4">
       <Navbar bg="light" variant="light" expand="lg" className="mb-3">
         <Container
           fluid
-          className="d-flex align-items-center justify-content-between"
+          className="d-flex align-items-center justify-content-between position-relative"
         >
+          {/* Logo cho màn hình lg+ */}
           <Navbar.Brand
             as={Link}
             to={ROUTERS.USER.HOME}
-            className="order-1 order-lg-0 mx-auto mx-lg-0"
+            className="d-none d-lg-block"
           >
             <img
               src="/logo-black-new.png"
@@ -41,7 +40,24 @@ const Header = () => {
               style={{ height: "50px" }}
             />
           </Navbar.Brand>
+
+          {/* Logo cho màn hình nhỏ (căn giữa) */}
+          <Navbar.Brand
+            as={Link}
+            to={ROUTERS.USER.HOME}
+            className="position-absolute start-50 translate-middle-x d-lg-none"
+          >
+            <img
+              src="/logo-black-new.png"
+              alt="logo"
+              style={{ height: "50px" }}
+            />
+          </Navbar.Brand>
+
+          {/* Toggle menu */}
           <Navbar.Toggle aria-controls="offcanvasNavbar-expand-lg" />
+
+          {/* Offcanvas menu */}
           <Navbar.Offcanvas
             id="offcanvasNavbar-expand-lg"
             aria-labelledby="offcanvasNavbarLabel-expand-lg"
@@ -75,7 +91,12 @@ const Header = () => {
               </Nav>
             </Offcanvas.Body>
           </Navbar.Offcanvas>
-          <Nav className="order-1 order-lg-0 ms-auto mx-lg-0 flex-nowrap">
+
+          {/* Icon góc phải */}
+          <div
+            className="d-flex align-items-center gap-3 flex-nowrap"
+            style={{ minWidth: "fit-content" }}
+          >
             <NavDropdown title={<IoPerson size={20} />} id="user-menu-dropdown">
               <NavDropdown.Item as={Link} to="#profile">
                 Hồ sơ
@@ -88,9 +109,11 @@ const Header = () => {
                 Đăng xuất
               </NavDropdown.Item>
             </NavDropdown>
+
             <Nav.Link as={Link} to={ROUTERS.USER.HOME}>
               <FaShoppingCart size={20} />
             </Nav.Link>
+
             <Nav.Link
               as={Link}
               to={isLogin ? "#" : ROUTERS.COMMON.AUTH}
@@ -102,7 +125,7 @@ const Header = () => {
                 <FaArrowRightToBracket />
               )}
             </Nav.Link>
-          </Nav>
+          </div>
         </Container>
       </Navbar>
     </header>

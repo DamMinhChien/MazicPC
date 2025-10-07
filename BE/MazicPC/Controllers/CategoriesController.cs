@@ -57,6 +57,7 @@ namespace MazicPC.Controllers
         public async Task<IActionResult> GetCategoriesWithProducts()
         {
             var categories = await _context.Categories
+                .Where(cat => cat.ParentId != null)
                 .ProjectTo<CategoryWithProductsDto>(mapper.ConfigurationProvider)
                 .ToListAsync();
 
