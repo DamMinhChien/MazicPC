@@ -13,6 +13,11 @@ const productServices = {
     return res.data;
   },
 
+  async getDetailProduct(id) {
+    const res = await axiosClient.get(`Products/${id}/details`);
+    return res.data;
+  },
+
   // Tạo mới product (có file -> multipart/form-data)
   async createProduct(data, file) {
     const formData = new FormData();

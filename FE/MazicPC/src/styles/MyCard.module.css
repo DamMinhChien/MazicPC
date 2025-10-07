@@ -9,7 +9,7 @@
   transition: color 0.3s ease;
 }
 .cardTitle:hover {
-  color: var(--bs-success);
+  color: var(--bs-white);
 }
 
 .cardText {

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import ProductList from "./ProductList";
 import ProductSectionHeader from "./ProductSectionHeader";
 import MySlider from "../pages/user/components/MySlider";
 

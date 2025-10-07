@@ -1,11 +1,12 @@
 import {
+  Button,
   Container,
   Nav,
   Navbar,
   NavDropdown,
   Offcanvas,
 } from "react-bootstrap";
-import { FaShoppingCart } from "react-icons/fa";
+import { FaShoppingCart, FaSnowflake } from "react-icons/fa";
 import { IoPerson } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import ROUTERS from "../../../../utils/router";
@@ -16,7 +17,7 @@ import {
 import { Link } from "react-router-dom";
 import { logoutAsync } from "../../../../redux/slices/authSlice";
 
-const Header = () => {
+const Header = ({ showSnow, toggleSnow }) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const isLogin = !!user;
@@ -109,6 +110,10 @@ const Header = () => {
                 Đăng xuất
               </NavDropdown.Item>
             </NavDropdown>
+
+            <Nav.Link onClick={toggleSnow}>
+              <FaSnowflake size={20} className={showSnow ? "text-danger" : "text-dark"}/>
+            </Nav.Link>
 
             <Nav.Link as={Link} to={ROUTERS.USER.HOME}>
               <FaShoppingCart size={20} />
