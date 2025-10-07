@@ -1,10 +1,10 @@
 import { useBootstrapBreakpoints } from "react-bootstrap/esm/ThemeProvider";
-import ProductCard from "./ProductCard";
+import ProductCard from "./MyCard";
 
 const ProductList = ({ products }) => {
   const breakpoints = useBootstrapBreakpoints();
   let visibleCount = products.length;
-  if (breakpoints.lg) {
+  if (breakpoints.lg) { 
     visibleCount = 6;
   } else if (breakpoints.md) {
     visibleCount = 3;

@@ -5,6 +5,43 @@ body {
   background-color: #f5f5f5;
 }
 
+:root {
+  /* Nền tổng thể */
+  --app-bg: #f1f2f6;
+  /* Màu chữ chính */
+  --app-text: #212529;
+
+  /* Màu chủ đạo (button, link) */
+  --app-primary: #3d5afe;
+  /* Nền đậm (header, footer) */
+  --app-dark: #1f1450;
+  /* Nhấn nhẹ, hover, border */
+  --app-highlight: #8c9eff;
+  /* Cảnh báo nhẹ */
+  --app-warn: #8c9eff;
+  /* CTA mạnh (Mua ngay, Giảm giá) */
+  --app-accent: #ff6f00;
+}
+
+/* Background utilities */
+.bg-app-primary { background-color: var(--app-primary) !important; color: #fff !important; }
+.bg-app-dark { background-color: var(--app-dark) !important; color: #fff !important; }
+.bg-app-accent { background-color: var(--app-accent) !important; color: #fff !important; }
+.bg-app-warn { background-color: var(--app-warn) !important; color: #212529 !important; }
+.bg-app-highlight { background-color: var(--app-highlight) !important; color: #212529 !important; }
+
+/* Text utilities */
+.text-app-primary { color: var(--app-primary) !important; }
+.text-app-dark { color: var(--app-dark) !important; }
+.text-app-accent { color: var(--app-accent) !important; }
+.text-app-warn { color: var(--app-warn) !important; }
+.text-app-highlight { color: var(--app-highlight) !important; }
+
+/* Border utilities */
+.border-app-primary { border-color: var(--app-primary) !important; }
+.border-app-accent { border-color: var(--app-accent) !important; }
+.border-app-warn { border-color: var(--app-warn) !important; }
+
 a {
   text-decoration: none;
   color: black;
@@ -58,7 +95,7 @@ ul {
 .table-scroll-x table td:first-child {
   position: sticky;
   left: 0;
-  background: #fff;   /* nền trắng để che nội dung trôi bên dưới */
+  background: #fff; /* nền trắng để che nội dung trôi bên dưới */
   z-index: 3;
 }
 
