@@ -2,9 +2,9 @@
 {
     public class UserGetProductImageDto
     {
-        public int Id { get; set; }
+        //public int Id { get; set; }
 
-        public int ProductId { get; set; }
+        //public int ProductId { get; set; }
 
         public string ImageUrl { get; set; } = null!;
 

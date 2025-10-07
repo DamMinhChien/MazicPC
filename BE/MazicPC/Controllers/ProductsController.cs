@@ -62,6 +62,19 @@ namespace MazicPC.Controllers
             return mapper.Map<UserGetProductDto>(product);
         }
 
+        [HttpGet("{id}/details")]
+        public async Task<ActionResult<GetDetailProductDto>> GetDetailProduct(int id)
+        {
+            var product = await db.Products.FindAsync(id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return mapper.Map<GetDetailProductDto>(product);
+        }
+
         // PUT: api/Products/5
         [RequestSizeLimit(10 * 1024 * 1024)]
         [Authorize(Roles = Roles.Admin)]

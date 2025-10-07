@@ -2,6 +2,7 @@ import { Badge, Card } from "react-bootstrap";
 import styles from "@styles/MyCard.module.css";
 import { useNavigate } from "react-router-dom";
 import ROUTERS from "../utils/router";
+import { gradients } from "@utils/gradientColors";
 
 const MyCard = ({ product }) => {
   const navigate = useNavigate();
@@ -10,8 +11,10 @@ const MyCard = ({ product }) => {
     navigate(path);
   };
 
+  const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
+
   return (
-    <Card onClick={handleClick} className={`h-100 p-4 d-flex flex-column justify-content-between shadow-sm ${styles.cardCard}`} style={{ cursor: "pointer", minHeight: "300px", maxHeight: "400px" }}>
+    <Card onClick={handleClick} className={`h-100 p-4 d-flex flex-column justify-content-between shadow-sm ${styles.cardCard}`} style={{ cursor: "pointer", minHeight: "300px", maxHeight: "400px", background: randomGradient }}>
   <div>
     <Card.Img 
     className={styles.cardImage}

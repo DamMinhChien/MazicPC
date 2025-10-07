@@ -10,6 +10,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
 import "swiper/css/effect-coverflow";
+import "react-medium-image-zoom/dist/styles.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Provider store={store}>

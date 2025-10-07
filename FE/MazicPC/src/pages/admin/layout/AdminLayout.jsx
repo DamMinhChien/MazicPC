@@ -28,7 +28,7 @@ const AdminLayout = ({
   const confirmDeleteBulk = () => {
     if (selectedIds.length > 0) {
       handleDelMany(selectedIds);
-      setSelectedIds([]);
+      setSelectedIds([]); 
     }
     setShowConfirmBulk(false);
     setError("");

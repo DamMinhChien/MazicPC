@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Breadcrumb } from "react-bootstrap";
+import { FaHome } from "react-icons/fa";
 
 const MyBreadcrumb = () => {
   const location = useLocation();
@@ -7,8 +8,13 @@ const MyBreadcrumb = () => {
 
   return (
     <Breadcrumb>
-      <Breadcrumb.Item linkAs={Link} linkProps={{ to: "/" }}>
-        Trang chủ
+      <Breadcrumb.Item
+        linkAs={Link}
+        linkProps={{ to: "/" }}
+        className="d-flex justify-content-center"
+      >
+        <FaHome className="me-2" size={20}/>
+        <strong>Trang chủ</strong>
       </Breadcrumb.Item>
 
       {pathnames.map((name, index) => {
