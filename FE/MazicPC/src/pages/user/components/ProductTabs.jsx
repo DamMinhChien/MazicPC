@@ -1,6 +1,7 @@
 import { Tabs, Tab } from "react-bootstrap";
 import { FaInfoCircle, FaCogs, FaStar } from "react-icons/fa";
 import ProductSpecsTable from "./ProductSpecsTable";
+import { toEmbedUrl } from "../../../utils/helper";
 
 const ProductTabs = ({ product }) => {
   return (
@@ -21,6 +22,16 @@ const ProductTabs = ({ product }) => {
           }
         >
           <div className="p-4 text-dark">
+            {product.videoUrl && (
+              <div className="ratio ratio-16x9 w-75 mx-auto">
+                  <iframe
+                    src={toEmbedUrl(product.videoUrl)}
+                    title="YouTube video player"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+            )}
             <h4 className="text-center fw-bold text-danger">{product.name}</h4>
             <h5
               className="mt-4 text-center"

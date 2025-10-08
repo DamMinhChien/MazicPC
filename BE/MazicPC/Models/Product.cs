@@ -73,6 +73,8 @@ public partial class Product
 
     public string? Origin { get; set; }
 
+    public string? VideoUrl { get; set; }
+
     public virtual ICollection<Banner> Banners { get; set; } = new List<Banner>();
 
     public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();

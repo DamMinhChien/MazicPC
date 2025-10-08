@@ -4,3 +4,8 @@ export function formatCurrency(value, currency = "VND") {
     currency,
   }).format(value);
 }
+
+export function toEmbedUrl(url) {
+  return url.replace("watch?v=", "embed/");
+}
+

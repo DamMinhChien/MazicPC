@@ -173,8 +173,8 @@ public partial class MazicPcContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__categori__3213E83F65BE2BB3");
 
-
             entity.ToTable("categories");
+
             entity.HasIndex(e => e.Slug, "UQ__categori__32DD1E4C1F3AC59E").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
@@ -355,11 +355,7 @@ public partial class MazicPcContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__products__3213E83F2C93AB4C");
 
-            entity.ToTable("products", tb =>
-                {
-                    tb.HasTrigger("trg_products_update");
-                    tb.HasTrigger("trg_update_products");
-                });
+            entity.ToTable("products", tb => tb.HasTrigger("trg_products_update"));
 
             entity.HasIndex(e => e.CategoryId, "idx_product_category");
 
@@ -441,6 +437,9 @@ public partial class MazicPcContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("updated_at");
+            entity.Property(e => e.VideoUrl)
+                .HasMaxLength(255)
+                .HasColumnName("video_url");
             entity.Property(e => e.WarrantyInfo)
                 .HasMaxLength(200)
                 .HasColumnName("warranty_info");
@@ -484,6 +483,7 @@ public partial class MazicPcContext : DbContext
                 .HasColumnName("is_primary");
             entity.Property(e => e.ProductId).HasColumnName("product_id");
             entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("updated_at");
 

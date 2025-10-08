@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 const currentYear = new Date().getFullYear();
+const nonEmptyStringOrEmptyToUndefined = (schema) =>
+  schema.optional().or(z.literal("").transform(() => undefined));
 
 const createProductSchema = z.object({
   // File bắt buộc khi tạo
@@ -23,6 +25,12 @@ const createProductSchema = z.object({
   name: z
     .string({ required_error: "Tên sản phẩm là bắt buộc" })
     .min(1, { message: "Tên sản phẩm không được để trống" }),
+
+  videoUrl: nonEmptyStringOrEmptyToUndefined(
+    z.string({ message: "VideoUrl phải là chuỗi." }).url({
+      message: "VideoUrl phải là một đường dẫn URL hợp lệ.",
+    })
+  ),
 
   categoryId: z.any().refine((val) => !isNaN(Number(val)), {
     message: "Danh mục không hợp lệ",
@@ -105,31 +113,35 @@ const updateProductSchema = z.object({
     message: "Id sản phẩm không hợp lệ",
   }),
   file: z
-  .any()
-  .optional() // cho phép không truyền
-  .refine(
-    (val) => val === undefined || val instanceof FileList,
-    { message: "File không hợp lệ" }
-  )
-  .refine(
-    (val) => !val || val.length === 0 || val.length > 0, // bỏ check bắt buộc
-    { message: "File không hợp lệ" }
-  )
-  .transform((val) => (val && val.length > 0 ? val[0] : undefined))
-  .refine(
-    (f) => !f || f.size < 10 * 1024 * 1024,
-    { message: "File phải nhỏ hơn 10MB" }
-  )
-  .refine(
-    (f) =>
-      !f || ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(f.type),
-    { message: "Chỉ được upload ảnh định dạng JPG, PNG, GIF, WEBP" }
-  ),
-
+    .any()
+    .optional() // cho phép không truyền
+    .refine((val) => val === undefined || val instanceof FileList, {
+      message: "File không hợp lệ",
+    })
+    .refine(
+      (val) => !val || val.length === 0 || val.length > 0, // bỏ check bắt buộc
+      { message: "File không hợp lệ" }
+    )
+    .transform((val) => (val && val.length > 0 ? val[0] : undefined))
+    .refine((f) => !f || f.size < 10 * 1024 * 1024, {
+      message: "File phải nhỏ hơn 10MB",
+    })
+    .refine(
+      (f) =>
+        !f ||
+        ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(f.type),
+      { message: "Chỉ được upload ảnh định dạng JPG, PNG, GIF, WEBP" }
+    ),
 
   name: z
     .string({ required_error: "Tên sản phẩm là bắt buộc" })
     .min(1, { message: "Tên sản phẩm không được để trống" }),
+
+  videoUrl: nonEmptyStringOrEmptyToUndefined(
+    z.string({ message: "LogoUrl phải là chuỗi." }).url({
+      message: "LogoUrl phải là một đường dẫn URL hợp lệ.",
+    })
+  ),
 
   categoryId: z.any().refine((val) => !isNaN(Number(val)), {
     message: "Danh mục không hợp lệ",
@@ -199,7 +211,7 @@ const updateProductSchema = z.object({
   warrantyInfo: z.any().optional(),
   brand: z.any().optional(),
   productType: z.any().optional(),
-origin: z.any().optional(),
+  origin: z.any().optional(),
 });
 
 const productSchema = {

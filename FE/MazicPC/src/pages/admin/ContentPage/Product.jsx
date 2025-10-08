@@ -92,6 +92,7 @@ const Product = () => {
     { name: "stockQty", label: "Số lượng tồn", type: "number" },
     { name: "warrantyMonths", label: "Bảo hành (tháng)", type: "number" },
     { name: "file", label: "Ảnh", type: "file" },
+    { name: "videoUrl", label: "Link video sản phẩm", type: "url" },
 
     // Thông số kỹ thuật
     { name: "cpu", label: "CPU" },
