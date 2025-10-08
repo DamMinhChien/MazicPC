@@ -3,7 +3,8 @@
 namespace MazicPC.DTOs.Product
 {
     public class ProductDto
-    { 
+    {
+        public string? VideoUrl { get; set; }
         public string Name { get; set; } = null!;
 
         public int? CategoryId { get; set; }

@@ -51,6 +51,7 @@ const ProductDetail = () => {
   const { id } = useParams();
 
   const [product, setProduct] = useState({});
+  const [products, setProducts] = useState([]);
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -58,13 +59,14 @@ const ProductDetail = () => {
 
   const [maxItem] = useState(20);
 
-  const [products, getProducts] = useState([]);
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
         const res = await productServices.getProducts();
-        getProducts(res);
+        console.log("product:", res);
+
+        setProducts(res);
       } catch (error) {
         let errMsg = "Đã xảy ra lỗi không xác định";
 
@@ -93,7 +95,7 @@ const ProductDetail = () => {
   }, []);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchProduct = async () => {
       try {
         setLoading(true);
         const res = await productServices.getDetailProduct(id);
@@ -134,7 +136,7 @@ const ProductDetail = () => {
       }
     };
 
-    fetchProducts();
+    fetchProduct();
   }, []);
   return (
     <main className="container bg-light p-4">
@@ -400,9 +402,7 @@ const ProductDetail = () => {
               Có thể bạn sẽ thích
             </CardTitle>
           </CardHeader>
-          <CardBody>
-            <MySlider products={products} maxItem={maxItem} />
-          </CardBody>
+          <MySlider products={products} maxItem={maxItem} />
         </Card>
       </section>
 

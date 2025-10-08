@@ -5,7 +5,7 @@ const ProductSpecsTable = ({ product }) => {
   if (!product) return null;
 
   // Lấy danh sách key bỏ qua 12 trường đầu
-  const entries = Object.entries(product).slice(15);
+  const entries = Object.entries(product).slice(16);
 
   return (
     <Card className="shadow-sm border-0 rounded-4">
