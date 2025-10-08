@@ -77,7 +77,7 @@ const Header = ({ showSnow, toggleSnow }) => {
                 <NavDropdown title="Danh mục" className="category-menu fw-bold">
                   <NavDropdown.Item as={Link} to="#action1">
                     Liên hệ
-                  </NavDropdown.Item>
+                  </NavDropdown.Item> 
                   <NavDropdown.Item as={Link} to="#action2">
                     Hỗ trợ
                   </NavDropdown.Item>

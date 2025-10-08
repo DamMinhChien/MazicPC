@@ -59,7 +59,7 @@ const Footer = () => {
                 <a href="#">Tuyển dụng</a>
               </li>
               <li>
-                <a href="http://online.gov.vn/Home/WebDetails/130444?AspxAutoDetectCookieSupport=1">
+                <a className="no-underline" href="http://online.gov.vn/Home/WebDetails/130444?AspxAutoDetectCookieSupport=1">
                   <img src="/bct.png" alt="bct" />
                 </a>
               </li>

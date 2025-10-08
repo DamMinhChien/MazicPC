@@ -19,76 +19,29 @@ import HuongDanMuaHang from "./pages/user/static/huong-dan-mua-hang";
 
 const RouterCustom = () => {
   const userRouter = [
-    {
-      path: ROUTERS.USER.HOME,
-      component: <HomePage />,
-    },
-    {
-      path: ROUTERS.USER.GIOI_THIEU_CONG_TY,
-      component: <GioiThieuCongTy />,
-    },
-    {
-      path: ROUTERS.USER.CHINH_SACH_BAO_HANH_BAO_TRI,
-      component: <ChinhSachBaoHanhBaoTri />,
-    },
-    {
-      path: ROUTERS.USER.CHINH_SACH_BAO_MAT_THONG_TIN,
-      component: <ChinhSachBaoMatThongTin />,
-    },
-    {
-      path: ROUTERS.USER.CHINH_SACH_CHAT_LUONG,
-      component: <ChinhSachChatLuong />,
-    },
-    {
-      path: ROUTERS.USER.CHINH_SACH_DOI_TRA,
-      component: <ChinhSachDoiTra />,
-    },
-    {
-      path: ROUTERS.USER.CHINH_SACH_VAN_CHUYEN,
-      component: <ChinhSachVanChuyen />,
-    },
-    {
-      path: ROUTERS.USER.CHINH_SACH_VE_SINH_LAPTOP,
-      component: <ChinhSachVeSinhLapTop />,
-    },
-    {
-      path: ROUTERS.USER.HUONG_DAN_MUA_HANG,
-      component: <HuongDanMuaHang />,
-    },
-    {
-      path: ROUTERS.USER.PRODUCT_DETAIL,
-      component: <ProductDetail />,
-    },
+    /* ---------------- USER ---------------- */
+    { path: ROUTERS.USER.HOME, component: <HomePage />},
+    { path: ROUTERS.USER.GIOI_THIEU_CONG_TY, component: <GioiThieuCongTy /> },
+    { path: ROUTERS.USER.CHINH_SACH_BAO_HANH_BAO_TRI, component: <ChinhSachBaoHanhBaoTri /> },
+    { path: ROUTERS.USER.CHINH_SACH_BAO_MAT_THONG_TIN, component: <ChinhSachBaoMatThongTin /> },
+    { path: ROUTERS.USER.CHINH_SACH_CHAT_LUONG, component: <ChinhSachChatLuong /> },
+    { path: ROUTERS.USER.CHINH_SACH_DOI_TRA, component: <ChinhSachDoiTra /> },
+    { path: ROUTERS.USER.CHINH_SACH_VAN_CHUYEN, component: <ChinhSachVanChuyen /> },
+    { path: ROUTERS.USER.CHINH_SACH_VE_SINH_LAPTOP, component: <ChinhSachVeSinhLapTop /> },
+    { path: ROUTERS.USER.HUONG_DAN_MUA_HANG, component: <HuongDanMuaHang /> },
+    { path: ROUTERS.USER.PRODUCT_DETAIL, component: <ProductDetail /> },
 
+    /* ---------------- COMMON ---------------- */
+    { path: ROUTERS.COMMON.AUTH, component: <AuthPage />, layout: false },
+    { path: ROUTERS.COMMON.FORBIDDEN, component: <ForbiddenPage />, layout: false },
+    { path: ROUTERS.COMMON.NOT_FOUND, component: <NotFoundPage />, layout: false },
 
-    
-    /*--------------------------------- COMMON */
-    {
-      path: ROUTERS.COMMON.AUTH,
-      component: <AuthPage />,
-      layout: false,
-    },
-    /*--------------------------------- ADMIN */
+    /* ---------------- ADMIN ---------------- */
     {
       path: ROUTERS.ADMIN.DASHBOARD,
-      component: (
-        <ProtectedRoute
-          component={<DashboardPage />}
-          allowedRoles={["admin"]}
-        />
-      ),
-      layout: false,
-    },
-    /* 403 */
-    {
-      path: ROUTERS.COMMON.FORBIDDEN,
-      component: <ForbiddenPage />,
-      layout: false,
-    },
-    /* Route 404 (luôn để cuối cùng) */
-    {
-      path: ROUTERS.COMMON.NOT_FOUND,
-      component: <NotFoundPage />,
+      component: <DashboardPage />,
+      private: true,
+      allowedRoles: ["admin"],
       layout: false,
     },
   ];
@@ -96,18 +49,21 @@ const RouterCustom = () => {
   return (
     <Routes>
       {userRouter.map((item, key) => {
-        const useLayout = item.layout ?? true; // mặc định true nếu không khai báo
+        const useLayout = item.layout ?? true; // mặc định true
+        const element = item.private ? (
+          <ProtectedRoute
+            component={item.component}
+            allowedRoles={item.allowedRoles}
+          />
+        ) : (
+          item.component
+        );
+
         return (
           <Route
             key={key}
             path={item.path}
-            element={
-              useLayout ? (
-                <MasterLayout>{item.component}</MasterLayout>
-              ) : (
-                item.component
-              )
-            }
+            element={useLayout ? <MasterLayout>{element}</MasterLayout> : element}
           />
         );
       })}

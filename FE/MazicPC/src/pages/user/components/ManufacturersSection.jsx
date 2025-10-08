@@ -10,7 +10,7 @@ export default function ManufacturersSection({ manufacturers }) {
         <Container className={styles.manufacturersContainer}>
           {manufacturers.map((m) => (
             <div key={m.id} className={styles.manufacturerItem}>
-              <Link to={m.website}>
+              <Link className="no-underline" to={m.website}>
                 <img
                   src={m.logoUrl}
                   alt={m.name}

@@ -26,6 +26,39 @@ a:hover::after {
   width: 100%;
 }
 
+/* Hiệu ứng underline cho các thẻ <a> nói chung */
+a {
+  position: relative;
+  text-decoration: none;
+}
+
+a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  width: 0;
+  height: 2px;
+  background-color: currentColor;
+  transform: translateX(-50%);
+  transition: width 0.3s ease;
+}
+
+a:hover::after {
+  width: 100%;
+}
+
+/* GHI ĐÈ hiệu ứng cho các link nằm trong dropdown hoặc category menu */
+.dropdown a::after,
+.category-menu a::after {
+  content: none !important;
+}
+
+a.no-underline::after {
+  content: none !important;
+}
+
+
 
 :root {
   /* Nền tổng thể */

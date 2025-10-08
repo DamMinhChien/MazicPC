@@ -5,12 +5,12 @@ const ShowRoom = () => {
     <Container className="p-2">
       <Row className="justify-content-center g-4">
         <Col lg={6} md>
-          <a href="https://maps.app.goo.gl/Yc2CxJwJKoEWKSU76">
+          <a className="no-underline" href="https://maps.app.goo.gl/Yc2CxJwJKoEWKSU76">
             <img src="/showroom/1.jpg" alt="showroom" className="w-100" />
           </a>
         </Col>
         <Col lg={6} md>
-          <a href="https://maps.app.goo.gl/HKuraUSrJDQzVjJK7">
+          <a className="no-underline" href="https://maps.app.goo.gl/HKuraUSrJDQzVjJK7">
             <img src="/showroom/2.jpg" alt="showroom" className="w-100" />
           </a>
         </Col>
