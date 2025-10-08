@@ -1,17 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import MyBreadcrumb from "../../components/MyBreadcrumb";
-import {
-  Badge,
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  CardTitle,
-  Col,
-  Container,
-  ListGroup,
-  Row,
-} from "react-bootstrap";
+import { Badge, Button, Card, Col, ListGroup, Row } from "react-bootstrap";
 import productServices from "../../apis/productService";
 import My3DSlider from "./components/My3DSlider";
 import { BsPatchCheckFill, BsShieldCheck, BsTruck } from "react-icons/bs";
@@ -137,7 +126,13 @@ const ProductDetail = () => {
     };
 
     fetchProduct();
-  }, []);
+
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "smooth", // Cuộn mượt thay vì nhảy lên đột ngột
+    });
+  }, [id]);
   return (
     <main className="container bg-light p-4">
       <MyBreadcrumb />
@@ -396,14 +391,10 @@ const ProductDetail = () => {
       </section>
 
       <section className="my-5">
-        <Card className="p-4 shadow-lg">
-          <CardHeader>
-            <CardTitle className="fw-bold fs-4 text-primary">
-              Có thể bạn sẽ thích
-            </CardTitle>
-          </CardHeader>
+        <div className="p-4 shadow-lg rounded-3">
+          <div className="fw-bold fs-4 text-primary">Có thể bạn sẽ thích</div>
           <MySlider products={products} maxItem={maxItem} />
-        </Card>
+        </div>
       </section>
 
       <MyToast

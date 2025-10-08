@@ -3,10 +3,10 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../apis/authService";
 import RouterCustom from "../router";
-import ROUTERS from "./router";
+import ROUTERS from "./router"; 
 
 const RouterWrapper = () => {
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
 
   useEffect(() => {
     const checkLogin = async () => {
@@ -14,7 +14,7 @@ const RouterWrapper = () => {
       console.log("isLogin:", res);
       if (!res) {
         localStorage.removeItem("user");
-        navigate(ROUTERS.USER.HOME, { replace: true });
+        //navigate(ROUTERS.USER.HOME, { replace: true });
       }
     };
     checkLogin();

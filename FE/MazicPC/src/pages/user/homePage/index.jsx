@@ -117,7 +117,7 @@ const HomePage = () => {
                 className="w-100"
               />
             </Link>
-            <Link to={ROUTERS.USER.HUONG_DAN_MUA_HANG}>
+            <Link to={ROUTERS.USER.HUONG_DAN_MUA_HANG} className="no-underline">
               <img
                 src="/img_carousel_2.jpg"
                 alt="img_carousel_2"
@@ -144,7 +144,7 @@ const HomePage = () => {
       <MyToast
         title="Lỗi"
         bg="danger"
-        show={!!error}
+        show={!!error} 
         message={error}
         onClose={() => setError("")}
       />
