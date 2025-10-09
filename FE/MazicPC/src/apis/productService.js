@@ -1,6 +1,12 @@
 import axiosClient from "./axiosClient";
 
 const productServices = {
+  // Filter Query
+  async getProductsFiltered(params = {}) {
+    const res = await axiosClient.get("Products/search", { params });
+    return res.data;
+  },
+
   // Lấy tất cả products
   async getProducts() {
     const res = await axiosClient.get("Products");
