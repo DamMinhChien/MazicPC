@@ -16,6 +16,7 @@ import ProtectedRoute from "./utils/ProtectedRoute";
 import ForbiddenPage from "./pages/common/forbiddenPage";
 import ProductDetail from "./pages/user/ProductDetail";
 import HuongDanMuaHang from "./pages/user/static/huong-dan-mua-hang";
+import Products from "./pages/user/Products";
 
 const RouterCustom = () => {
   const userRouter = [
@@ -29,6 +30,7 @@ const RouterCustom = () => {
     { path: ROUTERS.USER.CHINH_SACH_VAN_CHUYEN, component: <ChinhSachVanChuyen /> },
     { path: ROUTERS.USER.CHINH_SACH_VE_SINH_LAPTOP, component: <ChinhSachVeSinhLapTop /> },
     { path: ROUTERS.USER.HUONG_DAN_MUA_HANG, component: <HuongDanMuaHang /> },
+    { path: ROUTERS.USER.PRODUCTS, component: <Products /> },
     { path: ROUTERS.USER.PRODUCT_DETAIL, component: <ProductDetail /> },
 
     /* ---------------- COMMON ---------------- */

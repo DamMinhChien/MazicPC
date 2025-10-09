@@ -3,7 +3,7 @@ import { Toast, ToastContainer } from "react-bootstrap";
 const MyToast = ({
   show,
   onClose,
-  message,
+  message = "Có lỗi xảy ra",
   title = "Thông báo",
   bg = "danger",
   delay = 3000,

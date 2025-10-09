@@ -1,5 +1,4 @@
 import {
-  Button,
   Container,
   Nav,
   Navbar,
@@ -16,6 +15,7 @@ import {
 } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import { logoutAsync } from "../../../../redux/slices/authSlice";
+import SearchHeader from "../../components/SearchHeader";
 
 const Header = ({ showSnow, toggleSnow }) => {
   const dispatch = useDispatch();
@@ -23,8 +23,8 @@ const Header = ({ showSnow, toggleSnow }) => {
   const isLogin = !!user;
 
   return (
-    <header className="px-4">
-      <Navbar bg="light" variant="light" expand="lg" className="mb-3">
+    <header>
+      <Navbar fixed="top" bg="light" variant="light" expand="lg" style={{marginTop: "2rem"}}>
         <Container
           fluid
           className="d-flex align-items-center justify-content-between position-relative"
@@ -77,7 +77,7 @@ const Header = ({ showSnow, toggleSnow }) => {
                 <NavDropdown title="Danh mục" className="category-menu fw-bold">
                   <NavDropdown.Item as={Link} to="#action1">
                     Liên hệ
-                  </NavDropdown.Item> 
+                  </NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="#action2">
                     Hỗ trợ
                   </NavDropdown.Item>
@@ -98,6 +98,8 @@ const Header = ({ showSnow, toggleSnow }) => {
             className="d-flex align-items-center gap-3 flex-nowrap"
             style={{ minWidth: "fit-content" }}
           >
+            <SearchHeader />
+
             <NavDropdown title={<IoPerson size={20} />} id="user-menu-dropdown">
               <NavDropdown.Item as={Link} to="#profile">
                 Hồ sơ
@@ -112,7 +114,10 @@ const Header = ({ showSnow, toggleSnow }) => {
             </NavDropdown>
 
             <Nav.Link onClick={toggleSnow}>
-              <FaSnowflake size={20} className={showSnow ? "text-danger" : "text-dark"}/>
+              <FaSnowflake
+                size={20}
+                className={showSnow ? "text-danger" : "text-dark"}
+              />
             </Nav.Link>
 
             <Nav.Link as={Link} to={ROUTERS.USER.HOME}>

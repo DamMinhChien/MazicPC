@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
@@ -43,6 +44,81 @@ namespace MazicPC.Controllers
             }
 
             return Ok(mapper.Map<IEnumerable<UserGetProductDto>>(products));
+        }
+
+        // Search Query
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] ProductQueryDto query)
+        {
+            var products = db.Products.AsQueryable();
+
+            if (query.PriceMin > query.PriceMax) (query.PriceMin, query.PriceMax) = (query.PriceMax, query.PriceMin);
+
+            // --- Tìm kiếm ---
+            if (!string.IsNullOrWhiteSpace(query.Search))
+            {
+                products = products.Where(p => p.Name.Contains(query.Search) ||
+                p.ShortDescription != null && p.ShortDescription.Contains(query.Search) ||
+                p.Description != null && p.Description.Contains(query.Search));
+            }
+            // --- Lọc ---
+            if (!string.IsNullOrWhiteSpace(query.Category))
+            {
+                products = products.Where(p => p.Category != null && p.Category.Name == query.Category);
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.Manufacturer))
+            {
+                products = products.Where(p => p.Manufacturer != null && p.Manufacturer.Name == query.Manufacturer);
+            }
+
+            if (query.PriceMax.HasValue)
+            {
+                products = products.Where(p => p.Price >= query.PriceMax);
+            }
+
+            if (query.PriceMin.HasValue)
+            {
+                products = products.Where(p => p.Price <= query.PriceMin);
+            }
+            // --- Sắp xếp ---
+            products = query.Sort switch
+            {
+                "price_asc" => products.OrderBy(p => p.Price),
+                "price_desc" => products.OrderByDescending(p => p.Price),
+                "newest" => products.OrderBy(p => p.CreatedAt),
+                "oldest" => products.OrderByDescending(p => p.CreatedAt),
+                "name" => products.OrderByDescending(p => p.Name),
+                _ => products.OrderBy(p => p.Name)
+            };
+            // --- Phân trang ---
+            var totalItems = await products.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)query.Limit);
+            var res = await products
+                .Skip((query.Page - 1) * query.Limit)
+                .Take(query.Limit)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Name,
+                    p.ImageUrl,
+                    p.Price
+                })
+                .ToListAsync();
+
+            return Ok(new
+            {
+                success = true,
+                message = "Lấy sản phẩm thành công",
+                data = res,
+                pagination = new
+                {
+                    query.Page,
+                    query.Limit,
+                    totalItems,
+                    totalPages
+                }
+            });
         }
 
         // GET: api/Products/5
