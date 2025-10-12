@@ -14,9 +14,9 @@ const MyCard = ({ product }) => {
 
   const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
 
-  useEffect(()=>{
-console.log("Từ Card: ", product,)
-  },[])
+//   useEffect(()=>{
+// console.log("Từ Card: ", product,)
+//   },[])
 
   return (
     <Card onClick={handleClick} className={`h-100 p-4 d-flex flex-column justify-content-between shadow-sm ${styles.cardCard}`} style={{ cursor: "pointer", minHeight: "300px", maxHeight: "400px", background: randomGradient }}>

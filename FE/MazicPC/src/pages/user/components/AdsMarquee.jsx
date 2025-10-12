@@ -10,7 +10,7 @@ const ads = [
 
 const AdsMarquee = () => {
   return (
-    <div className="bg-app-accent py-1">
+    <div className="bg-app-accent py-1" style={{zIndex: "999"}}>
       <Marquee
         speed={50} // tốc độ chạy
         gradient={false} // tắt gradient 2 đầu

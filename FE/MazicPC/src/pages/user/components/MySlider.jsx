@@ -1,18 +1,14 @@
 import { Navigation, Scrollbar, Pagination, Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import MyCard from "../../../components/MyCard";
-import styles from "@styles/Slider.module.css"
-import { useEffect } from "react";
+import styles from "@styles/Slider.module.css";
 
 const MySlider = ({ products, maxItem = 20 }) => {
-  useEffect(()=>{
-    console.log("Từ slide: ", products,"max: ",maxItem)
-  },[])
   return (
     <div className={`w-100 p-2 ${styles.swiperContainer}`}>
       <Swiper
         modules={[Navigation, Pagination, Scrollbar, Autoplay]}
-        slidesPerView={3}
+        slidesPerView={1}
         effect="slide" // chọn hiệu ứng hiển thị (coverflow, slide, fade, cube,...)
         grabCursor={true}
         centeredSlides={true}
@@ -28,7 +24,7 @@ const MySlider = ({ products, maxItem = 20 }) => {
         }}
         autoHeight
         breakpoints={{
-          640: { slidesPerView: 2, spaceBetween: 15 },
+          768: { slidesPerView: 2, spaceBetween: 15 },
           1024: { slidesPerView: 4, spaceBetween: 20 },
         }}
       >

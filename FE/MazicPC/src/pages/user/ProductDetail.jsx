@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import MyBreadcrumb from "../../components/MyBreadcrumb";
 import { Badge, Button, Card, Col, ListGroup, Row } from "react-bootstrap";
 import productServices from "../../apis/productService";
@@ -20,6 +20,9 @@ import FlashSaleBanner from "../user/components/FlashSaleBanner";
 import ROUTERS from "../../utils/router";
 import ProductTabs from "./components/ProductTabs";
 import MySlider from "./components/MySlider";
+import { useDispatch, useSelector } from "react-redux";
+import ConfirmModal from "../../components/ConfirmModal";
+import { addToCart, fetchCart } from "../../redux/slices/cartSlice";
 
 const ProductDetail = () => {
   const promotions = [
@@ -38,6 +41,7 @@ const ProductDetail = () => {
   ];
 
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [product, setProduct] = useState({});
   const [products, setProducts] = useState([]);
@@ -130,9 +134,51 @@ const ProductDetail = () => {
     window.scrollTo({
       top: 0,
       left: 0,
-      behavior: "smooth", // Cuộn mượt thay vì nhảy lên đột ngột
+      behavior: "smooth",
     });
   }, [id]);
+
+  // Add to cart
+  const user = useSelector((state) => state.auth.user);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  //const cart = useSelector(state => state.cart.cart)
+  const dispatch = useDispatch();
+
+  const handleConfirmAddToCart = () => {
+    navigate(ROUTERS.COMMON.AUTH);
+  };
+
+  const handleAddToCart = async () => {
+    // 1️⃣ Chưa login hoặc không phải role user
+    if (!user || user.role.toLowerCase() !== "user") {
+      console.log("user: ", user)
+      setShowConfirm(true);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      // 2️⃣ Gọi API thêm sản phẩm vào giỏ
+      await dispatch(
+        addToCart({
+          productId: Number(id),
+          quantity: 1,
+        })
+      ).unwrap();
+
+      // 3️⃣ Lấy lại giỏ hàng mới nhất
+      await dispatch(fetchCart());
+
+      // 4️⃣ Điều hướng sang trang giỏ hàng
+      navigate(ROUTERS.USER.CART);
+    } catch (err) {
+      setError(err.message || "Thêm vào giỏ hàng thất bại!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="container bg-light p-4">
       <MyBreadcrumb />
@@ -376,7 +422,10 @@ const ProductDetail = () => {
                   </Button>
                 </Col>
                 <Col md={6}>
-                  <Button className="p-4 bg-primary border-0 w-100 fw-bold fs-4 d-flex align-items-center justify-content-center gap-2">
+                  <Button
+                    onClick={handleAddToCart}
+                    className="p-4 bg-primary border-0 w-100 fw-bold fs-4 d-flex align-items-center justify-content-center gap-2"
+                  >
                     <FaShoppingCart /> Thêm vào giỏ hàng
                   </Button>
                 </Col>
@@ -413,6 +462,18 @@ const ProductDetail = () => {
       />
 
       <MyFullSpinner show={loading} />
+
+      <ConfirmModal
+        show={showConfirm}
+        title={"Thông báo"}
+        message={
+          "Bạn chưa đăng nhập, đăng nhập ngay để trải nghiệm tính năng này !"
+        }
+        onClose={() => {
+          setShowConfirm(false);
+        }}
+        onConfirm={handleConfirmAddToCart}
+      />
     </main>
   );
 };

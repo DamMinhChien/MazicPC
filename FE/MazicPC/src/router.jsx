@@ -16,25 +16,57 @@ import ProtectedRoute from "./utils/ProtectedRoute";
 import ForbiddenPage from "./pages/common/forbiddenPage";
 import ProductDetail from "./pages/user/ProductDetail";
 import HuongDanMuaHang from "./pages/user/static/huong-dan-mua-hang";
+import Products from "./pages/user/Products";
+import Cart from "./pages/user/Cart";
 
 const RouterCustom = () => {
   const userRouter = [
     /* ---------------- USER ---------------- */
-    { path: ROUTERS.USER.HOME, component: <HomePage />},
+    { path: ROUTERS.USER.HOME, component: <HomePage /> },
     { path: ROUTERS.USER.GIOI_THIEU_CONG_TY, component: <GioiThieuCongTy /> },
-    { path: ROUTERS.USER.CHINH_SACH_BAO_HANH_BAO_TRI, component: <ChinhSachBaoHanhBaoTri /> },
-    { path: ROUTERS.USER.CHINH_SACH_BAO_MAT_THONG_TIN, component: <ChinhSachBaoMatThongTin /> },
-    { path: ROUTERS.USER.CHINH_SACH_CHAT_LUONG, component: <ChinhSachChatLuong /> },
+    {
+      path: ROUTERS.USER.CHINH_SACH_BAO_HANH_BAO_TRI,
+      component: <ChinhSachBaoHanhBaoTri />,
+    },
+    {
+      path: ROUTERS.USER.CHINH_SACH_BAO_MAT_THONG_TIN,
+      component: <ChinhSachBaoMatThongTin />,
+    },
+    {
+      path: ROUTERS.USER.CHINH_SACH_CHAT_LUONG,
+      component: <ChinhSachChatLuong />,
+    },
     { path: ROUTERS.USER.CHINH_SACH_DOI_TRA, component: <ChinhSachDoiTra /> },
-    { path: ROUTERS.USER.CHINH_SACH_VAN_CHUYEN, component: <ChinhSachVanChuyen /> },
-    { path: ROUTERS.USER.CHINH_SACH_VE_SINH_LAPTOP, component: <ChinhSachVeSinhLapTop /> },
+    {
+      path: ROUTERS.USER.CHINH_SACH_VAN_CHUYEN,
+      component: <ChinhSachVanChuyen />,
+    },
+    {
+      path: ROUTERS.USER.CHINH_SACH_VE_SINH_LAPTOP,
+      component: <ChinhSachVeSinhLapTop />,
+    },
     { path: ROUTERS.USER.HUONG_DAN_MUA_HANG, component: <HuongDanMuaHang /> },
+    { path: ROUTERS.USER.PRODUCTS, component: <Products /> },
     { path: ROUTERS.USER.PRODUCT_DETAIL, component: <ProductDetail /> },
+    {
+      path: ROUTERS.USER.CART,
+      component: <Cart />,
+      private: true,
+      allowedRoles: ["user"],
+    },
 
     /* ---------------- COMMON ---------------- */
     { path: ROUTERS.COMMON.AUTH, component: <AuthPage />, layout: false },
-    { path: ROUTERS.COMMON.FORBIDDEN, component: <ForbiddenPage />, layout: false },
-    { path: ROUTERS.COMMON.NOT_FOUND, component: <NotFoundPage />, layout: false },
+    {
+      path: ROUTERS.COMMON.FORBIDDEN,
+      component: <ForbiddenPage />,
+      layout: false,
+    },
+    {
+      path: ROUTERS.COMMON.NOT_FOUND,
+      component: <NotFoundPage />,
+      layout: false,
+    },
 
     /* ---------------- ADMIN ---------------- */
     {
@@ -63,7 +95,9 @@ const RouterCustom = () => {
           <Route
             key={key}
             path={item.path}
-            element={useLayout ? <MasterLayout>{element}</MasterLayout> : element}
+            element={
+              useLayout ? <MasterLayout>{element}</MasterLayout> : element
+            }
           />
         );
       })}

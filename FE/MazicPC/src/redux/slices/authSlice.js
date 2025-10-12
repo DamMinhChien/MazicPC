@@ -12,7 +12,7 @@ export const logoutAsync = createAsyncThunk(
       await authService.logout(); // Gọi API logout server
       return true;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || "Logout failed");
+      return thunkAPI.rejectWithValue(error.response?.data || "Có lỗi xảy ra khi đăng xuất");
     }
   }
 );
