@@ -11,6 +11,7 @@ const ROUTERS = {
     HUONG_DAN_MUA_HANG: "/huong-dan-mua-hang",
     PRODUCTS: "/products",
     PRODUCT_DETAIL: "/products/:id",
+    CART: "/cart",
   },
   COMMON: {
     AUTH: "/auth",

@@ -11,7 +11,7 @@ const RouterWrapper = () => {
   useEffect(() => {
     const checkLogin = async () => {
       const res = await authService.isLogin();
-      console.log("isLogin:", res);
+      // console.log("isLogin:", res);
       if (!res) {
         localStorage.removeItem("user");
         //navigate(ROUTERS.USER.HOME, { replace: true });

@@ -2,12 +2,8 @@ import { Navigation, Scrollbar, Pagination, Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import MyCard from "../../../components/MyCard";
 import styles from "@styles/Slider.module.css";
-import { useEffect } from "react";
 
 const MySlider = ({ products, maxItem = 20 }) => {
-  useEffect(() => {
-    console.log("Từ slide: ", products, "max: ", maxItem);
-  }, []);
   return (
     <div className={`w-100 p-2 ${styles.swiperContainer}`}>
       <Swiper

@@ -21,10 +21,11 @@ const Header = ({ showSnow, toggleSnow }) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const isLogin = !!user;
+  //fixed="top" style={{ marginTop: "2rem" }}
 
   return (
     <header>
-      <Navbar fixed="top" bg="light" variant="light" expand="lg" style={{marginTop: "2rem"}}>
+      <Navbar bg="light" variant="light" expand="lg">
         <Container
           fluid
           className="d-flex align-items-center justify-content-between position-relative"
@@ -69,7 +70,7 @@ const Header = ({ showSnow, toggleSnow }) => {
                 Menu
               </Offcanvas.Title>
             </Offcanvas.Header>
-            <Offcanvas.Body>
+            <Offcanvas.Body className="fs-5">
               <Nav className="mx-auto gap-2">
                 <Nav.Link as={Link} to={ROUTERS.USER.HOME} className="fw-bold">
                   Trang chủ
@@ -120,7 +121,7 @@ const Header = ({ showSnow, toggleSnow }) => {
               />
             </Nav.Link>
 
-            <Nav.Link as={Link} to={ROUTERS.USER.HOME}>
+            <Nav.Link as={Link} to={ROUTERS.USER.CART}>
               <FaShoppingCart size={20} />
             </Nav.Link>
 
