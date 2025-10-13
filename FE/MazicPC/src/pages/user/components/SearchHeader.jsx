@@ -11,7 +11,7 @@ const SearchHeader = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (showSearch && inputRef.current) {
+    if (showSearch && inputRef.current) { 
       inputRef.current.focus();
     }
   }, [showSearch]);

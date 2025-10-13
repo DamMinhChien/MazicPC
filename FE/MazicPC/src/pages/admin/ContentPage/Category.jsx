@@ -51,6 +51,7 @@ const Category = () => {
     { name: "id", label: "ID", type: "hidden" },
     { name: "name", label: "Tên danh mục" },
     { name: "slug", label: "Slug" },
+    { name: "file", label: "Ảnh", type: "file" },
     {
       name: "parentId",
       label: "Danh mục cha",

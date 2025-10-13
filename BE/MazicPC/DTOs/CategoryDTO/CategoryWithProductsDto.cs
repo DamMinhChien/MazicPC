@@ -7,7 +7,7 @@ namespace MazicPC.DTOs.CategoryDTO
         public int Id { get; set; }
         public string Name { get; set; } = null!;
         public string Slug { get; set; } = null!;
-
+        public string? ImageUrl { get; set; }
         public List<CategoryWithProductsDto> Children { get; set; } = new();
         public List<UserGetProductDto> Products { get; set; } = new();
     }

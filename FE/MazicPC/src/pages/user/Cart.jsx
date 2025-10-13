@@ -4,7 +4,6 @@ import CartList from "./components/CartList";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { fetchCart } from "../../redux/slices/cartSlice";
-import MyToast from "../../components/MyToast";
 import MyFullSpinner from "../../components/MyFullSpinner";
 
 const Cart = () => {
