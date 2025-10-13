@@ -29,7 +29,8 @@ a:hover::after {
 /* Hiệu ứng underline cho các thẻ <a> nói chung */
 a {
   position: relative;
-  text-decoration: none;
+  text-decoration: none !important;
+  color: black !important;
 }
 
 a::after {
