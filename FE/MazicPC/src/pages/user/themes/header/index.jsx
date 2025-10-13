@@ -1,4 +1,5 @@
 import {
+  Button,
   Container,
   Nav,
   Navbar,
@@ -13,18 +14,37 @@ import {
   FaArrowRightFromBracket,
   FaArrowRightToBracket,
 } from "react-icons/fa6";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { logoutAsync } from "../../../../redux/slices/authSlice";
 import SearchHeader from "../../components/SearchHeader";
+import AdsMarquee from "../../components/AdsMarquee";
+import { useQuery } from "@tanstack/react-query";
+import categoryServices from "../../../../apis/categoryService";
+import MyFullSpinner from "../../../../components/MyFullSpinner";
+import CategoryMegaMenu from "../../components/CategoryMegaMenu";
+import { useEffect, useState } from "react";
 
 const Header = ({ showSnow, toggleSnow }) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const isLogin = !!user;
   //fixed="top" style={{ marginTop: "2rem" }}
+  const [showMenu, setShowMenu] = useState(false);
+  const location = useLocation();
+
+  // 🔒 Mỗi khi URL thay đổi → tự đóng menu
+  useEffect(() => {
+    setShowMenu(false);
+  }, [location]);
+
+  const { data: categories, isLoading } = useQuery({
+    queryKey: ["categoriesTree"],
+    queryFn: async () => categoryServices.getCategoryTree(),
+  });
 
   return (
-    <header>
+    <header className="position-fixed fixed-top">
+      <AdsMarquee />
       <Navbar bg="light" variant="light" expand="lg">
         <Container
           fluid
@@ -75,18 +95,23 @@ const Header = ({ showSnow, toggleSnow }) => {
                 <Nav.Link as={Link} to={ROUTERS.USER.HOME} className="fw-bold">
                   Trang chủ
                 </Nav.Link>
-                <NavDropdown title="Danh mục" className="category-menu fw-bold">
-                  <NavDropdown.Item as={Link} to="#action1">
-                    Liên hệ
-                  </NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="#action2">
-                    Hỗ trợ
-                  </NavDropdown.Item>
-                  <NavDropdown.Divider />
-                  <NavDropdown.Item as={Link} to="#action3">
-                    Đăng xuất
-                  </NavDropdown.Item>
+                <NavDropdown
+                  title="Danh mục"
+                  className="category-menu fw-bold position-static"
+                  menuVariant="light"
+                  as="div"
+                  show={showMenu}
+                  onClick={() => setShowMenu(!showMenu)}
+                >
+                  {isLoading ? (
+                    <MyFullSpinner show={isLoading} />
+                  ) : (
+                    showMenu && (
+                      <CategoryMegaMenu categories={categories || []} />
+                    )
+                  )}
                 </NavDropdown>
+
                 <Nav.Link as={Link} to={ROUTERS.USER.HOME} className="fw-bold">
                   Tin tức
                 </Nav.Link>
@@ -139,6 +164,20 @@ const Header = ({ showSnow, toggleSnow }) => {
           </div>
         </Container>
       </Navbar>
+      <style jsx>
+        {`
+          .category-menu .dropdown-menu {
+            left: 0 !important;
+            right: 0 !important;
+            width: 100%;
+            border: none;
+            padding: 0;
+          }
+          .category-menu .dropdown-menu.show {
+            display: block;
+          }
+        `}
+      </style>
     </header>
   );
 };

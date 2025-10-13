@@ -22,11 +22,13 @@ namespace MazicPC.Controllers
     {
         private readonly MazicPcContext _context;
         private readonly IMapper mapper;
+        private readonly IWebHostEnvironment _env;
 
-        public CategoriesController(MazicPcContext context, IMapper mapper)
+        public CategoriesController(MazicPcContext context, IMapper mapper, IWebHostEnvironment env)
         {
             _context = context;
             this.mapper = mapper;
+            _env = env;
         }
 
         // API cho user -> trả về dạng cây
@@ -102,9 +104,10 @@ namespace MazicPC.Controllers
         }
 
         // PUT: api/Categories/5
+        [RequestSizeLimit(10 * 1024 * 1024)]
         [Authorize(Roles = Roles.Admin)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, [FromBody] CategoryDto categoryDto)
+        public async Task<IActionResult> PutCategory(int id, [FromForm] CategoryDto categoryDto, IFormFile? file)
         {
             if (categoryDto == null)
                 return BadRequest("Dữ liệu gửi lên không hợp lệ");
@@ -119,19 +122,53 @@ namespace MazicPC.Controllers
                 return BadRequest("Danh mục không thể là cha của chính nó.");
 
             mapper.Map(categoryDto, category);
+
+            if (file != null)
+            {
+                try
+                {
+                    category.ImageUrl = await FileHelper.SaveImageAsync(file, _env, Request, category.ImageUrl);
+                }
+                catch (ArgumentException ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, "Lỗi khi lưu file: " + ex.Message);
+                }
+            }
+
             await _context.SaveChangesAsync();
             return NoContent();
         }
 
         // POST: api/Categories
+        [RequestSizeLimit(10 * 1024 * 1024)]
         [Authorize(Roles = Roles.Admin)]
         [HttpPost]
-        public async Task<ActionResult<CategoryAdminDto>> PostCategory([FromBody] CategoryDto categoryDto)
+        public async Task<ActionResult<CategoryAdminDto>> PostCategory([FromForm] CategoryDto categoryDto, IFormFile? file)
         {
             if (categoryDto == null)
                 return BadRequest("Dữ liệu gửi lên không hợp lệ");
 
             var category = mapper.Map<Category>(categoryDto);
+
+            if (file != null)
+            {
+                try
+                {
+                    category.ImageUrl = await FileHelper.SaveImageAsync(file, _env, Request, category.ImageUrl);
+                }
+                catch (ArgumentException ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, "Lỗi khi lưu file: " + ex.Message);
+                }
+            }
 
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();

@@ -6,6 +6,7 @@
         public string Name { get; set; } = null!;
         public string Slug { get; set; } = null!;
         public string? ParentName { get; set; }
+        public string? ImageUrl { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }

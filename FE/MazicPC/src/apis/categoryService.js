@@ -35,15 +35,39 @@ const categoryServices = {
     return res.data;
   },
 
-  // Tạo mới category
-  async createCategory(data) {
-    const res = await axiosClient.post("Categories", data);
+  // Tạo mới category (có hỗ trợ file upload)
+  async createCategory(data, file) {
+    const formData = new FormData();
+    for (const key in data) {
+      if (data[key] !== null && data[key] !== undefined) {
+        formData.append(key, data[key]);
+      }
+    }
+    if (file) {
+      formData.append("file", file);
+    }
+
+    const res = await axiosClient.post("Categories", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     return res.data;
   },
 
-  // Cập nhật category
-  async updateCategory(data) {
-    const res = await axiosClient.put(`Categories/${data.id}`, data);
+  // Cập nhật category (có hỗ trợ file upload)
+  async updateCategory(data, file) {
+    const formData = new FormData();
+    for (const key in data) {
+      if (data[key] !== null && data[key] !== undefined) {
+        formData.append(key, data[key]);
+      }
+    }
+    if (file) {
+      formData.append("file", file);
+    }
+
+    const res = await axiosClient.put(`Categories/${data.id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     return res.data;
   },
 

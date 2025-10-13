@@ -52,48 +52,69 @@ namespace MazicPC.Controllers
         {
             var products = db.Products.AsQueryable();
 
-            if (query.PriceMin > query.PriceMax) (query.PriceMin, query.PriceMax) = (query.PriceMax, query.PriceMin);
+            // --- Đảm bảo giá trị hợp lệ ---
+            query.Page = Math.Max(query.Page, 1);
+            query.Limit = Math.Max(query.Limit, 1);
 
-            // --- Tìm kiếm ---
+            if (query.PriceMin.HasValue && query.PriceMax.HasValue && query.PriceMin > query.PriceMax)
+                (query.PriceMin, query.PriceMax) = (query.PriceMax, query.PriceMin);
+
+            // --- Tìm kiếm (không phân biệt hoa thường) ---
             if (!string.IsNullOrWhiteSpace(query.Search))
             {
-                products = products.Where(p => p.Name.Contains(query.Search) ||
-                p.ShortDescription != null && p.ShortDescription.Contains(query.Search) ||
-                p.Description != null && p.Description.Contains(query.Search));
-            }
-            // --- Lọc ---
-            if (!string.IsNullOrWhiteSpace(query.Category))
-            {
-                products = products.Where(p => p.Category != null && p.Category.Name == query.Category);
+                string keyword = query.Search.Trim().ToLower();
+
+                products = products.Where(p =>
+                    EF.Functions.Like(p.Name.ToLower(), $"%{keyword}%") ||
+                    (p.ShortDescription != null && EF.Functions.Like(p.ShortDescription.ToLower(), $"%{keyword}%")) ||
+                    (p.Description != null && EF.Functions.Like(p.Description.ToLower(), $"%{keyword}%"))
+                );
             }
 
+            // --- Lọc theo danh mục ---
+            if (!string.IsNullOrWhiteSpace(query.Category))
+            {
+                string cat = query.Category.Trim().ToLower();
+                products = products.Where(p =>
+                    p.Category != null && (p.Category.Name.ToLower() == cat || p.Category.Slug.ToLower() == cat)
+                );
+            }
+
+            // --- Lọc theo hãng ---
             if (!string.IsNullOrWhiteSpace(query.Manufacturer))
             {
-                products = products.Where(p => p.Manufacturer != null && p.Manufacturer.Name == query.Manufacturer);
+                string manu = query.Manufacturer.Trim().ToLower();
+                products = products.Where(p =>
+                    p.Manufacturer != null && p.Manufacturer.Name.ToLower() == manu
+                );
+            }
+
+            // --- Lọc theo giá ---
+            if (query.PriceMin.HasValue)
+            {
+                products = products.Where(p => p.Price >= query.PriceMin.Value);
             }
 
             if (query.PriceMax.HasValue)
             {
-                products = products.Where(p => p.Price >= query.PriceMax);
+                products = products.Where(p => p.Price <= query.PriceMax.Value);
             }
 
-            if (query.PriceMin.HasValue)
-            {
-                products = products.Where(p => p.Price <= query.PriceMin);
-            }
             // --- Sắp xếp ---
             products = query.Sort switch
             {
                 "price_asc" => products.OrderBy(p => p.Price),
                 "price_desc" => products.OrderByDescending(p => p.Price),
-                "newest" => products.OrderBy(p => p.CreatedAt),
-                "oldest" => products.OrderByDescending(p => p.CreatedAt),
-                "name" => products.OrderByDescending(p => p.Name),
-                _ => products.OrderBy(p => p.Name)
+                "newest" => products.OrderByDescending(p => p.CreatedAt),
+                "oldest" => products.OrderBy(p => p.CreatedAt),
+                "name" => products.OrderBy(p => p.Name),
+                _ => products.OrderByDescending(p => p.CreatedAt)
             };
+
             // --- Phân trang ---
             var totalItems = await products.CountAsync();
             var totalPages = (int)Math.Ceiling(totalItems / (double)query.Limit);
+
             var res = await products
                 .Skip((query.Page - 1) * query.Limit)
                 .Take(query.Limit)
