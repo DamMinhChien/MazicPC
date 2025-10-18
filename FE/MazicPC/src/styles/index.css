@@ -1,6 +1,6 @@
 html,
 body {
-  font-family: Roboto;
+  font-family: 'Nunito', sans-serif;
   font-size: 16px;
   background-color: #ececec;
 }
@@ -220,4 +220,34 @@ ul {
   100% {
     background-position: 0% 50%;
   }
+}
+
+.zoom-fade {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  transition: transform 0.4s ease;
+}
+
+.zoom-fade img {
+  width: 100%;
+  height: auto;
+  transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.zoom-fade::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(1800deg, transparent, rgba(0, 0, 0, 0.3));
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.zoom-fade:hover img {
+  transform: scale(1.12);
+}
+
+.zoom-fade:hover::after {
+  opacity: 1;
 }

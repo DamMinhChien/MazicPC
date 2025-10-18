@@ -12,7 +12,7 @@ const Footer = () => {
       <section>
         <FooterPolicy />
       </section>
-      <footer className="bg-light text-dark p-4">
+      <footer className="bg-primary-subtle text-dark p-4">
         <Container fluid>
           <Row>
             {/* Col 1 */}
