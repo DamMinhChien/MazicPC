@@ -81,15 +81,12 @@ public partial class Product
 
     public virtual Category? Category { get; set; }
 
-    public virtual ICollection<InventoryLog> InventoryLogs { get; set; } = new List<InventoryLog>();
-
     public virtual Manufacturer? Manufacturer { get; set; }
 
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
     public virtual ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
 
-    public virtual ICollection<ProductPromotion> ProductPromotions { get; set; } = new List<ProductPromotion>();
 
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 }

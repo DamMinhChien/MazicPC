@@ -4,6 +4,7 @@ using MazicPC.DTOs.ProductDTO;
 using MazicPC.DTOs.UserDTO;
 using MazicPC.Extensions;
 using MazicPC.Models;
+using MazicPC.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,36 +22,48 @@ namespace MazicPC.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly MazicPcContext db;
-        private readonly IMapper mapper;
+        private readonly MazicPcContext _context;
+        private readonly IMapper _mapper;
         private readonly IWebHostEnvironment _env;
+        private readonly PromotionHelper promotionHelper;
 
-        public ProductsController(MazicPcContext context, IMapper mapper, IWebHostEnvironment env)
+        public ProductsController(MazicPcContext context, IMapper mapper, IWebHostEnvironment env, PromotionHelper promotionHelper)
         {
-            db = context;
-            this.mapper = mapper;
+            _context = context;
+            _mapper = mapper;
             _env = env;
+            this.promotionHelper = promotionHelper;
         }
 
         // GET: api/Products
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<object>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<UserGetProductDto>>> GetProducts()
         {
-            var products = await db.Products.ToListAsync();
+            var products = await _context.Products.ToListAsync();
+            var helper = new PromotionHelper(_context);
 
-            if (User.IsInRole(Roles.Admin))
+            var result = new List<UserGetProductDto>();
+
+            foreach (var product in products)
             {
-                return Ok(mapper.Map<IEnumerable<AdminGetProductDto>>(products));
+                var (finalPrice, discount, promoName) = await helper.CalculateDiscountAsync(product);
+                var dto = _mapper.Map<UserGetProductDto>(product);
+
+                dto.FinalPrice = finalPrice;
+                dto.DiscountValue = discount;
+                dto.PromotionName = promoName;
+
+                result.Add(dto);
             }
 
-            return Ok(mapper.Map<IEnumerable<UserGetProductDto>>(products));
+            return Ok(result);
         }
 
         // Search Query
         [HttpGet("search")]
         public async Task<IActionResult> Search([FromQuery] ProductQueryDto query)
         {
-            var products = db.Products.AsQueryable();
+            var products = _context.Products.AsQueryable();
 
             // --- Đảm bảo giá trị hợp lệ ---
             query.Page = Math.Max(query.Page, 1);
@@ -144,33 +157,39 @@ namespace MazicPC.Controllers
 
         // GET: api/Products/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<object>> GetProduct(int id)
+        public async Task<ActionResult<UserGetProductDto>> GetProduct(int id)
         {
-            var product = await db.Products.FindAsync(id);
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return NotFound();
 
-            if (product == null)
-            {
-                return NotFound();
-            }
+            var helper = new PromotionHelper(_context);
+            var (finalPrice, discount, promoName) = await helper.CalculateDiscountAsync(product);
 
-            if (User.IsInRole(Roles.Admin))
-                return Ok(mapper.Map<AdminGetProductDto>(product));
+            var dto = _mapper.Map<UserGetProductDto>(product);
+            dto.FinalPrice = finalPrice;
+            dto.DiscountValue = discount;
+            dto.PromotionName = promoName;
 
-            return mapper.Map<UserGetProductDto>(product);
+            return dto;
         }
 
         [HttpGet("{id}/details")]
         public async Task<ActionResult<GetDetailProductDto>> GetDetailProduct(int id)
         {
-            var product = await db.Products.FindAsync(id);
-
+            var product = await _context.Products.FindAsync(id);
             if (product == null)
-            {
                 return NotFound();
-            }
 
-            return mapper.Map<GetDetailProductDto>(product);
+            var (finalPrice, discountValue, promotionName) = await promotionHelper.CalculateDiscountAsync(product);
+
+            var dto = _mapper.Map<GetDetailProductDto>(product);
+            dto.FinalPrice = finalPrice;
+            dto.DiscountValue = discountValue;
+            dto.PromotionName = promotionName;
+
+            return Ok(dto);
         }
+
 
         // PUT: api/Products/5
         [RequestSizeLimit(10 * 1024 * 1024)]
@@ -178,10 +197,10 @@ namespace MazicPC.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProduct(int id, [FromForm] ProductDto productDto, IFormFile? file)
         {
-            var product = await db.Products.FindAsync(id);
+            var product = await _context.Products.FindAsync(id);
             if (product == null) return NotFound();
 
-            mapper.Map(productDto, product);
+            _mapper.Map(productDto, product);
 
             if (file != null)
             {
@@ -199,7 +218,7 @@ namespace MazicPC.Controllers
                 }
             }
 
-            await db.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
@@ -210,7 +229,7 @@ namespace MazicPC.Controllers
         [HttpPost]
         public async Task<ActionResult<AdminGetProductDto>> PostProduct([FromForm] ProductDto productDto, IFormFile? file)
         {
-            var product = mapper.Map<Product>(productDto);
+            var product = _mapper.Map<Product>(productDto);
 
             if (file != null)
             {
@@ -228,10 +247,10 @@ namespace MazicPC.Controllers
                 }
             }
 
-            db.Products.Add(product);
-            await db.SaveChangesAsync();
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
 
-            var result = mapper.Map<AdminGetProductDto>(product);
+            var result = _mapper.Map<AdminGetProductDto>(product);
 
             return CreatedAtAction("GetProduct", new { id = product.Id }, result);
         }
@@ -239,12 +258,12 @@ namespace MazicPC.Controllers
         [HttpPost("abc")]
         public async Task<ActionResult<AdminGetProductDto>> PostProductagfwafg([FromBody] ProductDto productDto)
         {
-            var product = mapper.Map<Product>(productDto);
+            var product = _mapper.Map<Product>(productDto);
 
-            db.Products.Add(product);
-            await db.SaveChangesAsync();
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
 
-            var result = mapper.Map<AdminGetProductDto>(product);
+            var result = _mapper.Map<AdminGetProductDto>(product);
 
             return CreatedAtAction("GetProduct", new { id = product.Id }, result);
         }
@@ -254,14 +273,14 @@ namespace MazicPC.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await db.Products.FindAsync(id);
+            var product = await _context.Products.FindAsync(id);
             if (product == null)
             {
                 return NotFound();
             }
 
-            db.Products.Remove(product);
-            await db.SaveChangesAsync();
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
@@ -273,13 +292,13 @@ namespace MazicPC.Controllers
             if (ids == null || !ids.Any())
                 return BadRequest("Danh sách id không được rỗng.");
 
-            var products = await db.Products.Where(product => ids.Contains(product.Id)).ToListAsync();
+            var products = await _context.Products.Where(product => ids.Contains(product.Id)).ToListAsync();
 
             if (!products.Any())
                 return NotFound("Không tìm thấy danh mục nào.");
 
-            db.Products.RemoveRange(products);
-            await db.SaveChangesAsync();
+            _context.Products.RemoveRange(products);
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
@@ -287,7 +306,7 @@ namespace MazicPC.Controllers
         [HttpGet("exist/{id}")]
         public async Task<bool> ProductExists(int id)
         {
-            return await db.Products.AnyAsync(e => e.Id == id);
+            return await _context.Products.AnyAsync(e => e.Id == id);
         }
     }
 }

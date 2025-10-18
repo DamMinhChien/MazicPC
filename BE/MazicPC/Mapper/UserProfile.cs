@@ -2,7 +2,7 @@
 using MazicPC.Models;
 using MazicPC.DTOs.UserDTO;
 
-namespace MazicPC.DTOs.Mapper
+namespace MazicPC.Mapper
 {
     public class UserProfile : Profile
     {

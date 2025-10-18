@@ -2,7 +2,7 @@
 using MazicPC.DTOs.ProductImageDTO;
 using MazicPC.Models;
 
-namespace MazicPC.DTOs.Mapper
+namespace MazicPC.Mapper
 {
     public class ProductImageProfile : Profile
     {

@@ -1,6 +1,15 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import MyBreadcrumb from "../../components/MyBreadcrumb";
-import { Badge, Button, Card, Col, ListGroup, Row } from "react-bootstrap";
+import {
+  Badge,
+  Button,
+  Card,
+  Col,
+  FormControl,
+  InputGroup,
+  ListGroup,
+  Row,
+} from "react-bootstrap";
 import productServices from "../../apis/productService";
 import My3DSlider from "./components/My3DSlider";
 import { BsPatchCheckFill, BsShieldCheck, BsTruck } from "react-icons/bs";
@@ -12,6 +21,8 @@ import {
   FaGift,
   FaShoppingCart,
   FaYoutube,
+  FaPlus,
+  FaMinus,
 } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import MyToast from "../../components/MyToast";
@@ -44,6 +55,8 @@ const ProductDetail = () => {
   const navigate = useNavigate();
 
   const [product, setProduct] = useState({});
+  const [quantity, setQuantity] = useState(1);
+
   const [products, setProducts] = useState([]);
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -152,7 +165,7 @@ const ProductDetail = () => {
   const handleAddToCart = async () => {
     // 1️⃣ Chưa login hoặc không phải role user
     if (!user || user.role.toLowerCase() !== "user") {
-      console.log("user: ", user)
+      console.log("user: ", user);
       setShowConfirm(true);
       return;
     }
@@ -176,6 +189,18 @@ const ProductDetail = () => {
       setError(err.message || "Thêm vào giỏ hàng thất bại!");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleIncrease = () => {
+    if (product.stockQty && quantity < product.stockQty) {
+      setQuantity((prev) => prev + 1);
+    }
+  };
+
+  const handleDecrease = () => {
+    if (quantity > 1) {
+      setQuantity((prev) => prev - 1);
     }
   };
 
@@ -239,6 +264,76 @@ const ProductDetail = () => {
               <h3 className="text-danger fw-bold my-3">
                 {formatCurrency(product.price)}
               </h3>
+
+              <div className="my-3">
+                <div className="d-flex align-items-center gap-3">
+                  <span className="fw-semibold text-dark fs-5">Số lượng:</span>
+
+                  <InputGroup
+                    className="d-flex align-items-center"
+                    style={{ width: "180px" }}
+                  >
+                    <Button
+                      onClick={handleDecrease}
+                      size="sm"
+                      className="rounded-circle d-flex align-items-center justify-content-center"
+                      style={{
+                        width: "38px",
+                        height: "38px",
+                        backgroundColor: "#ffe3e3",
+                        borderColor: "#ffb3b3",
+                        color: "#d62828",
+                      }}
+                      disabled={quantity <= 1}
+                    >
+                      <FaMinus />
+                    </Button>
+
+                    <FormControl
+                      value={quantity}
+                      readOnly
+                      className="text-center fw-bold border-2 border-dark-subtle rounded-pill"
+                      style={{
+                        width: "60px",
+                        height: "38px",
+                        fontSize: "1.1rem",
+                        backgroundColor: "transparent",
+                      }}
+                    />
+
+                    <Button
+                      onClick={handleIncrease}
+                      size="sm"
+                      className="rounded-circle d-flex align-items-center justify-content-center"
+                      style={{
+                        width: "38px",
+                        height: "38px",
+                        backgroundColor: "#d9fdd3",
+                        borderColor: "#90ee90",
+                        color: "#2d6a4f",
+                      }}
+                      disabled={
+                        product.stockQty && quantity >= product.stockQty
+                      }
+                    >
+                      <FaPlus />
+                    </Button>
+                  </InputGroup>
+
+                  <small className="text-muted ms-2">
+                    (Còn{" "}
+                    <strong
+                      className={
+                        product.stockQty > 0 ? "text-success" : "text-danger"
+                      }
+                    >
+                      {product.stockQty || 0}
+                    </strong>{" "}
+                    sản phẩm)
+                  </small>
+                </div>
+              </div>
+
               <Row>
                 <Col md={6} className="d-flex">
                   <Card
@@ -414,22 +509,6 @@ const ProductDetail = () => {
                   </Col>
                 </Row>
               </div>
-
-              <Row>
-                <Col md={6}>
-                  <Button className="p-4 bg-danger border-0 w-100 fw-bold fs-4 d-flex align-items-center justify-content-center gap-2">
-                    <FaBolt /> Mua ngay
-                  </Button>
-                </Col>
-                <Col md={6}>
-                  <Button
-                    onClick={handleAddToCart}
-                    className="p-4 bg-primary border-0 w-100 fw-bold fs-4 d-flex align-items-center justify-content-center gap-2"
-                  >
-                    <FaShoppingCart /> Thêm vào giỏ hàng
-                  </Button>
-                </Col>
-              </Row>
             </div>
           </Col>
         </Row>
