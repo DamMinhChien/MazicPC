@@ -32,9 +32,11 @@ namespace MazicPC.DTOs.ProductDTO
 
         public string? ImageUrl { get; set; }
 
-        public DateTime? CreatedAt { get; set; }
+        public decimal FinalPrice { get; set; }
 
-        public DateTime? UpdatedAt { get; set; }
+        public decimal? DiscountValue { get; set; }
+
+        public string? PromotionName { get; set; }
 
         public string? Cpu { get; set; }
 
@@ -79,5 +81,9 @@ namespace MazicPC.DTOs.ProductDTO
         public string? ProductType { get; set; }
 
         public string? Origin { get; set; }
+
+        public DateTime? CreatedAt { get; set; }
+
+        public DateTime? UpdatedAt { get; set; }
     }
 }

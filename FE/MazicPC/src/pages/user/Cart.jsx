@@ -46,22 +46,16 @@ const Cart = () => {
               <div className="fw-bold ">Tạm tính: </div>
               <div className="text-secondary">{cartTotal.toLocaleString()} ₫</div>
             </div>
-            <div className="d-flex justify-content-between">
+            {/* <div className="d-flex justify-content-between">
               <div className="fw-bold ">Phí vận chuyển: </div>
               <div className="text-secondary">0 đ</div>
-            </div>
+            </div> */}
             <Button variant="danger" className="w-100 mt-2">
               Thanh toán
             </Button>
           </section>
         </Col>
       </Row>
-      {/* <MyToast
-        title="Lỗi"
-        bg="danger"
-        show={!!error}
-        message={error || "Có lỗi xảy ra"}
-      /> */}
 
       <MyFullSpinner show={isLoading} />
     </main>

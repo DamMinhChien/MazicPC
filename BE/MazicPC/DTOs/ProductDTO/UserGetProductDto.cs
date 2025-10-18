@@ -15,6 +15,9 @@
 
         public int? WarrantyMonths { get; set; }
         public string? ImageUrl { get; set; }   // ảnh đại diện
+        public decimal FinalPrice { get; set; }
+        public decimal? DiscountValue { get; set; }
+        public string? PromotionName { get; set; }
 
         // Thông số kỹ thuật
         public string? Cpu { get; set; }

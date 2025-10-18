@@ -25,15 +25,11 @@ public partial class MazicPcContext : DbContext
 
     public virtual DbSet<Category> Categories { get; set; }
 
-    public virtual DbSet<InventoryLog> InventoryLogs { get; set; }
-
     public virtual DbSet<Manufacturer> Manufacturers { get; set; }
 
     public virtual DbSet<Order> Orders { get; set; }
 
     public virtual DbSet<OrderItem> OrderItems { get; set; }
-
-    public virtual DbSet<OrderStatusLog> OrderStatusLogs { get; set; }
 
     public virtual DbSet<Payment> Payments { get; set; }
 
@@ -41,15 +37,13 @@ public partial class MazicPcContext : DbContext
 
     public virtual DbSet<ProductImage> ProductImages { get; set; }
 
-    public virtual DbSet<ProductPromotion> ProductPromotions { get; set; }
-
     public virtual DbSet<Promotion> Promotions { get; set; }
+
+    public virtual DbSet<PromotionTarget> PromotionTargets { get; set; }
 
     public virtual DbSet<Review> Reviews { get; set; }
 
     public virtual DbSet<ShippingAddress> ShippingAddresses { get; set; }
-
-    public virtual DbSet<ShippingMethod> ShippingMethods { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -199,28 +193,6 @@ public partial class MazicPcContext : DbContext
                 .HasConstraintName("FK__categorie__paren__46E78A0C");
         });
 
-        modelBuilder.Entity<InventoryLog>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__inventor__3213E83FF1C207B3");
-
-            entity.ToTable("inventory_logs");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime")
-                .HasColumnName("created_at");
-            entity.Property(e => e.ProductId).HasColumnName("product_id");
-            entity.Property(e => e.QuantityChange).HasColumnName("quantity_change");
-            entity.Property(e => e.Reason)
-                .HasMaxLength(100)
-                .HasColumnName("reason");
-
-            entity.HasOne(d => d.Product).WithMany(p => p.InventoryLogs)
-                .HasForeignKey(d => d.ProductId)
-                .HasConstraintName("FK__inventory__produ__17036CC0");
-        });
-
         modelBuilder.Entity<Manufacturer>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__manufact__3213E83F9ECEFCBC");
@@ -259,7 +231,6 @@ public partial class MazicPcContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
-            entity.Property(e => e.ShippingMethodId).HasColumnName("shipping_method_id");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasColumnName("status");
@@ -275,11 +246,6 @@ public partial class MazicPcContext : DbContext
                 .HasForeignKey(d => d.AccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__orders__account___797309D9");
-
-            entity.HasOne(d => d.ShippingMethod).WithMany(p => p.Orders)
-                .HasForeignKey(d => d.ShippingMethodId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__orders__shipping__7A672E12");
         });
 
         modelBuilder.Entity<OrderItem>(entity =>
@@ -306,35 +272,20 @@ public partial class MazicPcContext : DbContext
                 .HasConstraintName("FK__order_ite__produ__7E37BEF6");
         });
 
-        modelBuilder.Entity<OrderStatusLog>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__order_st__3213E83FF6D952BC");
-
-            entity.ToTable("order_status_logs");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime")
-                .HasColumnName("created_at");
-            entity.Property(e => e.OrderId).HasColumnName("order_id");
-            entity.Property(e => e.Status)
-                .HasMaxLength(50)
-                .HasColumnName("status");
-
-            entity.HasOne(d => d.Order).WithMany(p => p.OrderStatusLogs)
-                .HasForeignKey(d => d.OrderId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__order_sta__order__02FC7413");
-        });
-
         modelBuilder.Entity<Payment>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__payments__3213E83F9F3DE537");
 
-            entity.ToTable("payments");
+            entity.ToTable("payments", tb => tb.HasTrigger("trg_payments_update_timestamp"));
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Amount)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("amount");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
             entity.Property(e => e.OrderId).HasColumnName("order_id");
             entity.Property(e => e.PaidAt)
                 .HasColumnType("datetime")
@@ -342,9 +293,16 @@ public partial class MazicPcContext : DbContext
             entity.Property(e => e.PaymentMethod)
                 .HasMaxLength(20)
                 .HasColumnName("payment_method");
+            entity.Property(e => e.ResponseData).HasColumnName("response_data");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasColumnName("status");
+            entity.Property(e => e.TransactionCode)
+                .HasMaxLength(100)
+                .HasColumnName("transaction_code");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("updated_at");
 
             entity.HasOne(d => d.Order).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.OrderId)
@@ -493,30 +451,11 @@ public partial class MazicPcContext : DbContext
                 .HasConstraintName("FK__product_i__produ__59063A47");
         });
 
-        modelBuilder.Entity<ProductPromotion>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__product___3213E83F28E64A33");
-
-            entity.ToTable("product_promotions");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.ProductId).HasColumnName("product_id");
-            entity.Property(e => e.PromotionId).HasColumnName("promotion_id");
-
-            entity.HasOne(d => d.Product).WithMany(p => p.ProductPromotions)
-                .HasForeignKey(d => d.ProductId)
-                .HasConstraintName("FK__product_p__produ__66603565");
-
-            entity.HasOne(d => d.Promotion).WithMany(p => p.ProductPromotions)
-                .HasForeignKey(d => d.PromotionId)
-                .HasConstraintName("FK__product_p__promo__6754599E");
-        });
-
         modelBuilder.Entity<Promotion>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__promotio__3213E83F37404CE7");
+            entity.HasKey(e => e.Id).HasName("PK__promotio__3213E83FA6F6D474");
 
-            entity.ToTable("promotions", tb => tb.HasTrigger("trg_update_promotions"));
+            entity.ToTable("promotions");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
@@ -524,7 +463,7 @@ public partial class MazicPcContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
             entity.Property(e => e.DiscountType)
-                .HasMaxLength(20)
+                .HasMaxLength(50)
                 .HasColumnName("discount_type");
             entity.Property(e => e.DiscountValue)
                 .HasColumnType("decimal(18, 2)")
@@ -533,7 +472,7 @@ public partial class MazicPcContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("end_date");
             entity.Property(e => e.Name)
-                .HasMaxLength(100)
+                .HasMaxLength(255)
                 .HasColumnName("name");
             entity.Property(e => e.StartDate)
                 .HasColumnType("datetime")
@@ -542,6 +481,24 @@ public partial class MazicPcContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("updated_at");
+        });
+
+        modelBuilder.Entity<PromotionTarget>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__promotio__3213E83FE1B75BF5");
+
+            entity.ToTable("promotion_targets");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.PromotionId).HasColumnName("promotion_id");
+            entity.Property(e => e.TargetId).HasColumnName("target_id");
+            entity.Property(e => e.TargetType)
+                .HasMaxLength(50)
+                .HasColumnName("target_type");
+
+            entity.HasOne(d => d.Promotion).WithMany(p => p.PromotionTargets)
+                .HasForeignKey(d => d.PromotionId)
+                .HasConstraintName("fk_promotion_targets_promotions");
         });
 
         modelBuilder.Entity<Review>(entity =>
@@ -577,46 +534,42 @@ public partial class MazicPcContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AccountId).HasColumnName("account_id");
-            entity.Property(e => e.Address)
-                .HasMaxLength(255)
-                .HasColumnName("address");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
+            entity.Property(e => e.DetailAddress)
+                .HasMaxLength(255)
+                .HasColumnName("detail_address");
+            entity.Property(e => e.District)
+                .HasMaxLength(100)
+                .HasColumnName("district");
             entity.Property(e => e.FullName)
                 .HasMaxLength(100)
                 .HasColumnName("full_name");
             entity.Property(e => e.IsDefault)
                 .HasDefaultValue(false)
                 .HasColumnName("is_default");
+            entity.Property(e => e.Note)
+                .HasMaxLength(255)
+                .HasColumnName("note");
             entity.Property(e => e.Phone)
                 .HasMaxLength(20)
                 .HasColumnName("phone");
+            entity.Property(e => e.Province)
+                .HasMaxLength(100)
+                .HasColumnName("province");
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("updated_at");
+            entity.Property(e => e.Ward)
+                .HasMaxLength(100)
+                .HasColumnName("ward");
 
             entity.HasOne(d => d.Account).WithMany(p => p.ShippingAddresses)
                 .HasForeignKey(d => d.AccountId)
                 .HasConstraintName("FK__shipping___accou__1332DBDC");
-        });
-
-        modelBuilder.Entity<ShippingMethod>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__shipping__3213E83F5F42B980");
-
-            entity.ToTable("shipping_methods");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Cost)
-                .HasColumnType("decimal(18, 2)")
-                .HasColumnName("cost");
-            entity.Property(e => e.EstimatedDays).HasColumnName("estimated_days");
-            entity.Property(e => e.Name)
-                .HasMaxLength(100)
-                .HasColumnName("name");
         });
 
         modelBuilder.Entity<User>(entity =>

@@ -2,7 +2,7 @@
 using MazicPC.DTOs.CategoryDTO;
 using MazicPC.Models;
 
-namespace MazicPC.DTOs.Mapper
+namespace MazicPC.Mapper
 {
     public class CategoryProfile : Profile
     {

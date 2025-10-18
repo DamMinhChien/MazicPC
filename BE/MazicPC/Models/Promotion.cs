@@ -9,7 +9,7 @@ public partial class Promotion
 
     public string Name { get; set; } = null!;
 
-    public string? DiscountType { get; set; }
+    public string DiscountType { get; set; } = null!;
 
     public decimal DiscountValue { get; set; }
 
@@ -21,5 +21,5 @@ public partial class Promotion
 
     public DateTime? UpdatedAt { get; set; }
 
-    public virtual ICollection<ProductPromotion> ProductPromotions { get; set; } = new List<ProductPromotion>();
+    public virtual ICollection<PromotionTarget> PromotionTargets { get; set; } = new List<PromotionTarget>();
 }

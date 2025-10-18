@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using MazicPC.DTOs.Mapper;
 using MazicPC.Models;
 using MazicPC.Services;
 using MazicPC.Validators;
@@ -98,6 +97,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddScoped<PromotionHelper>();
 
 // Giới hạn file tải lên
 builder.Services.Configure<FormOptions>(options =>

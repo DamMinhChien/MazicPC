@@ -3,7 +3,7 @@ using MazicPC.DTOs.ManufacturerDTO;
 using MazicPC.DTOs.UserDTO;
 using MazicPC.Models;
 
-namespace MazicPC.DTOs.Mapper
+namespace MazicPC.Mapper
 {
     public class ManufacturerProfile : Profile
     {
