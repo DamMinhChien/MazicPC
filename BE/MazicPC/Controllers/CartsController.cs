@@ -1,6 +1,7 @@
 ﻿using MazicPC.DTOs.CartDTO;
 using MazicPC.Extensions;
 using MazicPC.Models;
+using MazicPC.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,10 +22,12 @@ namespace MazicPC.Controllers
     public class CartsController : ControllerBase
     {
         private readonly MazicPcContext _context;
+        private readonly PromotionHelper promotionHelper;
 
-        public CartsController(MazicPcContext context)
+        public CartsController(MazicPcContext context, PromotionHelper promotionHelper)
         {
             _context = context;
+            this.promotionHelper = promotionHelper;
         }
 
         // GET: api/Carts
@@ -51,16 +54,25 @@ namespace MazicPC.Controllers
                 return Ok(new { cartId = (int?)null, items = new List<object>() });
             }
 
-            var items = cart.CartItems.Select(x => new
-            {
-                x.ProductId,
-                x.Quantity,
-                x.Product!.Name,
-                x.Product.Price,
-                x.Product.StockQty,
-                x.Product.ImageUrl,
-            }).ToList();
+            var items = new List<object>();
 
+            foreach (var item in cart.CartItems)
+            {
+                var product = item.Product!;
+                var (finalPrice, discount, promoName) = await promotionHelper.CalculateDiscountAsync(product);
+                items.Add(new
+                {
+                    item.ProductId,
+                    item.Quantity,
+                    item.Product!.Name,
+                    item.Product.Price,
+                    item.Product.StockQty,
+                    item.Product.ImageUrl,
+                    FinalPrice = finalPrice,
+                    DiscountValue = discount,
+                    PromotionName = promoName
+                });
+            }
 
             return Ok(new
             {

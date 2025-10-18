@@ -23,7 +23,7 @@ const Manufacturer = () => {
       setLoading(false);
       setError(err.message || "Có lỗi xảy ra khi tải nhà sản xuất");
     } finally {
-      setLoading(false);
+      setLoading(false); 
       setError("");
     }
   };

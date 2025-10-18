@@ -9,7 +9,7 @@ export const fetchCart = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await cartService.getCart(); // API: GET /cart/me
-      return res;
+      return res; 
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
     }

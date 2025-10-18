@@ -1,4 +1,4 @@
-import { Row, Col, Button, InputGroup, FormControl } from "react-bootstrap";
+import { Row, Col, Button, InputGroup, FormControl, Badge } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { CiCircleRemove } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
@@ -32,25 +32,29 @@ const CartItem = ({
     }
   };
 
-  const handleDelete = () => {
-    setShowConfirm(true);
-  };
+  const handleDelete = () => setShowConfirm(true);
 
   const handleConfirmRemove = () => {
     onRemove?.(item.productId);
     setShowConfirm(false);
   };
 
-  const totalPrice = item.price * quantity;
+  const totalPrice = (item.finalPrice ?? item.price) * quantity;
 
   useEffect(() => {
     onTotalChange?.(item.productId, totalPrice);
-  }, [quantity, item.price]);
+  }, [quantity, item.finalPrice, item.price]);
 
-  const handleNavigateToDetail = (productId) => {
-    const path = ROUTERS.USER.PRODUCT_DETAIL.replace(":id", productId);
+  const handleNavigateToDetail = () => {
+    const path = ROUTERS.USER.PRODUCT_DETAIL.replace(":id", item.productId);
     navigate(path);
   };
+
+  // Tính % giảm nếu có
+  const discountPercent =
+    item.discountValue && item.price
+      ? Math.round((item.discountValue / item.price) * 100)
+      : 0;
 
   return (
     <div className="p-3 mb-3 shadow-sm rounded bg-white">
@@ -60,35 +64,44 @@ const CartItem = ({
           <input
             type="checkbox"
             checked={selected}
-            onChange={(e) => onSelectChange?.(item.productId, e.target.checked)}
-            style={{
-              width: "18px",
-              height: "18px",
-              cursor: "pointer",
-            }}
+            onChange={(e) =>
+              onSelectChange?.(item.productId, e.target.checked)
+            }
+            style={{ width: "18px", height: "18px", cursor: "pointer" }}
           />
         </Col>
 
-        {/* Ảnh + tên sản phẩm */}
+        {/* Ảnh + tên + badge promotion */}
         <Col
           xs={11}
           md={4}
-          className="d-flex align-items-center text-center text-md-start"
-          onClick={() => handleNavigateToDetail(item.productId)}
+          className="d-flex align-items-center text-center text-md-start position-relative"
+          onClick={handleNavigateToDetail}
           style={{ cursor: "pointer" }}
         >
-          <img
-            src={item.imageUrl}
-            alt={item.name}
-            className="img-thumbnail me-md-3 mx-auto mx-md-0"
-            style={{
-              width: "100px",
-              height: "100px",
-              objectFit: "cover",
-              borderRadius: "8px",
-            }}
-          />
-          <div className="mt-2 mt-md-0">
+          <div style={{ position: "relative" }}>
+            <img
+              src={item.imageUrl}
+              alt={item.name}
+              className="img-thumbnail me-md-3 mx-auto mx-md-0"
+              style={{
+                width: "100px",
+                height: "100px",
+                objectFit: "cover",
+                borderRadius: "8px",
+              }}
+            />
+            {discountPercent > 0 && (
+              <Badge
+                bg="danger"
+                pill
+                className="position-absolute top-0 end-0 p-1 fw-bold m-0"
+              >
+                -{discountPercent}%
+              </Badge>
+            )}
+          </div>
+          <div className="mt-2 mt-md-0 ms-md-3">
             <div
               className="fw-bold text-dark text-truncate"
               style={{
@@ -117,11 +130,7 @@ const CartItem = ({
             className="justify-content-center mx-auto"
             style={{ width: "120px" }}
           >
-            <Button
-              variant="outline-secondary"
-              onClick={handleDecrease}
-              size="sm"
-            >
+            <Button variant="outline-secondary" onClick={handleDecrease} size="sm">
               −
             </Button>
             <FormControl
@@ -130,40 +139,38 @@ const CartItem = ({
               className="text-center fw-semibold text-dark"
               style={{ width: "40px" }}
             />
-            <Button
-              variant="outline-secondary"
-              onClick={handleIncrease}
-              size="sm"
-            >
+            <Button variant="outline-secondary" onClick={handleIncrease} size="sm">
               +
             </Button>
           </InputGroup>
         </Col>
 
-        {/* Giá */}
+        {/* Giá gốc + giá giảm + badge % */}
         <Col xs={6} md={2} className="text-center text-md-end">
-          <div
-            className="fw-semibold text-dark"
-            style={{ fontSize: "0.95rem" }}
-          >
-            {item.price.toLocaleString()} ₫
+          <div className="d-flex flex-column align-items-center align-items-md-end">
+            <span className="fw-bold text-danger">
+              {(item.finalPrice ?? item.price).toLocaleString()} ₫
+            </span>
+            {discountPercent > 0 && (
+              <>
+                <span className="text-muted text-decoration-line-through fs-6">
+                  {item.price.toLocaleString()} ₫
+                </span>
+              </>
+            )}
           </div>
         </Col>
 
         {/* Tổng tiền */}
         <Col xs={6} md={2} className="text-center text-md-end">
-          <div className="fw-bold text-success" style={{ fontSize: "1rem" }}>
+          <div className="fw-bold text-success fs-5">
             {totalPrice.toLocaleString()} ₫
           </div>
         </Col>
 
         {/* Nút xóa */}
         <Col xs={6} md={1} className="text-center text-md-end">
-          <Button
-            variant="link"
-            className="text-danger p-0 small"
-            onClick={handleDelete}
-          >
+          <Button variant="link" className="text-danger p-0 small" onClick={handleDelete}>
             <CiCircleRemove size={30} />
           </Button>
         </Col>

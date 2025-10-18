@@ -1,9 +1,17 @@
 import { useState, useEffect, useMemo } from "react";
 import { Table, Form, Button } from "react-bootstrap";
-import { useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from "@tanstack/react-table";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  getPaginationRowModel,
+  flexRender,
+} from "@tanstack/react-table";
 import { FaSort, FaSortUp, FaSortDown, FaEdit, FaTrash } from "react-icons/fa";
 import ButtonIcon from "../../../components/ButtonIcon";
 import columnLabels from "../../../utils/columnLabels";
+import dayjs from "dayjs";
 
 const DataTable = ({
   data,
@@ -30,42 +38,81 @@ const DataTable = ({
 
   // Render cell tùy loại dữ liệu
   const renderCell = (value) => {
-    if (typeof value === "boolean") return <Form.Check type="checkbox" checked={value} disabled />;
-    if (typeof value === "object" && value !== null) {
-      const keys = Object.keys(value);
-      if (keys.length >= 2) {
-        return (
-          <Form.Select size="sm" value={value[keys[0]]} disabled>
-            <option value={value[keys[0]]}>{value[keys[1]]}</option>
-          </Form.Select>
-        );
-      }
-      return JSON.stringify(value).slice(0, 10) + "...";
+  // Boolean
+  if (typeof value === "boolean")
+    return <Form.Check type="checkbox" checked={value} disabled />;
+
+  // Object
+  if (typeof value === "object" && value !== null) {
+    // Nếu là mảng
+    if (Array.isArray(value)) {
+      return (
+        <Form.Select
+          size="sm"
+          value={value[0]} // chọn giá trị đầu tiên làm hiển thị
+          onChange={(e) => e.preventDefault()} // chặn người dùng thay đổi
+        >
+          {value.map((item, index) => (
+            <option key={index} value={item}>
+              {typeof item === "object" ? JSON.stringify(item) : item}
+            </option>
+          ))}
+        </Form.Select>
+      );
     }
 
-    // Nếu là string và là link ảnh
-  if (typeof value === "string" && (value.startsWith("http://") || value.startsWith("https://"))) {
+    const keys = Object.keys(value);
+    if (keys.length >= 2) {
+      return (
+        <Form.Select
+          size="sm"
+          value={value[keys[0]]}
+          onChange={(e) => e.preventDefault()} // chặn người dùng thay đổi
+        >
+          <option value={value[keys[0]]}>{value[keys[1]]}</option>
+        </Form.Select>
+      );
+    }
+    return JSON.stringify(value).slice(0, 10) + "...";
+  }
+
+  // String là link ảnh
+  if (
+    typeof value === "string" &&
+    (value.startsWith("http://") || value.startsWith("https://"))
+  ) {
     const ext = value.split(".").pop().toLowerCase();
     const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp", "svg"];
     if (imageExtensions.includes(ext)) {
       return <img src={value} alt="" className="img-thumbnail" width={100} />;
     }
-    // Nếu không phải ảnh, vẫn hiển thị link bình thường
-    return <a href={value} target="_blank" rel="noopener noreferrer">{value}</a>;
+    return (
+      <a href={value} target="_blank" rel="noopener noreferrer">
+        {value}
+      </a>
+    );
   }
 
-    return value?.toString();
-  };
+  // String là ngày
+  if (typeof value === "string" && dayjs(value).isValid()) {
+    return dayjs(value).format("DD/MM/YYYY HH:mm:ss");
+  }
+
+  return value?.toString();
+};
+
+
 
   // Columns
   const columns = useMemo(() => {
-    const baseCols = data && data.length > 0
-      ? Object.keys(data[0]).map((key) => ({
-          header: columnLabels[key] || key,
-          accessorKey: key,
-          cell: (info) => renderCell(info.getValue()),
-        }))
-      : [];
+    const baseCols =
+      data && data.length > 0
+        ? Object.keys(data[0]).map((key) => ({
+            header: columnLabels[key] || key,
+            accessorKey: key,
+            cell: (info) => renderCell(info.getValue()),
+          }))
+        : [];
 
     return [
       {
@@ -88,7 +135,7 @@ const DataTable = ({
             onChange={() => {
               const id = row.original.id;
               const newSelected = selectedIds.includes(id)
-                ? selectedIds.filter(x => x !== id)
+                ? selectedIds.filter((x) => x !== id)
                 : [...selectedIds, id];
               onSelectedIdsChange(newSelected);
             }}
@@ -145,17 +192,32 @@ const DataTable = ({
                 const canSort = header.column.getCanSort();
                 return (
                   <th
-                  className="text-nowrap"
+                    className="text-nowrap"
                     key={header.id}
                     style={{ cursor: canSort ? "pointer" : "default" }}
-                    onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                    onClick={
+                      canSort
+                        ? header.column.getToggleSortingHandler()
+                        : undefined
+                    }
                   >
                     <div className="d-flex justify-content-between align-items-center">
-                      <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
                       <span>
-                        {canSort && !header.column.getIsSorted() && <FaSort className="ms-2 text-primary" />}
-                        {header.column.getIsSorted() === "asc" && <FaSortUp className="ms-2 text-primary" />}
-                        {header.column.getIsSorted() === "desc" && <FaSortDown className="ms-2 text-primary" />}
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                      </span>
+                      <span>
+                        {canSort && !header.column.getIsSorted() && (
+                          <FaSort className="ms-2 text-primary" />
+                        )}
+                        {header.column.getIsSorted() === "asc" && (
+                          <FaSortUp className="ms-2 text-primary" />
+                        )}
+                        {header.column.getIsSorted() === "desc" && (
+                          <FaSortDown className="ms-2 text-primary" />
+                        )}
                       </span>
                     </div>
                   </th>
@@ -180,7 +242,8 @@ const DataTable = ({
       {/* Pagination */}
       <div className="d-flex justify-content-between align-items-center mt-2">
         <div>
-          Trang {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+          Trang {table.getState().pagination.pageIndex + 1} /{" "}
+          {table.getPageCount()}
         </div>
         <div className="d-flex gap-2">
           <Button

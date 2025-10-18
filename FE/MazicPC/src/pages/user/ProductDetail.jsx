@@ -261,77 +261,35 @@ const ProductDetail = () => {
           <Col md={7}>
             <div>
               <FlashSaleBanner />
-              <h3 className="text-danger fw-bold my-3">
-                {formatCurrency(product.price)}
-              </h3>
 
-              <div className="my-3">
-                <div className="d-flex align-items-center gap-3">
-                  <span className="fw-semibold text-dark fs-5">Số lượng:</span>
+              <div className="my-3 d-flex align-items-center gap-3">
+                {product.finalPrice && product.discountValue ? (
+                  <>
+                    {/* Giá đã giảm */}
+                    <h3 className="text-danger fw-bold mb-0">
+                      {formatCurrency(product.finalPrice)}
+                    </h3>
 
-                  <InputGroup
-                    className="d-flex align-items-center"
-                    style={{ width: "180px" }}
-                  >
-                    <Button
-                      onClick={handleDecrease}
-                      size="sm"
-                      className="rounded-circle d-flex align-items-center justify-content-center"
-                      style={{
-                        width: "38px",
-                        height: "38px",
-                        backgroundColor: "#ffe3e3",
-                        borderColor: "#ffb3b3",
-                        color: "#d62828",
-                      }}
-                      disabled={quantity <= 1}
-                    >
-                      <FaMinus />
-                    </Button>
+                    {/* Giá gốc gạch ngang */}
+                    <span className="text-muted text-decoration-line-through fs-5 mb-0">
+                      {formatCurrency(product.price)}
+                    </span>
 
-                    <FormControl
-                      value={quantity}
-                      readOnly
-                      className="text-center fw-bold border-2 border-dark-subtle rounded-pill"
-                      style={{
-                        width: "60px",
-                        height: "38px",
-                        fontSize: "1.1rem",
-                        backgroundColor: "transparent",
-                      }}
-                    />
-
-                    <Button
-                      onClick={handleIncrease}
-                      size="sm"
-                      className="rounded-circle d-flex align-items-center justify-content-center"
-                      style={{
-                        width: "38px",
-                        height: "38px",
-                        backgroundColor: "#d9fdd3",
-                        borderColor: "#90ee90",
-                        color: "#2d6a4f",
-                      }}
-                      disabled={
-                        product.stockQty && quantity >= product.stockQty
-                      }
-                    >
-                      <FaPlus />
-                    </Button>
-                  </InputGroup>
-
-                  <small className="text-muted ms-2">
-                    (Còn{" "}
-                    <strong
-                      className={
-                        product.stockQty > 0 ? "text-success" : "text-danger"
-                      }
-                    >
-                      {product.stockQty || 0}
-                    </strong>{" "}
-                    sản phẩm)
-                  </small>
-                </div>
+                    {/* Badge % giảm */}
+                    {product.discountValue > 0 && (
+                      <Badge bg="danger" className="fs-6">
+                        {Math.round(
+                          (product.discountValue / product.price) * 100
+                        )}
+                        % OFF
+                      </Badge>
+                    )}
+                  </>
+                ) : (
+                  <h3 className="text-danger fw-bold mb-0">
+                    {formatCurrency(product.price)}
+                  </h3>
+                )}
               </div>
 
               <Row>
