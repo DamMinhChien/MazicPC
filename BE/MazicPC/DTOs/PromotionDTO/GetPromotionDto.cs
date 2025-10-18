@@ -14,7 +14,7 @@
 
         public DateTime EndDate { get; set; }
 
-        public List<GetPromotionTargetDto>? Targets { get; set; }
+        public List<string>? TargetNames { get; set; }
 
         public DateTime? CreatedAt { get; set; }
 

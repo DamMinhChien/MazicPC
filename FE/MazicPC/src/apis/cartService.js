@@ -5,7 +5,7 @@ const getCarts = async () => {
   return res.data;
 };
 
-const getCart = async () => {
+const getCart = async () => { 
   const res = await axiosClient.get(`carts/me`);
   return res.data;
 };

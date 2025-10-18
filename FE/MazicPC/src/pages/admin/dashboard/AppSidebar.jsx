@@ -23,7 +23,7 @@ import {
   cilPuzzle,
   cilSpeedometer,
   cilUser,
-  cilUserFollow,
+  cilTags,
   cilWallpaper,
 } from "@coreui/icons";
 import { useDispatch } from "react-redux";
@@ -78,8 +78,7 @@ const AppSidebar = () => {
             onClick={() => handleSelect("account")}
             style={{ cursor: "pointer" }}
           >
-            <CIcon customClassName="nav-icon" icon={cilLockLocked} /> Tài
-            khoản
+            <CIcon customClassName="nav-icon" icon={cilLockLocked} /> Tài khoản
           </CNavLink>
         </CNavItem>
 
@@ -100,6 +99,62 @@ const AppSidebar = () => {
             <CIcon customClassName="nav-icon" icon={cilList} /> Danh mục
           </CNavLink>
         </CNavItem>
+
+        <CNavGroup
+          toggler={
+            <>
+              <CIcon customClassName="nav-icon" icon={cilTags} /> Khuyến mãi
+            </>
+          }
+        >
+          <CNavItem>
+            <CNavLink
+              onClick={() => handleSelect("product-promotion")}
+              style={{ cursor: "pointer" }}
+            >
+              <span className="nav-icon">
+                <span className="nav-icon-bullet"></span>
+              </span>
+              Sản phẩm
+            </CNavLink>
+          </CNavItem>
+
+          <CNavItem>
+            <CNavLink
+              onClick={() => handleSelect("category-promotion")}
+              style={{ cursor: "pointer" }}
+            >
+              <span className="nav-icon">
+                <span className="nav-icon-bullet"></span>
+              </span>
+              Danh mục
+            </CNavLink>
+          </CNavItem>
+
+          <CNavItem>
+            <CNavLink
+              onClick={() => handleSelect("manufacturer-promotion")}
+              style={{ cursor: "pointer" }}
+            >
+              <span className="nav-icon">
+                <span className="nav-icon-bullet"></span>
+              </span>
+              Nhà sản xuất
+            </CNavLink>
+          </CNavItem>
+
+          <CNavItem>
+            <CNavLink
+              onClick={() => handleSelect("global-promotion")}
+              style={{ cursor: "pointer" }}
+            >
+              <span className="nav-icon">
+                <span className="nav-icon-bullet"></span>
+              </span>
+              Toàn hệ thống
+            </CNavLink>
+          </CNavItem>
+        </CNavGroup>
 
         <CNavItem>
           <CNavLink
@@ -141,6 +196,7 @@ const AppSidebar = () => {
           <CIcon customClassName="nav-icon" icon={cilSpeedometer} /> With badge{" "}
           <CBadge color="primary ms-auto">NEW</CBadge>
         </CNavItem>
+
         <CNavGroup
           toggler={
             <>

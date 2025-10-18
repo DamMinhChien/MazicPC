@@ -4,6 +4,7 @@ using MazicPC.DTOs.CategoryDTO;
 using MazicPC.DTOs.ManufacturerDTO;
 using MazicPC.Extensions;
 using MazicPC.Models;
+using MazicPC.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,12 +24,14 @@ namespace MazicPC.Controllers
         private readonly MazicPcContext _context;
         private readonly IMapper mapper;
         private readonly IWebHostEnvironment _env;
+        private readonly PromotionHelper _promotionHelper;
 
-        public CategoriesController(MazicPcContext context, IMapper mapper, IWebHostEnvironment env)
+        public CategoriesController(MazicPcContext context, IMapper mapper, IWebHostEnvironment env, PromotionHelper promotionHelper)
         {
             _context = context;
             this.mapper = mapper;
             _env = env;
+            _promotionHelper = promotionHelper;
         }
 
         // API cho user -> trả về dạng cây
@@ -58,13 +61,39 @@ namespace MazicPC.Controllers
         [HttpGet("with-products")]
         public async Task<IActionResult> GetCategoriesWithProducts()
         {
+            // 1. Lấy các danh mục con
             var categories = await _context.Categories
-                .Where(cat => cat.ParentId != null)
-                .ProjectTo<CategoryWithProductsDto>(mapper.ConfigurationProvider)
+                .Where(c => c.ParentId != null)
                 .ToListAsync();
 
-            return Ok(categories);
+            // 2. Map sang DTO trước
+            var categoryDtos = mapper.Map<List<CategoryWithProductsDto>>(categories);
+
+            // 3. Tính giảm giá và gán vào DTO
+            foreach (var catDto in categoryDtos)
+            {
+                foreach (var productDto in catDto.Products)
+                {
+                    // Tìm lại entity Product tương ứng
+                    var productEntity = categories
+                        .SelectMany(c => c.Products)
+                        .First(p => p.Id == productDto.Id);
+
+                    // Gọi helper để lấy giá giảm
+                    var (finalPrice, discountValue, promotionName) = await _promotionHelper.CalculateDiscountAsync(productEntity);
+
+                    // Gán vào DTO
+                    productDto.FinalPrice = finalPrice;
+                    productDto.DiscountValue = discountValue;
+                    productDto.PromotionName = promotionName;
+                }
+            }
+
+            // 4. Trả kết quả
+            return Ok(categoryDtos);
         }
+
+
 
         // GET: api/Categories/root
         [HttpGet("roots")]

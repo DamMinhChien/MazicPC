@@ -40,13 +40,12 @@ namespace MazicPC.Controllers
         public async Task<ActionResult<IEnumerable<UserGetProductDto>>> GetProducts()
         {
             var products = await _context.Products.ToListAsync();
-            var helper = new PromotionHelper(_context);
 
             var result = new List<UserGetProductDto>();
 
             foreach (var product in products)
             {
-                var (finalPrice, discount, promoName) = await helper.CalculateDiscountAsync(product);
+                var (finalPrice, discount, promoName) = await promotionHelper.CalculateDiscountAsync(product);
                 var dto = _mapper.Map<UserGetProductDto>(product);
 
                 dto.FinalPrice = finalPrice;
@@ -63,7 +62,10 @@ namespace MazicPC.Controllers
         [HttpGet("search")]
         public async Task<IActionResult> Search([FromQuery] ProductQueryDto query)
         {
-            var products = _context.Products.AsQueryable();
+            var productsQuery = _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Manufacturer)
+                .AsQueryable();
 
             // --- Đảm bảo giá trị hợp lệ ---
             query.Page = Math.Max(query.Page, 1);
@@ -72,12 +74,11 @@ namespace MazicPC.Controllers
             if (query.PriceMin.HasValue && query.PriceMax.HasValue && query.PriceMin > query.PriceMax)
                 (query.PriceMin, query.PriceMax) = (query.PriceMax, query.PriceMin);
 
-            // --- Tìm kiếm (không phân biệt hoa thường) ---
+            // --- Tìm kiếm ---
             if (!string.IsNullOrWhiteSpace(query.Search))
             {
                 string keyword = query.Search.Trim().ToLower();
-
-                products = products.Where(p =>
+                productsQuery = productsQuery.Where(p =>
                     EF.Functions.Like(p.Name.ToLower(), $"%{keyword}%") ||
                     (p.ShortDescription != null && EF.Functions.Like(p.ShortDescription.ToLower(), $"%{keyword}%")) ||
                     (p.Description != null && EF.Functions.Like(p.Description.ToLower(), $"%{keyword}%"))
@@ -88,7 +89,7 @@ namespace MazicPC.Controllers
             if (!string.IsNullOrWhiteSpace(query.Category))
             {
                 string cat = query.Category.Trim().ToLower();
-                products = products.Where(p =>
+                productsQuery = productsQuery.Where(p =>
                     p.Category != null && (p.Category.Name.ToLower() == cat || p.Category.Slug.ToLower() == cat)
                 );
             }
@@ -97,48 +98,55 @@ namespace MazicPC.Controllers
             if (!string.IsNullOrWhiteSpace(query.Manufacturer))
             {
                 string manu = query.Manufacturer.Trim().ToLower();
-                products = products.Where(p =>
+                productsQuery = productsQuery.Where(p =>
                     p.Manufacturer != null && p.Manufacturer.Name.ToLower() == manu
                 );
             }
 
             // --- Lọc theo giá ---
             if (query.PriceMin.HasValue)
-            {
-                products = products.Where(p => p.Price >= query.PriceMin.Value);
-            }
+                productsQuery = productsQuery.Where(p => p.Price >= query.PriceMin.Value);
 
             if (query.PriceMax.HasValue)
-            {
-                products = products.Where(p => p.Price <= query.PriceMax.Value);
-            }
+                productsQuery = productsQuery.Where(p => p.Price <= query.PriceMax.Value);
 
             // --- Sắp xếp ---
-            products = query.Sort switch
+            productsQuery = query.Sort switch
             {
-                "price_asc" => products.OrderBy(p => p.Price),
-                "price_desc" => products.OrderByDescending(p => p.Price),
-                "newest" => products.OrderByDescending(p => p.CreatedAt),
-                "oldest" => products.OrderBy(p => p.CreatedAt),
-                "name" => products.OrderBy(p => p.Name),
-                _ => products.OrderByDescending(p => p.CreatedAt)
+                "price_asc" => productsQuery.OrderBy(p => p.Price),
+                "price_desc" => productsQuery.OrderByDescending(p => p.Price),
+                "newest" => productsQuery.OrderByDescending(p => p.CreatedAt),
+                "oldest" => productsQuery.OrderBy(p => p.CreatedAt),
+                "name" => productsQuery.OrderBy(p => p.Name),
+                _ => productsQuery.OrderByDescending(p => p.CreatedAt)
             };
 
             // --- Phân trang ---
-            var totalItems = await products.CountAsync();
+            var totalItems = await productsQuery.CountAsync();
             var totalPages = (int)Math.Ceiling(totalItems / (double)query.Limit);
 
-            var res = await products
+            var productList = await productsQuery
                 .Skip((query.Page - 1) * query.Limit)
                 .Take(query.Limit)
-                .Select(p => new
-                {
-                    p.Id,
-                    p.Name,
-                    p.ImageUrl,
-                    p.Price
-                })
                 .ToListAsync();
+
+            // --- Tính giá giảm + promotion cho từng product ---
+            var res = new List<object>();
+            foreach (var product in productList)
+            {
+                var (finalPrice, discount, promoName) = await promotionHelper.CalculateDiscountAsync(product);
+
+                res.Add(new
+                {
+                    product.Id,
+                    product.Name,
+                    product.ImageUrl,
+                    product.Price,
+                    FinalPrice = finalPrice,
+                    DiscountValue = discount,
+                    PromotionName = promoName
+                });
+            }
 
             return Ok(new
             {
@@ -155,6 +163,7 @@ namespace MazicPC.Controllers
             });
         }
 
+
         // GET: api/Products/5
         [HttpGet("{id}")]
         public async Task<ActionResult<UserGetProductDto>> GetProduct(int id)
@@ -162,8 +171,7 @@ namespace MazicPC.Controllers
             var product = await _context.Products.FindAsync(id);
             if (product == null) return NotFound();
 
-            var helper = new PromotionHelper(_context);
-            var (finalPrice, discount, promoName) = await helper.CalculateDiscountAsync(product);
+            var (finalPrice, discount, promoName) = await promotionHelper.CalculateDiscountAsync(product);
 
             var dto = _mapper.Map<UserGetProductDto>(product);
             dto.FinalPrice = finalPrice;

@@ -5,9 +5,9 @@ import MySlider from "../pages/user/components/MySlider";
 const CategorySection = ({ categories, products }) => {
   const [maxItem] = useState(20);
   useEffect(()=>{
-    console.log("àgfiesafhsakf", categories);
+    //console.log("àgfiesafhsakf", categories);
     
-  },[])
+  },[]) 
   return (
     <div className="my-5">
       <ProductSectionHeader title={categories.name} />

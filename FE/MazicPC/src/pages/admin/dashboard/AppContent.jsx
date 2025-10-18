@@ -9,6 +9,10 @@ import User from "../ContentPage/User";
 import Manufacturer from "../ContentPage/Manufacturer";
 import Banner from "../ContentPage/Banner";
 import ProductImage from "../ContentPage/ProductImage";
+import ProductPromotion from "../ContentPage/ProductPromotion";
+import ManufacturerPromotion from "../ContentPage/ManufacturerPromotion";
+import CategoryPromotion from "../ContentPage/CategoryPromotion";
+import GlobalPromotion from "../ContentPage/GlobalPromotion";
 
 const AppContent = () => {
   const currentPage = useSelector((state) => state.currentPage.currentPage);
@@ -29,6 +33,15 @@ const AppContent = () => {
       return <Manufacturer />;
     case "banner":
       return <Banner />;
+    case "product-promotion":
+      return <ProductPromotion />;
+    case "category-promotion":
+      return <CategoryPromotion />;
+    case "manufacturer-promotion":
+      return <ManufacturerPromotion />;
+    case "global-promotion":
+      return <GlobalPromotion />;
+
     default:
       return <NotFoundPage />;
   }

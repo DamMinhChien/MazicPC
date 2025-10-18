@@ -57,6 +57,11 @@ const columnLabels = {
   origin: "Xuất Xứ",
   imageUrls: "Ảnh Sản Phẩm",
   parentName: "Danh Mục Cha",
+  discountType: "Loại giảm giá",
+  discountValue: "Giá trị giảm",
+  startDate: "Ngày bắt đầu",
+  endDate: "Ngày kết thúc",
+  targetNames: "Áp dụng cho"
 };
 
 export default columnLabels;

@@ -81,6 +81,10 @@ const Products = () => {
     });
   };
 
+  useEffect(()=>{
+    console.log("data abc:",data);
+  },[])
+
   return (
     <>
       <main className="container bg-light p-4">
