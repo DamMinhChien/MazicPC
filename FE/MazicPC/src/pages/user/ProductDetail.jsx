@@ -292,6 +292,91 @@ const ProductDetail = () => {
                 )}
               </div>
 
+              <div className="my-3">
+                <div className="d-flex align-items-center gap-3">
+                  <span className="fw-semibold text-dark fs-5">Số lượng:</span>
+
+                  <InputGroup
+                    className="d-flex align-items-center"
+                    style={{ width: "180px" }}
+                  >
+                    <Button
+                      onClick={handleDecrease}
+                      size="sm"
+                      className="rounded-circle d-flex align-items-center justify-content-center"
+                      style={{
+                        width: "38px",
+                        height: "38px",
+                        backgroundColor: "#ffe3e3",
+                        borderColor: "#ffb3b3",
+                        color: "#d62828",
+                      }}
+                      disabled={quantity <= 1}
+                    >
+                      <FaMinus />
+                    </Button>
+
+                    <FormControl
+                      value={quantity}
+                      readOnly
+                      className="text-center fw-bold border-2 border-dark-subtle rounded-pill"
+                      style={{
+                        width: "60px",
+                        height: "38px",
+                        fontSize: "1.1rem",
+                        backgroundColor: "transparent",
+                      }}
+                    />
+
+                    <Button
+                      onClick={handleIncrease}
+                      size="sm"
+                      className="rounded-circle d-flex align-items-center justify-content-center"
+                      style={{
+                        width: "38px",
+                        height: "38px",
+                        backgroundColor: "#d9fdd3",
+                        borderColor: "#90ee90",
+                        color: "#2d6a4f",
+                      }}
+                      disabled={
+                        product.stockQty && quantity >= product.stockQty
+                      }
+                    >
+                      <FaPlus />
+                    </Button>
+                  </InputGroup>
+
+                  <small className="text-muted ms-2">
+                    (Còn{" "}
+                    <strong
+                      className={
+                        product.stockQty > 0 ? "text-success" : "text-danger"
+                      }
+                    >
+                      {product.stockQty || 0}
+                    </strong>{" "}
+                    sản phẩm)
+                  </small>
+                </div>
+              </div>
+
+              <Row className="my-3">
+                <Col md={6}>
+                  <Button className="p-4 bg-danger border-0 w-100 fw-bold fs-4 d-flex align-items-center justify-content-center gap-2">
+                    <FaBolt /> Mua ngay
+                  </Button>
+                </Col>
+                <Col md={6}>
+                  <Button
+                    onClick={handleAddToCart}
+                    className="p-4 bg-primary border-0 w-100 fw-bold fs-4 d-flex align-items-center justify-content-center gap-2"
+                  >
+                    <FaShoppingCart /> Thêm vào giỏ hàng
+                  </Button>
+                </Col>
+              </Row>
+
               <Row>
                 <Col md={6} className="d-flex">
                   <Card
