@@ -12,6 +12,8 @@ const ROUTERS = {
     PRODUCTS: "/products",
     PRODUCT_DETAIL: "/products/:id",
     CART: "/cart",
+    CHECKOUT: "/checkout",
+    ADDRESS: "/address",
   },
   COMMON: {
     AUTH: "/auth",

@@ -30,4 +30,6 @@ public partial class ShippingAddress
     public string? Note { get; set; }
 
     public virtual Account Account { get; set; } = null!;
+
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }

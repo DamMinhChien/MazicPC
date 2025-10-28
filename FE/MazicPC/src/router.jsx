@@ -18,6 +18,8 @@ import ProductDetail from "./pages/user/ProductDetail";
 import HuongDanMuaHang from "./pages/user/static/huong-dan-mua-hang";
 import Products from "./pages/user/Products";
 import Cart from "./pages/user/Cart";
+import CheckOut from "./pages/user/CheckOut";
+import Address from "./pages/user/Address";
 
 const RouterCustom = () => {
   const userRouter = [
@@ -51,6 +53,18 @@ const RouterCustom = () => {
     {
       path: ROUTERS.USER.CART,
       component: <Cart />,
+      private: true,
+      allowedRoles: ["user"],
+    },
+    {
+      path: ROUTERS.USER.CHECKOUT,
+      component: <CheckOut />,
+      private: true,
+      allowedRoles: ["user"],
+    },
+    {
+      path: ROUTERS.USER.ADDRESS,
+      component: <Address />,
       private: true,
       allowedRoles: ["user"],
     },

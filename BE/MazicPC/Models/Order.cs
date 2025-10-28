@@ -17,9 +17,13 @@ public partial class Order
 
     public DateTime? UpdatedAt { get; set; }
 
+    public int ShippingAddressId { get; set; }
+
     public virtual Account Account { get; set; } = null!;
 
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+
+    public virtual ShippingAddress ShippingAddress { get; set; } = null!;
 }

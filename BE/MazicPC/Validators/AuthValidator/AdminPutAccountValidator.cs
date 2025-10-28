@@ -3,19 +3,18 @@ using MazicPC.DTOs.AccountDTO;
 using MazicPC.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace MazicPC.Validators
+namespace MazicPC.Validators.AuthValidator
 {
-    public class AdminPostAccountValidator : AbstractValidator<AdminPostAccountDto>
+    public class AdminPutAccountValidator : AbstractValidator<AdminPutAccountDto>
     {
         private readonly MazicPcContext db;
-        public AdminPostAccountValidator(MazicPcContext db)
+        public AdminPutAccountValidator(MazicPcContext db)
         {
             this.db = db;
             // Username
             RuleFor(x => x.Username)
                     .NotEmpty().WithMessage("Tên đăng nhập không được để trống.")
-                    .MinimumLength(3).WithMessage("Tên đăng nhập phải có ít nhất 3 ký tự.")
-                    .MustAsync(async (username, context, _) => !await db.Accounts.AnyAsync(a=>a.Username == username.Username)).WithMessage("Tên đăng nhập đã tồn tại."); ;
+                    .MinimumLength(3).WithMessage("Tên đăng nhập phải có ít nhất 3 ký tự.");
 
             // Email
             RuleFor(x => x.Email)
@@ -34,7 +33,6 @@ namespace MazicPC.Validators
                 .MinimumLength(2).WithMessage("Họ và tên phải có ít nhất 2 ký tự.")
                 .MaximumLength(50).WithMessage("Họ và tên không được quá 50 ký tự.")
                 .Matches("^[a-zA-ZÀ-ỹ\\s]+$").WithMessage("Họ và tên chỉ được chứa chữ cái và khoảng trắng.");
-
 
             RuleFor(x => x.Role)
                     .Must(role => role == null || role == "User" || role == "Admin")

@@ -5,9 +5,15 @@ import {
   Navbar,
   NavDropdown,
   Offcanvas,
+  Image,
+  Badge,
 } from "react-bootstrap";
-import { FaShoppingCart, FaSnowflake } from "react-icons/fa";
-import { IoPerson } from "react-icons/io5";
+import {
+  FaShoppingCart,
+  FaSnowflake,
+  FaBoxOpen,
+  FaUserAlt,
+} from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import ROUTERS from "../../../../utils/router";
 import {
@@ -27,10 +33,14 @@ import { useEffect, useState } from "react";
 const Header = ({ showSnow, toggleSnow }) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
+  const cartItems = useSelector((state) => state.cart.items);
   const isLogin = !!user;
   //fixed="top" style={{ marginTop: "2rem" }}
   const [showMenu, setShowMenu] = useState(false);
   const location = useLocation();
+
+  // avatar (theo yêu cầu dùng user.user.avatarUrl, fallback)
+  const avatarSrc = user?.user?.avatarUrl || "/avatar_placeholder.jpg";
 
   // 🔒 Mỗi khi URL thay đổi → tự đóng menu
   useEffect(() => {
@@ -126,17 +136,32 @@ const Header = ({ showSnow, toggleSnow }) => {
           >
             <SearchHeader />
 
-            <NavDropdown title={<IoPerson size={20} />} id="user-menu-dropdown">
+            {/* --- user avatar + dropdown --- */}
+            <NavDropdown
+              id="user-menu-dropdown"
+              className="user-dropdown"
+              title={
+                <Image
+                  src={avatarSrc}
+                  roundedCircle
+                  width={40}
+                  height={40}
+                  style={{ objectFit: "cover", border: "2px solid #000000ff" }}
+                />
+              }
+            >
               <NavDropdown.Item as={Link} to="#profile">
+                <FaUserAlt className="me-2" />
                 Hồ sơ
               </NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="#settings">
-                Cài đặt
+
+              <NavDropdown.Item as={Link} to={ROUTERS.USER.ORDERS || "#orders"}>
+                <FaBoxOpen className="me-2" />
+                Đơn hàng
               </NavDropdown.Item>
+
               <NavDropdown.Divider />
-              <NavDropdown.Item as={Link} to="#logout">
-                Đăng xuất
-              </NavDropdown.Item>
+              {/* Đã bỏ mục Đăng xuất ở đây theo yêu cầu */}
             </NavDropdown>
 
             <Nav.Link onClick={toggleSnow}>
@@ -147,7 +172,18 @@ const Header = ({ showSnow, toggleSnow }) => {
             </Nav.Link>
 
             <Nav.Link as={Link} to={ROUTERS.USER.CART}>
-              <FaShoppingCart size={20} />
+              <div className="position-relative d-inline-block">
+                <FaShoppingCart size={20} />
+                {cartItems.length > 0 && (
+                  <Badge
+                    bg="danger"
+                    className="position-absolute top-0 start-100 translate-middle rounded-circle"
+                    style={{ zIndex: 10000 }}
+                  >
+                    {cartItems.length}
+                  </Badge>
+                )}
+              </div>
             </Nav.Link>
 
             <Nav.Link
@@ -175,6 +211,27 @@ const Header = ({ showSnow, toggleSnow }) => {
           }
           .category-menu .dropdown-menu.show {
             display: block;
+          }
+
+          /* đảm bảo dropdown được tính tọa độ từ chính trigger */
+          .user-dropdown {
+            position: relative;
+          }
+
+          /* căn giữa dropdown bên dưới avatar */
+          .user-dropdown .dropdown-menu {
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            top: calc(
+              100% + 6px
+            ) !important; /* 6px gap dưới avatar, chỉnh nếu cần */
+            min-width: 200px;
+            right: auto !important;
+          }
+
+          /* một chút style cho item icon */
+          .user-dropdown .dropdown-item svg {
+            vertical-align: middle;
           }
         `}
       </style>
