@@ -70,6 +70,7 @@ namespace MazicPC.Controllers
         public async Task<ActionResult<GetShippingAddressDto>> PostShippingAddress([FromBody] ShippingAddressDto shippingAddressDto)
         {
             var shippingAddress = mapper.Map<ShippingAddress>(shippingAddressDto);
+            shippingAddress.AccountId = (int)this.GetCurrentAccountId()!;
 
             _context.ShippingAddresses.Add(shippingAddress);
             await _context.SaveChangesAsync();

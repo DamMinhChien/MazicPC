@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import cartService from "@/apis/cartService";
+import cartService from "../../apis/cartService";
 
 //
 // 🧠 1️⃣ Lấy giỏ hàng của user
@@ -14,7 +14,7 @@ export const fetchCart = createAsyncThunk(
       return rejectWithValue(err.response?.data || err.message);
     }
   }
-);
+); 
 
 //
 // 🧠 2️⃣ Thêm sản phẩm vào giỏ
@@ -38,7 +38,7 @@ export const updateCartItem = createAsyncThunk(
   "cart/updateCartItem",
   async ({ productId, quantity }, { rejectWithValue }) => {
     try {
-      const res = await cartService.updateCartItem(productId, { quantity }); // PUT /cart/{productId}
+      const res = await cartService.updateCart(productId, { quantity }); // PUT /cart/{productId}
       return { productId, quantity, res };
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);

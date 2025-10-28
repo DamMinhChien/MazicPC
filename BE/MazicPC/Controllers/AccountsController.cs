@@ -20,7 +20,7 @@ namespace MazicPC.Controllers
     [ApiController]
     public class AccountsController : ControllerBase
     {
-        IMapper mapper;
+        private readonly IMapper mapper;
         private readonly MazicPcContext db;
 
         public AccountsController(IMapper mapper, MazicPcContext db)
@@ -106,7 +106,7 @@ namespace MazicPC.Controllers
         [HttpPut("me")]
         public async Task<IActionResult> UserPutAccount([FromBody] UserPutAccountDto account)
         {
-            var userId = this.GetCurrentUserId();
+            var userId = this.GetCurrentAccountId();
             if (userId == null) return Unauthorized();
 
             var acc = await db.Accounts.FindAsync(userId);
@@ -129,7 +129,7 @@ namespace MazicPC.Controllers
             if (acc == null)
                 return NotFound();
 
-            var currentUserId = this.GetCurrentUserId();
+            var currentUserId = this.GetCurrentAccountId();
 
             // Ngăn admin đổi Role hoặc IsActive của chính mình
             if (id == currentUserId)
@@ -179,7 +179,7 @@ namespace MazicPC.Controllers
         [HttpDelete("me")]
         public async Task<IActionResult> UserDeleteAccount()
         {
-            var userId = this.GetCurrentUserId();
+            var userId = this.GetCurrentAccountId();
             if (userId == null) return Unauthorized();
 
             var acc = await db.Accounts.FindAsync(userId);
@@ -200,7 +200,7 @@ namespace MazicPC.Controllers
             if (acc == null)
                 return NotFound();
 
-            if (acc.Id == this.GetCurrentUserId())
+            if (acc.Id == this.GetCurrentAccountId())
                 return Forbid("Bạn không thể tự xóa chính mình qua quyền admin.");
 
             db.Accounts.Remove(acc);
@@ -217,7 +217,7 @@ namespace MazicPC.Controllers
             if (ids == null || !ids.Any())
                 return BadRequest("Danh sách id không được rỗng.");
 
-            var currentUserId = this.GetCurrentUserId();
+            var currentUserId = this.GetCurrentAccountId();
 
             // Nếu currentUserId null thì bỏ qua bước check tự xoá
             if (currentUserId.HasValue && ids.Contains(currentUserId.Value))

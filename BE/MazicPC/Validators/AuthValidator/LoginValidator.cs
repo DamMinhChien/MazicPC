@@ -2,7 +2,7 @@
 using MazicPC.DTOs.AuthenticationDTO;
 using Microsoft.AspNetCore.Identity.Data;
 
-namespace MazicPC.Validators
+namespace MazicPC.Validators.AuthValidator
 {
     public class LoginValidator : AbstractValidator<LoginRequestDto>
     {

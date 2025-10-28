@@ -62,7 +62,7 @@ namespace MazicPC.Controllers
         public async Task<IActionResult> PutUser([FromForm] PutUserDto userDto, IFormFile? file)
         {
 
-            var user = await _context.Users.FindAsync(this.GetCurrentUserId());
+            var user = await _context.Users.FindAsync(this.GetCurrentAccountId());
             if (user == null) return NotFound();
 
             mapper.Map(userDto, user);
@@ -146,7 +146,7 @@ namespace MazicPC.Controllers
             if (ids == null || !ids.Any())
                 return BadRequest("Danh sách id không được rỗng.");
 
-            var currentUserId = this.GetCurrentUserId();
+            var currentUserId = this.GetCurrentAccountId();
 
             // Nếu currentUserId null thì bỏ qua bước check tự xoá
             if (currentUserId.HasValue && ids.Contains(currentUserId.Value))

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import shippingAddressService from "../../../apis/shippingAddressService";
 import {
   Form,
   Row,
@@ -28,7 +29,28 @@ const fetchWards = async () => {
   return data;
 };
 
-export default function AddressForm({ data = null, onSubmit }) {
+export default function AddressForm({ data = null, onSuccess }) {
+  const queryClient = useQueryClient();
+
+  // Add mutation
+  const addMutation = useMutation({
+    mutationFn: (data) => shippingAddressService.addShippingAddress(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries("Address");
+      if (onSuccess) onSuccess();
+    },
+  });
+
+  // Update mutation
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) =>
+      shippingAddressService.updateShippingAddress(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries("Address");
+      if (onSuccess) onSuccess();
+    },
+  });
+
   const {
     register,
     handleSubmit,
@@ -43,9 +65,9 @@ export default function AddressForm({ data = null, onSubmit }) {
   const selectedProvince = watch("province");
   const selectedDistrict = watch("district");
 
-  const user = useSelector(state => state.auth.user)
-  const id = user.id
-  const phone = user.phone
+  const user = useSelector((state) => state.auth.user);
+  const id = user.id;
+  const phone = user.phone;
 
   // Query: provinces / districts / wards
   const { data: provinces = [], isLoading: loadingProvinces } = useQuery({
@@ -112,15 +134,40 @@ export default function AddressForm({ data = null, onSubmit }) {
     }
   }, [data, reset]);
 
-  const handleFormSubmit = (formData) => {
-    const submitData = data
-      ? { ...formData, id: data.id, mode: "edit" } // sửa
-      : { ...formData, mode: "create" }; // thêm mới
-    console.log("Submit:", submitData);
-    if (onSubmit) onSubmit(submitData);
+  const handleFormSubmit = async (formData) => {
+    try {
+      const submitData = {
+        fullName: formData.name,
+        phone: formData.phone,
+        province:
+          provinces.find((p) => p.code == formData.province)?.name || "",
+        district:
+          filteredDistricts.find((d) => d.code == formData.district)?.name ||
+          "",
+        ward: filteredWards.find((w) => w.code == formData.ward)?.name || "",
+        detailAddress: formData.address,
+        note: formData.note,
+        isDefault: false, // Có thể thêm checkbox cho trường này
+      };
+
+      if (data) {
+        // Update
+        await updateMutation.mutateAsync({
+          id: data.id,
+          data: submitData,
+        });
+      } else {
+        // Add new
+        await addMutation.mutateAsync(submitData);
+      }
+    } catch (error) {
+      console.error("Error submitting address:", error);
+    }
   };
 
   const isLoading = loadingProvinces || loadingDistricts || loadingWards;
+  // Thêm loading state cho nút submit
+  const isSubmitting = addMutation.isLoading || updateMutation.isLoading;
 
   return (
     <Form
@@ -249,8 +296,12 @@ export default function AddressForm({ data = null, onSubmit }) {
       </FloatingLabel>
 
       <div className="text-end">
-        <Button variant="primary" type="submit" disabled={isLoading}>
-          {isLoading ? (
+        <Button
+          variant="primary"
+          type="submit"
+          disabled={isLoading || isSubmitting}
+        >
+          {isSubmitting ? (
             <Spinner animation="border" size="sm" />
           ) : data ? (
             "Cập nhật địa chỉ"
@@ -259,6 +310,11 @@ export default function AddressForm({ data = null, onSubmit }) {
           )}
         </Button>
       </div>
+
+      {/* Show error messages if any */}
+      {(addMutation.error || updateMutation.error) && (
+        <div className="text-danger mt-2">Có lỗi xảy ra. Vui lòng thử lại.</div>
+      )}
     </Form>
   );
 }

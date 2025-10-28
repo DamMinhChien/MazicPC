@@ -231,6 +231,7 @@ public partial class MazicPcContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
+            entity.Property(e => e.ShippingAddressId).HasColumnName("shipping_address_id");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasColumnName("status");
@@ -246,6 +247,11 @@ public partial class MazicPcContext : DbContext
                 .HasForeignKey(d => d.AccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__orders__account___797309D9");
+
+            entity.HasOne(d => d.ShippingAddress).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.ShippingAddressId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_orders_shipping_addresses");
         });
 
         modelBuilder.Entity<OrderItem>(entity =>

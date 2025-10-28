@@ -42,7 +42,7 @@ namespace MazicPC.Controllers
         [HttpGet("me")]
         public async Task<IActionResult> GetCart()
         {
-            var accId = this.GetCurrentUserId();
+            var accId = this.GetCurrentAccountId();
             if (accId == null) return Unauthorized();
 
             var cart = await _context.Carts
@@ -88,7 +88,7 @@ namespace MazicPC.Controllers
         [HttpPut("{productId}")]
         public async Task<IActionResult> UpdateCartItem(int productId, [FromBody] UpdateCartItemDto updateDto)
         {
-            var accId = this.GetCurrentUserId();
+            var accId = this.GetCurrentAccountId();
             if (accId == null) return Unauthorized();
 
             await using var transaction = await _context.Database.BeginTransactionAsync();
@@ -137,7 +137,7 @@ namespace MazicPC.Controllers
         [HttpPost]
         public async Task<IActionResult> AddToCart([FromBody] AddToCartDto cartDto)
         {
-            var accId = this.GetCurrentUserId();
+            var accId = this.GetCurrentAccountId();
             if (accId == null) return Unauthorized();
 
             var cart = await _context.Carts.FirstOrDefaultAsync(c => c.AccountId == accId);
@@ -172,7 +172,7 @@ namespace MazicPC.Controllers
         [HttpDelete("{productId}")]
         public async Task<IActionResult> DeleteCart(int productId)
         {
-            var accId = this.GetCurrentUserId();
+            var accId = this.GetCurrentAccountId();
             if (accId == null) return Unauthorized();
 
             await using var transaction = await _context.Database.BeginTransactionAsync();

@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using MazicPC.DTOs.AccountDTO;
 
-namespace MazicPC.Validators
+namespace MazicPC.Validators.AuthValidator
 {
     public class UserPutAccountValidator : AbstractValidator<UserPutAccountDto>
     {
