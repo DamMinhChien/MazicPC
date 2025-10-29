@@ -17,6 +17,8 @@ public partial class MazicPcContext : DbContext
 
     public virtual DbSet<Account> Accounts { get; set; }
 
+    public virtual DbSet<AccountCoupon> AccountCoupons { get; set; }
+
     public virtual DbSet<Banner> Banners { get; set; }
 
     public virtual DbSet<Cart> Carts { get; set; }
@@ -24,6 +26,8 @@ public partial class MazicPcContext : DbContext
     public virtual DbSet<CartItem> CartItems { get; set; }
 
     public virtual DbSet<Category> Categories { get; set; }
+
+    public virtual DbSet<Coupon> Coupons { get; set; }
 
     public virtual DbSet<Manufacturer> Manufacturers { get; set; }
 
@@ -44,6 +48,8 @@ public partial class MazicPcContext : DbContext
     public virtual DbSet<Review> Reviews { get; set; }
 
     public virtual DbSet<ShippingAddress> ShippingAddresses { get; set; }
+
+    public virtual DbSet<ShippingMethod> ShippingMethods { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -82,6 +88,33 @@ public partial class MazicPcContext : DbContext
             entity.Property(e => e.Username)
                 .HasMaxLength(50)
                 .HasColumnName("username");
+        });
+
+        modelBuilder.Entity<AccountCoupon>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__account___3213E83F61C3C822");
+
+            entity.ToTable("account_coupon");
+
+            entity.HasIndex(e => new { e.AccountId, e.CouponId }, "uq_account_coupon").IsUnique();
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.AccountId).HasColumnName("account_id");
+            entity.Property(e => e.CouponId).HasColumnName("coupon_id");
+            entity.Property(e => e.UsedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("used_at");
+
+            entity.HasOne(d => d.Account).WithMany(p => p.AccountCoupons)
+                .HasForeignKey(d => d.AccountId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_account_coupon_account");
+
+            entity.HasOne(d => d.Coupon).WithMany(p => p.AccountCoupons)
+                .HasForeignKey(d => d.CouponId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_account_coupon_coupon");
         });
 
         modelBuilder.Entity<Banner>(entity =>
@@ -193,6 +226,30 @@ public partial class MazicPcContext : DbContext
                 .HasConstraintName("FK__categorie__paren__46E78A0C");
         });
 
+        modelBuilder.Entity<Coupon>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__coupon__3213E83FD88B1941");
+
+            entity.ToTable("coupon");
+
+            entity.HasIndex(e => e.Code, "UQ__coupon__357D4CF93395A024").IsUnique();
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Code)
+                .HasMaxLength(50)
+                .HasColumnName("code");
+            entity.Property(e => e.Discount)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("discount");
+            entity.Property(e => e.EndDate)
+                .HasColumnType("datetime")
+                .HasColumnName("end_date");
+            entity.Property(e => e.IsPercent).HasColumnName("is_percent");
+            entity.Property(e => e.StartDate)
+                .HasColumnType("datetime")
+                .HasColumnName("start_date");
+        });
+
         modelBuilder.Entity<Manufacturer>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__manufact__3213E83F9ECEFCBC");
@@ -227,11 +284,13 @@ public partial class MazicPcContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AccountId).HasColumnName("account_id");
+            entity.Property(e => e.CouponId).HasColumnName("coupon_id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
             entity.Property(e => e.ShippingAddressId).HasColumnName("shipping_address_id");
+            entity.Property(e => e.ShippingMethodId).HasColumnName("shipping_method_id");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasColumnName("status");
@@ -248,10 +307,19 @@ public partial class MazicPcContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__orders__account___797309D9");
 
+            entity.HasOne(d => d.Coupon).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.CouponId)
+                .HasConstraintName("fk_orders_coupon");
+
             entity.HasOne(d => d.ShippingAddress).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.ShippingAddressId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_orders_shipping_addresses");
+
+            entity.HasOne(d => d.ShippingMethod).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.ShippingMethodId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_orders_shipping_method");
         });
 
         modelBuilder.Entity<OrderItem>(entity =>
@@ -576,6 +644,21 @@ public partial class MazicPcContext : DbContext
             entity.HasOne(d => d.Account).WithMany(p => p.ShippingAddresses)
                 .HasForeignKey(d => d.AccountId)
                 .HasConstraintName("FK__shipping___accou__1332DBDC");
+        });
+
+        modelBuilder.Entity<ShippingMethod>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__shipping__3213E83FDD5D279B");
+
+            entity.ToTable("shipping_method");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Fee)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("fee");
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .HasColumnName("name");
         });
 
         modelBuilder.Entity<User>(entity =>

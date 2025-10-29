@@ -21,6 +21,8 @@ public partial class Account
 
     public DateTime? UpdatedAt { get; set; }
 
+    public virtual ICollection<AccountCoupon> AccountCoupons { get; set; } = new List<AccountCoupon>();
+
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
