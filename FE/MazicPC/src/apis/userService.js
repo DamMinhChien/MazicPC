@@ -7,14 +7,27 @@ const userService = {
     return res.data;
   },
 
-  getUserById: async (id) => { 
+  getUserById: async (id) => {
     const res = await axiosClient.get(`users/${id}`);
     return res.data;
   },
 
-  // PUT/DELETE chỉ cần chờ thành công, không cần res.data
-  updateMe: async (data) => {
-    await axiosClient.put("users/me", data);
+  // ➕ Sửa: updateMe gửi multipart/form-data đúng cách
+  updateMe: async (data, file) => {
+    const formData = new FormData();
+    for (const key in data) {
+      if (data[key] !== null && data[key] !== undefined) {
+        formData.append(key, data[key]);
+      }
+    }
+    if (file) {
+      formData.append("file", file);
+    }
+
+    // GỌI API đúng: body là formData
+    await axiosClient.put("users/me", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
   },
 
   updateUser: async (data) => {

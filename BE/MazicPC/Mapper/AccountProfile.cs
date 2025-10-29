@@ -9,7 +9,9 @@ namespace MazicPC.Mapper
         public AccountProfile()
         {   // a--->b
             CreateMap<Account, GetAccountDto>().ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User!.FullName)); ;
-            CreateMap<Account, UserPutAccountDto>();
+            CreateMap<Account, UserPutAccountDto>()
+                .ReverseMap()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<AdminPutAccountDto, Account>().ForPath(dest => dest.User!.FullName, opt => opt.MapFrom(src => src.FullName))
            .ForAllMembers(opts =>
                opts.Condition((src, dest, srcMember) => srcMember != null));

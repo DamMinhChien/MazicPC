@@ -20,6 +20,8 @@ import Products from "./pages/user/Products";
 import Cart from "./pages/user/Cart";
 import CheckOut from "./pages/user/CheckOut";
 import Address from "./pages/user/Address";
+import Profile from "./pages/user/Profile";
+import Order from "./pages/user/Order";
 
 const RouterCustom = () => {
   const userRouter = [
@@ -65,6 +67,19 @@ const RouterCustom = () => {
     {
       path: ROUTERS.USER.ADDRESS,
       component: <Address />,
+      private: true,
+      allowedRoles: ["user"],
+    },
+    {
+      path: ROUTERS.USER.PROFILE,
+      component: <Profile />,
+      private: true,
+      allowedRoles: ["user", "admin"],
+      layout: false,
+    },
+    {
+      path: ROUTERS.USER.ORDER,
+      component: <Order />,
       private: true,
       allowedRoles: ["user"],
     },

@@ -52,6 +52,39 @@ const postAccountSchema = z.object({
   }),
 });
 
+const putAccountMeSchema = z.object({
+  email: z
+    .string({ message: "Email phải là chuỗi." })
+    .email({ message: "Email không hợp lệ." })
+    .optional(),
+
+  password: z.preprocess(
+    (val) => {
+      if (typeof val === "string") {
+        const s = val.trim();
+        return s === "" ? undefined : s;
+      }
+      return val;
+    },
+    z
+      .string({ message: "Mật khẩu phải là chuỗi." })
+      .min(6, { message: "Mật khẩu phải có ít nhất 6 ký tự." })
+      .regex(/[^a-zA-Z0-9]/, {
+        message: "Mật khẩu phải chứa ít nhất một ký tự đặc biệt.",
+      })
+      .optional()
+  ),
+
+  fullName: z
+    .string({ message: "Họ và tên phải là chuỗi." })
+    .min(2, { message: "Họ và tên phải có ít nhất 2 ký tự." })
+    .max(50, { message: "Họ và tên không được quá 50 ký tự." })
+    .regex(/^[a-zA-ZÀ-ỹ\s]+$/, {
+      message: "Họ và tên chỉ được chứa chữ cái và khoảng trắng.",
+    })
+    .optional(),
+});
+
 const putAccountSchema = z.object({
   id: z.any(),
   username: z
@@ -64,13 +97,22 @@ const putAccountSchema = z.object({
     .nonempty({ message: "Email không được để trống." })
     .email({ message: "Email không hợp lệ." }),
 
-  password: z
-    .string({ message: "Mật khẩu phải là chuỗi." })
-    .nonempty({ message: "Mật khẩu không được để trống." })
-    .min(6, { message: "Mật khẩu phải có ít nhất 6 ký tự." })
-    .regex(/[^a-zA-Z0-9]/, {
-      message: "Mật khẩu phải chứa ít nhất một ký tự đặc biệt.",
-    }),
+  password: z.preprocess(
+    (val) => {
+      if (typeof val === "string") {
+        const s = val.trim();
+        return s === "" ? undefined : s;
+      }
+      return val;
+    },
+    z
+      .string({ message: "Mật khẩu phải là chuỗi." })
+      .min(6, { message: "Mật khẩu phải có ít nhất 6 ký tự." })
+      .regex(/[^a-zA-Z0-9]/, {
+        message: "Mật khẩu phải chứa ít nhất một ký tự đặc biệt.",
+      })
+      .optional()
+  ),
 
   fullName: z
     .string({ message: "Họ và tên phải là chuỗi." })
@@ -93,6 +135,7 @@ const putAccountSchema = z.object({
 const accountSchema = {
   post: postAccountSchema,
   put: putAccountSchema,
+  putMe: putAccountMeSchema,
 };
 
 export default accountSchema;

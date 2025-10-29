@@ -7,24 +7,26 @@ namespace MazicPC.Validators.AuthValidator
     {
         public UserPutAccountValidator()
         {
-            // Password
+            // Password (chỉ kiểm tra nếu có nhập)
             RuleFor(x => x.Password)
-                    .NotEmpty().WithMessage("Mật khẩu không được để trống.")
-                    .MinimumLength(6).WithMessage("Mật khẩu phải có ít nhất 6 ký tự.")
-                    .Matches("[^a-zA-Z0-9]").WithMessage("Mật khẩu phải chứa ít nhất một ký tự đặc biệt.");
+                .Cascade(CascadeMode.Stop)
+                .MinimumLength(6).WithMessage("Mật khẩu phải có ít nhất 6 ký tự.")
+                .Matches("[^a-zA-Z0-9]").WithMessage("Mật khẩu phải chứa ít nhất một ký tự đặc biệt.")
+                .When(x => !string.IsNullOrWhiteSpace(x.Password));
 
-            // Email
+            // Email (chỉ kiểm tra nếu có nhập)
             RuleFor(x => x.Email)
-                    .NotEmpty().WithMessage("Email không được để trống.")
-                    .EmailAddress().WithMessage("Email không hợp lệ.");
+                .Cascade(CascadeMode.Stop)
+                .EmailAddress().WithMessage("Email không hợp lệ.")
+                .When(x => !string.IsNullOrWhiteSpace(x.Email));
 
-            // FullName
+            // FullName (chỉ kiểm tra nếu có nhập)
             RuleFor(x => x.FullName)
-                .NotEmpty().WithMessage("Họ và tên không được để trống.")
+                .Cascade(CascadeMode.Stop)
                 .MinimumLength(2).WithMessage("Họ và tên phải có ít nhất 2 ký tự.")
                 .MaximumLength(50).WithMessage("Họ và tên không được quá 50 ký tự.")
-                .Matches("^[a-zA-ZÀ-ỹ\\s]+$").WithMessage("Họ và tên chỉ được chứa chữ cái và khoảng trắng.");
-
+                .Matches("^[a-zA-ZÀ-ỹ\\s]+$").WithMessage("Họ và tên chỉ được chứa chữ cái và khoảng trắng.")
+                .When(x => !string.IsNullOrWhiteSpace(x.FullName));
         }
     }
 }

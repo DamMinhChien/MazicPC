@@ -11,10 +11,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { setCurrentPage } from "../../../redux/slices/currentPageSlice";
 import { logoutAsync } from "../../../redux/slices/authSlice";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ROUTERS from "../../../utils/router";
 import ConfirmModal from "@components/ConfirmModal";
 import MyToast from "../../../components/MyToast";
+import { FaUser, FaSignOutAlt } from "react-icons/fa"; // Add this import
 
 const AppHeader = () => {
   const dispatch = useDispatch();
@@ -77,8 +78,15 @@ const AppHeader = () => {
                 />
               </CDropdownToggle>
               <CDropdownMenu placement="bottom-end">
-                <CDropdownItem href="#">Profile</CDropdownItem>
-                <CDropdownItem onClick={() => setShowConfirm(true)}>
+                <CDropdownItem as={Link} to={ROUTERS.USER.PROFILE}>
+                  <FaUser className="me-2" />
+                  Hồ sơ
+                </CDropdownItem>
+                <CDropdownItem
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setShowConfirm(true)}
+                >
+                  <FaSignOutAlt className="me-2" />
                   Đăng xuất
                 </CDropdownItem>
               </CDropdownMenu>
