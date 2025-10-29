@@ -65,7 +65,7 @@ namespace MazicPC.Controllers
             var acc = await _context.Accounts.FindAsync(this.GetCurrentAccountId());
             var user = acc!.User;
             if (user == null) return NotFound();
-
+    
             mapper.Map(userDto, user);
 
             if (file != null)

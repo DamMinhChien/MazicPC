@@ -19,11 +19,19 @@ public partial class Order
 
     public int ShippingAddressId { get; set; }
 
+    public int ShippingMethodId { get; set; }
+
+    public int? CouponId { get; set; }
+
     public virtual Account Account { get; set; } = null!;
+
+    public virtual Coupon? Coupon { get; set; }
 
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
     public virtual ShippingAddress ShippingAddress { get; set; } = null!;
+
+    public virtual ShippingMethod ShippingMethod { get; set; } = null!;
 }
