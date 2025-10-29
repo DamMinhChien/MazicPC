@@ -13,9 +13,14 @@ const Cart = () => {
   const dispatch = useDispatch();
   const { items, isLoading, error } = useSelector((state) => state.cart);
   const [cartTotal, setCartTotal] = useState(0);
+  const [selectedItems, setSelectedItems] = useState({});
 
   const navigate = useNavigate();
   const [emptyError, setEmptyError] = useState(false);
+
+  useEffect(() => {
+    console.log("select item:", selectedItems);
+  }, [selectedItems]);
 
   useEffect(() => {
     dispatch(fetchCart());
@@ -34,11 +39,15 @@ const Cart = () => {
     );
   }
 
-  const checkOut = () => {
-    if (cartTotal > 0) {
-      navigate(ROUTERS.USER.CHECKOUT);
-    }
-    else {
+  const handleCheckout  = () => {
+    if (selectedItems.length > 0) {
+      navigate(ROUTERS.USER.CHECKOUT, {
+        state:{ 
+          items: selectedItems,
+          from: "cart"
+         }
+      });
+    } else {
       setEmptyError(true);
     }
   };
@@ -50,7 +59,11 @@ const Cart = () => {
       <Row className="p-3 fs-5">
         <Col lg={9}>
           <section className="my-2 text-center">
-            <CartList items={items} onCartTotalChange={setCartTotal} />
+            <CartList
+              items={items}
+              onCartTotalChange={setCartTotal}
+              onSelectedItemsChange={setSelectedItems}
+            />
           </section>
         </Col>
         <Col lg={3}>
@@ -67,7 +80,7 @@ const Cart = () => {
               <div className="fw-bold ">Phí vận chuyển: </div>
               <div className="text-secondary">0 đ</div>
             </div> */}
-            <Button variant="danger" className="w-100 mt-2" onClick={checkOut}>
+            <Button variant="danger" className="w-100 mt-2" onClick={handleCheckout }>
               Thanh toán
             </Button>
           </section>

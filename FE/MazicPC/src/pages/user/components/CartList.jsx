@@ -7,7 +7,7 @@ import {
   updateCartItem,
 } from "../../../redux/slices/cartSlice";
 
-const CartList = ({ items, onCartTotalChange }) => {
+const CartList = ({ items, onCartTotalChange, onSelectedItemsChange }) => {
   const dispatch = useDispatch();
   const [totals, setTotals] = useState({});
   const [selectedItems, setSelectedItems] = useState({});
@@ -16,6 +16,21 @@ const CartList = ({ items, onCartTotalChange }) => {
   const handleItemTotalChange = (productId, total) => {
     setTotals((prev) => ({ ...prev, [productId]: total }));
   };
+
+  useEffect(() => {
+    const selectedList = items
+      .filter((item) => selectedItems[item.productId])
+      .map((item) => ({
+        productId: item.productId,
+        name: item.name || "",
+        price: item.price || 0,
+        finalPrice: item.finalPrice || 0,
+        imageUrl: item.imageUrl || "",
+        quantity: item.quantity,
+      }));
+    onSelectedItemsChange?.(selectedList);
+    console.log("Item từ con: ", selectedList);
+  }, [selectedItems, items]);
 
   // ✅ Tính tổng tiền của các sản phẩm được chọn
   const cartTotal = Object.entries(totals)

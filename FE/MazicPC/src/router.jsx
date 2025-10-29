@@ -22,6 +22,7 @@ import CheckOut from "./pages/user/CheckOut";
 import Address from "./pages/user/Address";
 import Profile from "./pages/user/Profile";
 import Order from "./pages/user/Order";
+import PaymentSuccess from "./pages/common/paymentSuccessPage/PaymentSuccess";
 
 const RouterCustom = () => {
   const userRouter = [
@@ -89,6 +90,11 @@ const RouterCustom = () => {
     {
       path: ROUTERS.COMMON.FORBIDDEN,
       component: <ForbiddenPage />,
+      layout: false,
+    },
+    {
+      path: ROUTERS.COMMON.PAYMENT_SUCCESS,
+      component: <PaymentSuccess />,
       layout: false,
     },
     {

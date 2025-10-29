@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Card,
   Col,
@@ -20,9 +20,10 @@ import {
 } from "react-icons/fa";
 import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import shippingAddressService from "../../apis/shippingAddressService";
 import orderServices from "../../apis/orderServices";
+import cartService from "../../apis/cartService";
 import { IoAddCircleOutline } from "react-icons/io5";
 import ROUTERS from "../../utils/router";
 
@@ -33,8 +34,12 @@ const formatPrice = (v) =>
 
 const CheckOut = () => {
   const navigate = useNavigate();
-  const cart = useSelector((s) => s.cart?.items || []);
   const user = useSelector((s) => s.auth?.user);
+  const { state } = useLocation();
+
+  // ✅ nhận items & from từ route
+  const items = state?.items || [];
+  const from = state?.from || "detail";
 
   const { data: addresses = [], isLoading: addrLoading } = useQuery({
     queryKey: ["shippingAddresses"],
@@ -50,18 +55,17 @@ const CheckOut = () => {
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState("");
 
-  const addNewAddress = () => {
-    navigate(ROUTERS.USER.ADDRESS);
-  }
-  // subtotal, shipping, discount, total
+  const addNewAddress = () => navigate(ROUTERS.USER.ADDRESS);
+
+  // ✅ subtotal dựa vào finalPrice
   const subtotal = useMemo(
     () =>
-      cart.reduce((sum, it) => {
-        const price = it?.product?.price ?? it?.price ?? 0;
+      items.reduce((sum, it) => {
+        const price = it?.finalPrice ?? it?.price ?? 0;
         const qty = it?.quantity ?? it?.qty ?? 1;
         return sum + price * qty;
       }, 0),
-    [cart]
+    [items]
   );
 
   const shippingFee = useMemo(
@@ -70,7 +74,6 @@ const CheckOut = () => {
   );
 
   const discount = useMemo(() => {
-    // placeholder: coupon logic
     if (!coupon) return 0;
     if (coupon === "SALE10") return Math.round(subtotal * 0.1);
     return 0;
@@ -78,24 +81,25 @@ const CheckOut = () => {
 
   const total = subtotal + shippingFee - discount;
 
+  // ✅ thanh toán
   const handlePlaceOrder = async () => {
     setError("");
     if (!selectedAddrId) {
       setError("Vui lòng chọn địa chỉ nhận hàng.");
       return;
     }
-    if (!cart.length) {
-      setError("Giỏ hàng trống.");
+    if (!items.length) {
+      setError("Không có sản phẩm để thanh toán.");
       return;
     }
 
     setPlacing(true);
     try {
       const payload = {
-        items: cart.map((it) => ({
-          productId: it.product?.id ?? it.id,
-          quantity: it.quantity ?? it.qty ?? 1,
-          price: it.product?.price ?? it.price,
+        items: items.map((it) => ({
+          productId: it.productId,
+          quantity: it.quantity ?? 1,
+          price: it.finalPrice ?? it.price ?? 0,
         })),
         shippingAddressId: selectedAddrId,
         shippingMethod,
@@ -106,14 +110,19 @@ const CheckOut = () => {
       };
 
       const res = await orderServices.createOrder(payload);
-      // nếu cổng trả về url -> redirect (VNPAY/MOMO)
+
+      // ✅ nếu thanh toán từ giỏ hàng, gọi API xoá item đã thanh toán
+      if (from === "cart") {
+        const productIds = items.map((it) => it.productId);
+        await cartService.deleteCarts(productIds);
+      }
+
       if (res?.paymentUrl) {
         window.location.href = res.paymentUrl;
         return;
       }
 
-      // else navigate to order detail / success page
-      navigate(`/orders/${res?.id ?? ""}`, { replace: true });
+      navigate(ROUTERS.COMMON.PAYMENT_SUCCESS, { replace: true });
     } catch (err) {
       console.error(err);
       setError(err?.message || "Đặt hàng thất bại. Vui lòng thử lại.");
@@ -132,7 +141,7 @@ const CheckOut = () => {
       </Card>
 
       <Row className="mt-4 g-4">
-        {/* LEFT: address + shipping + payment */}
+        {/* LEFT */}
         <Col lg={7}>
           <Card className="p-3 shadow-sm">
             <div className="d-flex align-items-center mb-3">
@@ -162,15 +171,8 @@ const CheckOut = () => {
                       <div className="text-muted small">
                         {a.detailAddress}, {a.ward}, {a.district}, {a.province}
                       </div>
-                      {a.note && (
-                        <div className="small text-secondary">
-                          Ghi chú: {a.note}
-                        </div>
-                      )}
                     </div>
-                    <div>
-                      {a.isDefault && <Badge bg="primary">Mặc định</Badge>}
-                    </div>
+                    {a.isDefault && <Badge bg="primary">Mặc định</Badge>}
                   </ListGroup.Item>
                 ))}
               </ListGroup>
@@ -240,15 +242,12 @@ const CheckOut = () => {
                   checked={paymentMethod === "VNPAY"}
                   onChange={() => setPaymentMethod("VNPAY")}
                 />
-                <Form.Text className="text-muted small">
-                  Bạn có thể thanh toán trực tiếp hoặc qua cổng thanh toán.
-                </Form.Text>
               </Form>
             </div>
           </Card>
         </Col>
 
-        {/* RIGHT: order summary */}
+        {/* RIGHT */}
         <Col lg={5}>
           <Card className="shadow-sm">
             <Card.Header className="bg-white">
@@ -259,38 +258,43 @@ const CheckOut = () => {
             </Card.Header>
 
             <ListGroup variant="flush">
-              {cart.length ? (
-                cart.map((it) => {
-                  const p = it.product ?? it;
-                  const qty = it.quantity ?? it.qty ?? 1;
-                  const img =
-                    p.imageUrl || p.thumbnail || "/avatar_placeholder.jpg";
-                  const price = p.price ?? it.price ?? 0;
-                  return (
-                    <ListGroup.Item
-                      key={p.id || p.productId}
-                      className="d-flex align-items-center"
-                    >
-                      <Image
-                        src={img}
-                        rounded
-                        width={64}
-                        height={64}
-                        className="object-fit-cover me-3"
-                      />
-                      <div className="flex-grow-1">
-                        <div className="fw-semibold">{p.name || p.title}</div>
-                        <div className="text-muted small">Số lượng: {qty}</div>
+              {items.length ? (
+                items.map((it) => (
+                  <ListGroup.Item
+                    key={it.productId}
+                    className="d-flex align-items-center"
+                  >
+                    <Image
+                      src={it.imageUrl || "/avatar_placeholder.jpg"}
+                      rounded
+                      width={64}
+                      height={64}
+                      className="object-fit-cover me-3"
+                    />
+                    <div className="flex-grow-1">
+                      <div className="fw-semibold">{it.name}</div>
+                      <div className="small text-muted">
+                        Số lượng: {it.quantity}
                       </div>
-                      <div className="text-end fw-bold">
-                        {formatPrice(price * qty)}
+                      <div>
+                        {it.finalPrice !== it.price && (
+                          <span className="text-muted text-decoration-line-through me-2">
+                            {formatPrice(it.price)}
+                          </span>
+                        )}
+                        <span className="fw-bold text-primary">
+                          {formatPrice(it.finalPrice)}
+                        </span>
                       </div>
-                    </ListGroup.Item>
-                  );
-                })
+                    </div>
+                    <div className="text-end fw-bold">
+                      {formatPrice(it.finalPrice * it.quantity)}
+                    </div>
+                  </ListGroup.Item>
+                ))
               ) : (
                 <ListGroup.Item className="text-center text-muted">
-                  Giỏ hàng trống
+                  Không có sản phẩm
                 </ListGroup.Item>
               )}
             </ListGroup>
@@ -302,9 +306,7 @@ const CheckOut = () => {
                   value={coupon}
                   onChange={(e) => setCoupon(e.target.value.toUpperCase())}
                 />
-                <Button variant="outline-secondary" onClick={() => {}}>
-                  Áp dụng
-                </Button>
+                <Button variant="outline-secondary">Áp dụng</Button>
               </InputGroup>
 
               <div className="d-flex justify-content-between">
@@ -343,7 +345,7 @@ const CheckOut = () => {
                 variant="primary"
                 size="lg"
                 onClick={handlePlaceOrder}
-                disabled={placing || !cart.length || addrLoading}
+                disabled={placing || !items.length || addrLoading}
               >
                 {placing ? (
                   <>
@@ -359,15 +361,30 @@ const CheckOut = () => {
       </Row>
 
       <style jsx>{`
-        .object-fit-cover {
-          object-fit: cover;
-        }
-        @media (max-width: 991px) {
-          .card-header {
-            text-align: center;
-          }
-        }
-      `}</style>
+  .object-fit-cover {
+    object-fit: cover;
+  }
+
+  /* ✅ Khi item được chọn (active) */
+  .list-group-item.active {
+    background-color: #ff4d4f !important; /* đỏ nổi bật */
+    border-color: #ff4d4f !important;
+    color: #fff !important; /* chữ trắng */
+  }
+
+  /* ✅ Đảm bảo text con (h5, div, small) cũng trắng */
+  .list-group-item.active .fw-bold,
+  .list-group-item.active .text-muted,
+  .list-group-item.active small {
+    color: #fff !important;
+  }
+
+  /* ✅ Hover nhẹ */
+  .list-group-item:hover {
+    background-color: #fff5f5;
+  }
+`}</style>
+
     </Container>
   );
 };
