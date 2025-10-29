@@ -21,6 +21,7 @@ const ROUTERS = {
     AUTH: "/auth",
     NOT_FOUND: "*",
     FORBIDDEN: "/403",
+    PAYMENT_SUCCESS: "/payment-success",
   },
   ADMIN: {
     DASHBOARD: "/admin/dashboard",

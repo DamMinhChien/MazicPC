@@ -100,6 +100,24 @@ const ProductDetail = () => {
     fetchProducts();
   }, []);
 
+  const handleCheckout = () => {
+    navigate(ROUTERS.USER.CHECKOUT, {
+      state: {
+        items: [
+          {
+            productId: Number(id),
+            name: product.name || "",
+            price: product.price || 0,
+            finalPrice: product.finalPrice || 0,
+            imageUrl: product.imageUrl || "",
+            quantity: quantity,
+          },
+        ],
+        from: "detail",
+      },
+    });
+  };
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -176,7 +194,7 @@ const ProductDetail = () => {
       await dispatch(
         addToCart({
           productId: Number(id),
-          quantity: 1,
+          quantity: quantity,
         })
       ).unwrap();
 
@@ -363,7 +381,10 @@ const ProductDetail = () => {
 
               <Row className="my-3">
                 <Col md={6}>
-                  <Button className="p-4 bg-danger border-0 w-100 fw-bold fs-4 d-flex align-items-center justify-content-center gap-2">
+                  <Button
+                    onClick={handleCheckout}
+                    className="p-4 bg-danger border-0 w-100 fw-bold fs-4 d-flex align-items-center justify-content-center gap-2"
+                  >
                     <FaBolt /> Mua ngay
                   </Button>
                 </Col>
