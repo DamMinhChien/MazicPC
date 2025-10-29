@@ -62,7 +62,8 @@ namespace MazicPC.Controllers
         public async Task<IActionResult> PutUser([FromForm] PutUserDto userDto, IFormFile? file)
         {
 
-            var user = await _context.Users.FindAsync(this.GetCurrentAccountId());
+            var acc = await _context.Accounts.FindAsync(this.GetCurrentAccountId());
+            var user = acc!.User;
             if (user == null) return NotFound();
 
             mapper.Map(userDto, user);

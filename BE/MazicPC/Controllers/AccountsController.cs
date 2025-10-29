@@ -112,14 +112,19 @@ namespace MazicPC.Controllers
             var acc = await db.Accounts.FindAsync(userId);
             if (acc == null) return NotFound();
 
+            // Cập nhật các field khác
             mapper.Map(account, acc);
-            acc.Password = BCrypt.Net.BCrypt.HashPassword(account.Password);
+
+            // Chỉ cập nhật password nếu người dùng có nhập
+            if (!string.IsNullOrWhiteSpace(account.Password))
+            {
+                acc.Password = BCrypt.Net.BCrypt.HashPassword(account.Password);
+            }
 
             await db.SaveChangesAsync();
 
             return NoContent();
         }
-
 
         [Authorize(Roles = Roles.Admin)]
         [HttpPut("{id}")]

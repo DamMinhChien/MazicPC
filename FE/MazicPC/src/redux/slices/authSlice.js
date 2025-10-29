@@ -12,7 +12,9 @@ export const logoutAsync = createAsyncThunk(
       await authService.logout(); // Gọi API logout server
       return true;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || "Có lỗi xảy ra khi đăng xuất");
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Có lỗi xảy ra khi đăng xuất"
+      );
     }
   }
 );
@@ -39,6 +41,16 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       localStorage.removeItem("user");
+    },
+
+    // cho phép cập nhật user trực tiếp từ component (ví dụ sau khi fetch /users/me)
+    setUser: (state, action) => {
+      state.user = action.payload;
+      if (action.payload) {
+        localStorage.setItem("user", JSON.stringify(action.payload));
+      } else {
+        localStorage.removeItem("user");
+      }
     },
   },
   extraReducers: (builder) => {
@@ -71,10 +83,12 @@ const authSlice = createSlice({
       .addCase(logoutAsync.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+        // don't forcibly remove user from localStorage here; keep current behavior but ensure user cleared
+        state.user = null;
         localStorage.removeItem("user");
       });
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, setUser } = authSlice.actions;
 export default authSlice.reducer;

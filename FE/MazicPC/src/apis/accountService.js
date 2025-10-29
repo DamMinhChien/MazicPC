@@ -10,7 +10,6 @@ const isExistAccount = async (id) => {
   return res.data;
 };
 
-// CRUD account APIs here
 const createAccount = async (account) => {
   const res = await axiosClient.post("accounts", account);
   return res.data;
@@ -20,8 +19,16 @@ const updateAccount = async (account) => {
   await axiosClient.put(`accounts/${account.id}`, account);
 };
 
+const updateAccountMe = async (account) => {
+  await axiosClient.put(`accounts/me`, account);
+};
+
 const deleteAccount = async (id) => {
   await axiosClient.delete(`accounts/${id}`);
+};
+
+const deleteAccountMe = async (id) => {
+  await axiosClient.delete(`accounts/me`);
 };
 
 const deleteAccounts = async (ids) => {
@@ -36,5 +43,7 @@ const accountServices = {
   updateAccount,
   deleteAccount,
   deleteAccounts,
+  updateAccountMe,
+  deleteAccountMe,
 };
 export default accountServices;
