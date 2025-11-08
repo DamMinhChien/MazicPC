@@ -9,6 +9,7 @@ namespace MazicPC.Mapper
         public ShippingMethodProfile()
         {
             CreateMap<ShippingMethodDto, ShippingMethod>().ReverseMap();
+            CreateMap<ShippingMethod, GetShippingMethodDto>();
         }
     }
 }
