@@ -28,14 +28,15 @@ namespace MazicPC.Controllers
 
         // GET: api/ShippingMethods
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ShippingMethod>>> GetShippingMethods()
+        public async Task<ActionResult<IEnumerable<GetShippingMethodDto>>> GetShippingMethods()
         {
-            return await _context.ShippingMethods.ToListAsync();
+            var shippingMethods = await _context.ShippingMethods.ToListAsync();
+            return Ok(_mapper.Map<IEnumerable<GetShippingMethodDto>>(shippingMethods));
         }
 
         // GET: api/ShippingMethods/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ShippingMethod>> GetShippingMethod(int id)
+        public async Task<ActionResult<GetShippingMethodDto>> GetShippingMethod(int id)
         {
             var shippingMethod = await _context.ShippingMethods.FindAsync(id);
 
@@ -44,7 +45,7 @@ namespace MazicPC.Controllers
                 return NotFound();
             }
 
-            return shippingMethod;
+            return Ok(_mapper.Map<GetShippingMethodDto>(shippingMethod));
         }
 
         // PUT: api/ShippingMethods/5
@@ -63,14 +64,14 @@ namespace MazicPC.Controllers
 
         // POST: api/ShippingMethods
         [HttpPost]
-        public async Task<ActionResult<ShippingMethod>> PostShippingMethod(ShippingMethodDto shippingMethodDto)
+        public async Task<ActionResult<GetShippingMethodDto>> PostShippingMethod(ShippingMethodDto shippingMethodDto)
         {
             var shippingMethod = _mapper.Map<ShippingMethod>(shippingMethodDto);
 
             _context.ShippingMethods.Add(shippingMethod);
             await _context.SaveChangesAsync();
 
-            var result = _mapper.Map<ShippingMethod>(shippingMethodDto);
+            var result = _mapper.Map<GetShippingMethodDto>(shippingMethod);
 
             return CreatedAtAction(nameof(GetShippingMethod), new { id = result.Id }, result);
         }
