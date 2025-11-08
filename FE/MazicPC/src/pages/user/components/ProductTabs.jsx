@@ -2,6 +2,7 @@ import { Tabs, Tab } from "react-bootstrap";
 import { FaInfoCircle, FaCogs, FaStar } from "react-icons/fa";
 import ProductSpecsTable from "./ProductSpecsTable";
 import { toEmbedUrl } from "../../../utils/helper";
+import ProductReviews from "./ProductReviews";
 
 const ProductTabs = ({ product }) => {
   return (
@@ -89,9 +90,7 @@ const ProductTabs = ({ product }) => {
           }
         >
           <div className="p-4 text-secondary">
-            <h5>Đánh giá từ khách hàng</h5>
-            <p>⭐⭐⭐⭐⭐ - “Hiệu năng cực mạnh, chơi game siêu mượt!”</p>
-            <p>⭐⭐⭐⭐ - “Thiết kế đẹp, pin ổn, quạt êm.”</p>
+            <ProductReviews productId={product.id} />
           </div>
         </Tab>
       </Tabs>
