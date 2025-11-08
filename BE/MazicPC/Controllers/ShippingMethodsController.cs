@@ -3,6 +3,7 @@ using MazicPC.DTOs.ShippingAddressDTO;
 using MazicPC.DTOs.ShippingMethodDTO;
 using MazicPC.Extensions;
 using MazicPC.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,7 @@ namespace MazicPC.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = Roles.Admin)]
     public class ShippingMethodsController : ControllerBase
     {
         private readonly MazicPcContext _context;
@@ -87,6 +89,23 @@ namespace MazicPC.Controllers
             }
 
             _context.ShippingMethods.Remove(shippingMethod);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("bulk")]
+        public async Task<IActionResult> DeleteShippingMethods([FromBody] List<int> ids)
+        {
+            if (ids == null || !ids.Any())
+                return BadRequest("Danh sách id không được rỗng.");
+
+            var shippingMethods = await _context.ShippingMethods.Where(shippingMethod => ids.Contains(shippingMethod.Id)).ToListAsync();
+
+            if (!shippingMethods.Any())
+                return NotFound("Không tìm thấy phương thức vận chuyển nào.");
+
+            _context.ShippingMethods.RemoveRange(shippingMethods);
             await _context.SaveChangesAsync();
 
             return NoContent();

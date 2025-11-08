@@ -2,6 +2,7 @@
 using MazicPC.DTOs.CouponDTO;
 using MazicPC.DTOs.ShippingMethodDTO;
 using MazicPC.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace MazicPC.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = Roles.Admin)]
     public class CouponsController : ControllerBase
     {
         private readonly MazicPcContext _context;
@@ -86,6 +88,23 @@ namespace MazicPC.Controllers
             }
 
             _context.Coupons.Remove(coupon);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("bulk")]
+        public async Task<IActionResult> DeleteCoupons([FromBody] List<int> ids)
+        {
+            if (ids == null || !ids.Any())
+                return BadRequest("Danh sách id không được rỗng.");
+
+            var coupons = await _context.Coupons.Where(coupon => ids.Contains(coupon.Id)).ToListAsync();
+
+            if (!coupons.Any())
+                return NotFound("Không tìm thấy phương thức vận chuyển nào.");
+
+            _context.Coupons.RemoveRange(coupons);
             await _context.SaveChangesAsync();
 
             return NoContent();
