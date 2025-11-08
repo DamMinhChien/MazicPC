@@ -108,12 +108,10 @@ public partial class MazicPcContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.AccountCoupons)
                 .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_account_coupon_account");
 
             entity.HasOne(d => d.Coupon).WithMany(p => p.AccountCoupons)
                 .HasForeignKey(d => d.CouponId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_account_coupon_coupon");
         });
 
@@ -245,9 +243,11 @@ public partial class MazicPcContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("end_date");
             entity.Property(e => e.IsPercent).HasColumnName("is_percent");
+            entity.Property(e => e.Quantity).HasColumnName("quantity");
             entity.Property(e => e.StartDate)
                 .HasColumnType("datetime")
                 .HasColumnName("start_date");
+            entity.Property(e => e.UsedCount).HasColumnName("used_count");
         });
 
         modelBuilder.Entity<Manufacturer>(entity =>
