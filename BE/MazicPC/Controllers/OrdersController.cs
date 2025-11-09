@@ -55,6 +55,18 @@ namespace MazicPC.Controllers
             return Ok(result);
         }
 
+        [HttpGet("admin")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task<ActionResult<IEnumerable<GetAdminOrderDto>>> GetAdminOrders()
+        {
+            var orders = await _context.Orders
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+
+            var result = _mapper.Map<List<GetAdminOrderDto>>(orders);
+            return Ok(result);
+        }
+
         // GET: api/Orders/5
         [HttpGet("{id}")]
         [Authorize]
@@ -136,10 +148,10 @@ namespace MazicPC.Controllers
 
         [HttpPut("{id}/status")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] string newStatus)
+        public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] string status)
         {
             // 1️⃣ Kiểm tra trạng thái hợp lệ
-            if (!SysEnum.TryParse<OrderStatus>(newStatus, true, out var parsedStatus))
+            if (!SysEnum.TryParse<OrderStatus>(status, true, out var parsedStatus))
                 return BadRequest("Trạng thái không hợp lệ.");
 
             // 2️⃣ Lấy đơn hàng

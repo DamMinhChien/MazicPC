@@ -22,6 +22,8 @@ const DataTable = ({
   onGlobalFilterChange,
   selectedIds,
   onSelectedIdsChange,
+  canDelete = true,
+  canEdit = true,
 }) => {
   const [selectAll, setSelectAll] = useState(false);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize });
@@ -38,71 +40,68 @@ const DataTable = ({
 
   // Render cell tùy loại dữ liệu
   const renderCell = (value) => {
-  // Boolean
-  if (typeof value === "boolean")
-    return <Form.Check type="checkbox" checked={value} disabled />;
+    // Boolean
+    if (typeof value === "boolean")
+      return <Form.Check type="checkbox" checked={value} disabled />;
 
-  // Object
-  if (typeof value === "object" && value !== null) {
-    // Nếu là mảng
-    if (Array.isArray(value)) {
+    // Object
+    if (typeof value === "object" && value !== null) {
+      // Nếu là mảng
+      if (Array.isArray(value)) {
+        return (
+          <Form.Select
+            size="sm"
+            value={value[0]} // chọn giá trị đầu tiên làm hiển thị
+            onChange={(e) => e.preventDefault()} // chặn người dùng thay đổi
+          >
+            {value.map((item, index) => (
+              <option key={index} value={item}>
+                {typeof item === "object" ? JSON.stringify(item) : item}
+              </option>
+            ))}
+          </Form.Select>
+        );
+      }
+
+      const keys = Object.keys(value);
+      if (keys.length >= 2) {
+        return (
+          <Form.Select
+            size="sm"
+            value={value[keys[0]]}
+            onChange={(e) => e.preventDefault()} // chặn người dùng thay đổi
+          >
+            <option value={value[keys[0]]}>{value[keys[1]]}</option>
+          </Form.Select>
+        );
+      }
+      return JSON.stringify(value).slice(0, 10) + "...";
+    }
+
+    // String là link ảnh
+    if (
+      typeof value === "string" &&
+      (value.startsWith("http://") || value.startsWith("https://"))
+    ) {
+      const ext = value.split(".").pop().toLowerCase();
+      const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp", "svg"];
+      if (imageExtensions.includes(ext)) {
+        return <img src={value} alt="" className="img-thumbnail" width={100} />;
+      }
       return (
-        <Form.Select
-          size="sm"
-          value={value[0]} // chọn giá trị đầu tiên làm hiển thị
-          onChange={(e) => e.preventDefault()} // chặn người dùng thay đổi
-        >
-          {value.map((item, index) => (
-            <option key={index} value={item}>
-              {typeof item === "object" ? JSON.stringify(item) : item}
-            </option>
-          ))}
-        </Form.Select>
+        <a href={value} target="_blank" rel="noopener noreferrer">
+          {value}
+        </a>
       );
     }
 
-    const keys = Object.keys(value);
-    if (keys.length >= 2) {
-      return (
-        <Form.Select
-          size="sm"
-          value={value[keys[0]]}
-          onChange={(e) => e.preventDefault()} // chặn người dùng thay đổi
-        >
-          <option value={value[keys[0]]}>{value[keys[1]]}</option>
-        </Form.Select>
-      );
+    // String là ngày
+    if (typeof value === "string" && dayjs(value).isValid()) {
+      return dayjs(value).format("DD/MM/YYYY HH:mm:ss");
     }
-    return JSON.stringify(value).slice(0, 10) + "...";
-  }
 
-  // String là link ảnh
-  if (
-    typeof value === "string" &&
-    (value.startsWith("http://") || value.startsWith("https://"))
-  ) {
-    const ext = value.split(".").pop().toLowerCase();
-    const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp", "svg"];
-    if (imageExtensions.includes(ext)) {
-      return <img src={value} alt="" className="img-thumbnail" width={100} />;
-    }
-    return (
-      <a href={value} target="_blank" rel="noopener noreferrer">
-        {value}
-      </a>
-    );
-  }
-
-  // String là ngày
-  if (typeof value === "string" && dayjs(value).isValid()) {
-    return dayjs(value).format("DD/MM/YYYY HH:mm:ss");
-  }
-
-  return value?.toString();
-};
-
-
-
+    return value?.toString();
+  };
   // Columns
   const columns = useMemo(() => {
     const baseCols =
@@ -148,20 +147,24 @@ const DataTable = ({
         header: "Thao tác",
         cell: ({ row }) => (
           <div className="d-flex gap-2 justify-content-center">
-            <ButtonIcon
-              bg="warning"
-              label="Sửa"
-              size="sm"
-              icon={<FaEdit />}
-              onClick={() => onEdit(row.original)}
-            />
-            <ButtonIcon
-              bg="danger"
-              label="Xóa"
-              size="sm"
-              icon={<FaTrash />}
-              onClick={() => onDelete(row.original.id)}
-            />
+            {canEdit && (
+              <ButtonIcon
+                bg="warning"
+                label="Sửa"
+                size="sm"
+                icon={<FaEdit />}
+                onClick={() => onEdit(row.original)}
+              />
+            )}
+            {canDelete && (
+              <ButtonIcon
+                bg="danger"
+                label="Xóa"
+                size="sm"
+                icon={<FaTrash />}
+                onClick={() => onDelete(row.original.id)}
+              />
+            )}
           </div>
         ),
       },

@@ -68,6 +68,10 @@ const columnLabels = {
   isPercent: "Giảm Theo %",
   usedCount: "Số Lượng Đã Dùng",
   fee: "Chi phí",
+  totalAmount: "Tổng Tiền",
+  status: "Trạng Thái",
+  paymentMethod: "Phương Thức Thanh Toán",
+  paymentStatus: "Trạng Thái Thanh Toán",
 };
 
 export default columnLabels;

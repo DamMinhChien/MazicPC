@@ -234,11 +234,23 @@ const AppSidebar = () => {
         <CNavGroup
           toggler={
             <>
-              <CIcon customClassName="nav-icon" icon={cilTruck} /> Giao hàng &
-              Hiển thị
+              <CIcon customClassName="nav-icon" icon={cilTruck} /> Đơn hàng &
+              Vận chuyển
             </>
           }
         >
+          <CNavItem>
+            <CNavLink
+              onClick={() => handleSelect("order")}
+              style={{ cursor: "pointer" }}
+            >
+              <span className="nav-icon">
+                <span className="nav-icon-bullet"></span>
+              </span>
+              Đơn hàng
+            </CNavLink>
+          </CNavItem>
+          
           <CNavItem>
             <CNavLink
               onClick={() => handleSelect("shipping-method")}
@@ -250,18 +262,15 @@ const AppSidebar = () => {
               Phương thức vận chuyển
             </CNavLink>
           </CNavItem>
-          <CNavItem>
-            <CNavLink
-              onClick={() => handleSelect("banner")}
-              style={{ cursor: "pointer" }}
-            >
-              <span className="nav-icon">
-                <span className="nav-icon-bullet"></span>
-              </span>
-              Banner
-            </CNavLink>
-          </CNavItem>
         </CNavGroup>
+        <CNavItem>
+          <CNavLink
+            onClick={() => handleSelect("banner")}
+            style={{ cursor: "pointer" }}
+          >
+            <CIcon customClassName="nav-icon" icon={cilImage} /> Banner
+          </CNavLink>
+        </CNavItem>
       </CSidebarNav>
     </CSidebar>
   );

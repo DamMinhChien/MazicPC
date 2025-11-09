@@ -28,7 +28,7 @@ const Coupon = () => {
     fetchCoupons();
   }, []);
 
-  const title = "Quản lý mã giảm giá";
+  const title = "mã giảm giá";
 
   const fields = [
     { name: "id", label: "ID", type: "hidden" },

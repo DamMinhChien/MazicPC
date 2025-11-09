@@ -28,7 +28,7 @@ const ShippingMethod = () => {
     fetchShippingMethods();
   }, []);
 
-  const title = "Quản lý phương thức giao hàng";
+  const title = "phương thức giao hàng";
 
   const fields = [
     { name: "id", label: "ID", type: "hidden" },
