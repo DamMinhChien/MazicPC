@@ -77,7 +77,7 @@ namespace MazicPC.Controllers
                 .AnyAsync(oi =>
                     oi.ProductId == dto.ProductId &&
                     oi.Order.AccountId == accountId &&
-                    oi.Order.Status == OrderStatus.Delivered.ToString() // chỉ tính đơn đã giao xong
+                    oi.Order.Status == OrderStatus.Completed.ToString() // chỉ tính đơn đã giao xong
                 );
 
             if (!hasPurchased)

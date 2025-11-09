@@ -2,7 +2,7 @@
 {
     public enum PaymentMethodType
     {
-        COD,
-        Momo
+        cod,
+        momo
     }
 }

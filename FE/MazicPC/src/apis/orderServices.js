@@ -2,8 +2,8 @@ import axiosClient from "./axiosClient";
 
 const orderServices = {
   // 🛒 Lấy danh sách đơn hàng của user hiện tại
-  async getMyOrders() {
-    const res = await axiosClient.get("Orders/my");
+  async getOrders() {
+    const res = await axiosClient.get("Orders");
     return res.data;
   },
 
@@ -25,12 +25,6 @@ const orderServices = {
     return res.data;
   },
 
-  // 🧾 Admin: Lấy tất cả đơn hàng
-  async getAllOrders() {
-    const res = await axiosClient.get("Orders");
-    return res.data;
-  },
-
   // 🔄 Admin: Cập nhật trạng thái đơn hàng
   async updateOrderStatus(id, newStatus) {
     const res = await axiosClient.put(`Orders/${id}/status`, newStatus, {
@@ -39,11 +33,11 @@ const orderServices = {
     return res.data;
   },
 
-  // 💳 Lấy thông tin thanh toán của 1 đơn hàng
-  async getOrderPayments(id) {
-    const res = await axiosClient.get(`Orders/${id}/payments`);
-    return res.data;
-  },
+  // // 💳 Lấy thông tin thanh toán của 1 đơn hàng
+  // async getOrderPayments(id) {
+  //   const res = await axiosClient.get(`Orders/${id}/payments`);
+  //   return res.data;
+  // },
 };
 
 export default orderServices;

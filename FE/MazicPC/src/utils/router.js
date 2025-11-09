@@ -15,7 +15,7 @@ const ROUTERS = {
     CHECKOUT: "/checkout",
     ADDRESS: "/address",
     PROFILE: "/profile",
-    ORDER: "/orders",
+    PURCHASE: "/purchase",
   },
   COMMON: {
     AUTH: "/auth",

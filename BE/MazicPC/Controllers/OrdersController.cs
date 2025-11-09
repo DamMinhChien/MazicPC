@@ -35,10 +35,22 @@ namespace MazicPC.Controllers
 
         // GET: api/Orders
         [HttpGet]
-        [Authorize(Roles = Roles.Admin)]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<GetOrderDto>>> GetOrders()
         {
-            var orders = await _context.Orders.ToListAsync();
+            var accountId = this.GetCurrentAccountId();
+            IQueryable<Order> query = _context.Orders;
+
+            // Nếu là user thường thì chỉ lấy đơn hàng của chính mình
+            if (!User.IsInRole(Roles.Admin))
+            {
+                query = query.Where(o => o.AccountId == accountId);
+            }
+
+            var orders = await query
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+
             var result = _mapper.Map<List<GetOrderDto>>(orders);
             return Ok(result);
         }
@@ -83,8 +95,8 @@ namespace MazicPC.Controllers
             if (order.Status == OrderStatus.Cancelled.ToString())
                 return BadRequest("Đơn hàng đã bị hủy trước đó.");
 
-            if (order.Status == OrderStatus.Delivered.ToString() ||
-                order.Status == OrderStatus.Shipped.ToString())
+            if (order.Status == OrderStatus.Delivering.ToString() ||
+                order.Status == OrderStatus.Completed.ToString())
                 return BadRequest("Đơn hàng đã giao hoặc đang vận chuyển, không thể hủy.");
 
             // 3️⃣ Cập nhật trạng thái đơn hàng
@@ -96,14 +108,14 @@ namespace MazicPC.Controllers
             if (payment != null)
             {
                 // COD: có thể hủy nội bộ
-                if (payment.PaymentMethod.ToLower() == "cod")
+                if (payment.PaymentMethod.ToLower() == PaymentMethodType.cod.ToString())
                 {
-                    payment.Status = "cancelled";
+                    payment.Status = PaymentStatus.Cancelled.ToString();
                 }
                 else
                 {
                     // Ví điện tử → chỉ đánh dấu hủy, hoàn tiền do cổng thanh toán xử lý
-                    payment.Status = "cancelled";
+                    payment.Status = PaymentStatus.Cancelled.ToString();
                     // (tùy hệ thống: có thể thêm trường IsRefundRequested = true)
                 }
 
@@ -141,7 +153,7 @@ namespace MazicPC.Controllers
             var currentStatus = SysEnum.Parse<OrderStatus>(order.Status);
 
             // 3️⃣ Không cho phép cập nhật ngược
-            if (currentStatus == OrderStatus.Delivered || currentStatus == OrderStatus.Cancelled)
+            if (currentStatus == OrderStatus.Completed || currentStatus == OrderStatus.Cancelled)
                 return BadRequest("Đơn hàng đã hoàn tất hoặc bị hủy, không thể thay đổi trạng thái.");
 
             // 4️⃣ Cập nhật trạng thái đơn hàng
@@ -152,20 +164,20 @@ namespace MazicPC.Controllers
             var payment = order.Payments.FirstOrDefault();
             if (payment != null)
             {
-                if (payment.PaymentMethod.ToLower() == "cod")
+                if (payment.PaymentMethod.ToLower() == PaymentMethodType.cod.ToString())
                 {
                     // COD: xử lý nội bộ
                     switch (parsedStatus)
                     {
-                        case OrderStatus.Delivered:
-                            payment.Status = "completed";
+                        case OrderStatus.Completed:
+                            payment.Status = PaymentStatus.Completed.ToString();
                             payment.PaidAt = DateTime.Now;
                             break;
                         case OrderStatus.Cancelled:
-                            payment.Status = "cancelled";
+                            payment.Status = PaymentStatus.Cancelled.ToString();
                             break;
                         default:
-                            payment.Status = "pending";
+                            payment.Status = PaymentStatus.Pending.ToString();
                             break;
                     }
                 }
@@ -173,7 +185,7 @@ namespace MazicPC.Controllers
                 {
                     // Ví điện tử: chỉ cập nhật khi hủy đơn
                     if (parsedStatus == OrderStatus.Cancelled)
-                        payment.Status = "cancelled";
+                        payment.Status = PaymentStatus.Cancelled.ToString();
                 }
 
                 payment.UpdatedAt = DateTime.Now;
@@ -235,7 +247,7 @@ namespace MazicPC.Controllers
                 AccountId = (int)accountId!,
                 ShippingAddressId = dto.ShippingAddressId,
                 ShippingMethodId = dto.ShippingMethodId,
-                Status = "pending",
+                Status = OrderStatus.Pending.ToString(),
                 CreatedAt = DateTime.Now,
                 OrderItems = new List<OrderItem>()
             };
@@ -288,7 +300,7 @@ namespace MazicPC.Controllers
         new Payment
         {
             PaymentMethod = dto.PaymentMethod,
-            Status = dto.PaymentMethod.ToLower() == "cod" ? "pending" : "processing",
+            Status = dto.PaymentMethod.ToLower() == PaymentMethodType.cod.ToString() ? PaymentStatus.Pending.ToString() : PaymentStatus.Processing.ToString(),
             Amount = order.TotalAmount,
             CreatedAt = DateTime.Now
         }

@@ -23,6 +23,7 @@ import Address from "./pages/user/Address";
 import Profile from "./pages/user/Profile";
 import Order from "./pages/user/Order";
 import PaymentSuccess from "./pages/common/paymentSuccessPage/PaymentSuccess";
+import Purchase from "./pages/user/Purchase";
 
 const RouterCustom = () => {
   const userRouter = [
@@ -81,6 +82,12 @@ const RouterCustom = () => {
     {
       path: ROUTERS.USER.ORDER,
       component: <Order />,
+      private: true,
+      allowedRoles: ["user"],
+    },
+    {
+      path: ROUTERS.USER.PURCHASE,
+      component: <Purchase />,
       private: true,
       allowedRoles: ["user"],
     },
