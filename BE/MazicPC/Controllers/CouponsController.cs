@@ -53,7 +53,7 @@ namespace MazicPC.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCoupon(int id, CouponDto couponDto)
         {
-            var coupon = await _context.ShippingMethods.FindAsync(id);
+            var coupon = await _context.Coupons.FindAsync(id);
             if (coupon == null) return NotFound();
 
             _mapper.Map(couponDto, coupon);

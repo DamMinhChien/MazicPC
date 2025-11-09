@@ -13,6 +13,8 @@ import ProductPromotion from "../ContentPage/ProductPromotion";
 import ManufacturerPromotion from "../ContentPage/ManufacturerPromotion";
 import CategoryPromotion from "../ContentPage/CategoryPromotion";
 import GlobalPromotion from "../ContentPage/GlobalPromotion";
+import Coupon from "../ContentPage/Coupon";
+import ShippingMethod from "../ContentPage/ShippingMethod";
 
 const AppContent = () => {
   const currentPage = useSelector((state) => state.currentPage.currentPage);
@@ -41,6 +43,10 @@ const AppContent = () => {
       return <ManufacturerPromotion />;
     case "global-promotion":
       return <GlobalPromotion />;
+    case "coupon":
+      return <Coupon />;
+    case "shipping-method":
+      return <ShippingMethod />;
 
     default:
       return <NotFoundPage />;

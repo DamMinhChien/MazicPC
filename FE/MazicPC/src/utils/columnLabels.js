@@ -61,7 +61,13 @@ const columnLabels = {
   discountValue: "Giá trị giảm",
   startDate: "Ngày bắt đầu",
   endDate: "Ngày kết thúc",
-  targetNames: "Áp dụng cho"
+  targetNames: "Áp dụng cho",
+  quantity: "Số lượng",
+  code: "Mã Giảm Giá",
+  discount: "Giá Trị Giảm",
+  isPercent: "Giảm Theo %",
+  usedCount: "Số Lượng Đã Dùng",
+  fee: "Chi phí",
 };
 
 export default columnLabels;

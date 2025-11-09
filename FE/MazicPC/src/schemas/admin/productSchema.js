@@ -111,7 +111,7 @@ const updateProductSchema = z.object({
   // File bắt buộc khi tạo
   id: z.any().refine((val) => !isNaN(Number(val)), {
     message: "Id sản phẩm không hợp lệ",
-  }),
+  }), 
   file: z
     .any()
     .optional() // cho phép không truyền
