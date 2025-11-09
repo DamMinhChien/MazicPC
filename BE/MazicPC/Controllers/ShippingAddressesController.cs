@@ -33,7 +33,8 @@ namespace MazicPC.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetShippingAddressDto>>> GetShippingAddresses()
         {
-            var shippingAddresses = await _context.ShippingAddresses.ToListAsync();
+            var accountId = this.GetCurrentAccountId();
+            var shippingAddresses = await _context.ShippingAddresses.Where(sa => sa.AccountId == accountId).ToListAsync();
             return Ok(mapper.Map<IEnumerable<GetShippingAddressDto>>(shippingAddresses));
         }
 
@@ -41,7 +42,8 @@ namespace MazicPC.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<GetShippingAddressDto>> GetShippingAddress(int id)
         {
-            var shippingAddress = await _context.ShippingAddresses.FindAsync(id);
+            var accountId = this.GetCurrentAccountId();
+            var shippingAddress = await _context.ShippingAddresses.FirstOrDefaultAsync(sa => sa.Id == id && sa.AccountId == accountId);
 
             if (shippingAddress == null)
             {
@@ -55,7 +57,8 @@ namespace MazicPC.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutShippingAddress(int id, [FromBody] ShippingAddressDto shippingAddressDto)
         {
-            var shippingAddress = await _context.ShippingAddresses.FindAsync(id);
+            var accountId = this.GetCurrentAccountId();
+            var shippingAddress = await _context.ShippingAddresses.FirstOrDefaultAsync(sa => sa.Id == id && sa.AccountId == accountId);
             if (shippingAddress == null) return NotFound();
 
             mapper.Map(shippingAddressDto, shippingAddress);
@@ -85,7 +88,8 @@ namespace MazicPC.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteShippingAddress(int id)
         {
-            var shippingAddress = await _context.ShippingAddresses.FindAsync(id);
+            var accountId = this.GetCurrentAccountId();
+            var shippingAddress = await _context.ShippingAddresses.FirstOrDefaultAsync(sa => sa.Id == id && sa.AccountId == accountId);
             if (shippingAddress == null)
             {
                 return NotFound();
@@ -95,11 +99,6 @@ namespace MazicPC.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool ShippingAddressExists(int id)
-        {
-            return _context.ShippingAddresses.Any(e => e.Id == id);
         }
     }
 }

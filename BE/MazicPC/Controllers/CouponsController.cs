@@ -109,5 +109,43 @@ namespace MazicPC.Controllers
 
             return NoContent();
         }
+
+        // GET: api/Coupons/validate/SALE10
+        [AllowAnonymous]
+        [HttpGet("validate/{code}")]
+        public async Task<IActionResult> ValidateCoupon(string code)
+        {
+            if (string.IsNullOrWhiteSpace(code))
+                return BadRequest(new { message = "Mã giảm giá không được để trống." });
+
+            var coupon = await _context.Coupons.FirstOrDefaultAsync(c => c.Code == code);
+
+            if (coupon == null)
+                return NotFound(new { message = "Mã giảm giá không tồn tại." });
+
+            var now = DateTime.UtcNow;
+
+            if (now < coupon.StartDate)
+                return BadRequest(new { message = "Mã giảm giá chưa bắt đầu có hiệu lực." });
+
+            if (now > coupon.EndDate)
+                return BadRequest(new { message = "Mã giảm giá đã hết hạn." });
+
+            if (coupon.UsedCount >= coupon.Quantity)
+                return BadRequest(new { message = "Mã giảm giá đã được sử dụng hết." });
+
+            // Hợp lệ
+            var result = new
+            {
+                message = "Mã giảm giá hợp lệ.",
+                discount = coupon.Discount,
+                isPercent = coupon.IsPercent,
+                startDate = coupon.StartDate,
+                endDate = coupon.EndDate
+            };
+
+            return Ok(result);
+        }
+
     }
 }
