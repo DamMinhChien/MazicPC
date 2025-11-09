@@ -1,4 +1,3 @@
-import React from "react";
 import { useSelector } from "react-redux";
 import Account from "../ContentPage/Account";
 import Product from "../ContentPage/Product";
@@ -15,6 +14,7 @@ import CategoryPromotion from "../ContentPage/CategoryPromotion";
 import GlobalPromotion from "../ContentPage/GlobalPromotion";
 import Coupon from "../ContentPage/Coupon";
 import ShippingMethod from "../ContentPage/ShippingMethod";
+import Order from "../ContentPage/Order";
 
 const AppContent = () => {
   const currentPage = useSelector((state) => state.currentPage.currentPage);
@@ -47,6 +47,8 @@ const AppContent = () => {
       return <Coupon />;
     case "shipping-method":
       return <ShippingMethod />;
+    case "order":
+      return <Order />;
 
     default:
       return <NotFoundPage />;

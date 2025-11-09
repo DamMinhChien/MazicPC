@@ -16,6 +16,12 @@ const AdminLayout = ({
   putSchema,
   onSubmit,
   addButtonShow,
+  permissions = {
+    canAdd: true,
+    canEdit: true,
+    canDelete: true,
+    canDeleteMany: true,
+  }, // mặc định tất cả true
 }) => {
   const [pageSize, setPageSize] = useState(10);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -28,7 +34,7 @@ const AdminLayout = ({
   const confirmDeleteBulk = () => {
     if (selectedIds.length > 0) {
       handleDelMany(selectedIds);
-      setSelectedIds([]); 
+      setSelectedIds([]);
     }
     setShowConfirmBulk(false);
     setError("");
@@ -98,20 +104,23 @@ const AdminLayout = ({
         <SearchBar onSearch={handleSearch} />
         <div className="d-flex gap-2">
           {/* Xoá nhiều */}
-          <ButtonIcon
-            bg="danger"
-            icon={<FaTrashAlt />}
-            label="Xóa"
-            onClick={() => {
-              if (selectedIds.length === 0) {
-                setError("Vui lòng chọn ít nhất 1 mục để xóa");
-                return;
-              }
-              setShowConfirmBulk(true);
-            }}
-          />
+          {permissions.canDeleteMany && (
+            <ButtonIcon
+              bg="danger"
+              icon={<FaTrashAlt />}
+              label="Xóa"
+              onClick={() => {
+                if (selectedIds.length === 0) {
+                  setError("Vui lòng chọn ít nhất 1 mục để xóa");
+                  return;
+                }
+                setShowConfirmBulk(true);
+              }}
+            />
+          )}
+
           {/* Thêm mới */}
-          {!addButtonShow && (
+          {permissions.canAdd && !addButtonShow && (
             <ButtonIcon
               bg="success"
               icon={<FaPlus />}
@@ -125,13 +134,15 @@ const AdminLayout = ({
       {/* table */}
       <DataTable
         data={data}
-        onEdit={handleEdit}
-        onDelete={handleDelete} // xoá 1 bản ghi
+        onEdit={permissions.canEdit ? handleEdit : null}
+        onDelete={permissions.canDelete ? handleDelete : null}
         selectedIds={selectedIds}
         onSelectedIdsChange={setSelectedIds}
         pageSize={pageSize}
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
+        canDelete={permissions.canDelete}
+        canEdit={permissions.canEdit}
       />
 
       {/* form offcanvas */}
@@ -158,7 +169,7 @@ const AdminLayout = ({
         onConfirm={confirmDelete}
       />
 
-      {/* confirm modal */}
+      {/* confirm modal xoá nhiều */}
       <ConfirmModal
         message={`Bạn có chắc chắn muốn xóa ${selectedIds.length} ${title} này không?`}
         show={showConfirmBulk}

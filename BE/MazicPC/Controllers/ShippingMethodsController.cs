@@ -29,7 +29,7 @@ namespace MazicPC.Controllers
 
         // GET: api/ShippingMethods
         [HttpGet]
-        [Authorize(Roles = Roles.User)]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<GetShippingMethodDto>>> GetShippingMethods()
         {
             var shippingMethods = await _context.ShippingMethods.ToListAsync();
@@ -38,7 +38,7 @@ namespace MazicPC.Controllers
 
         // GET: api/ShippingMethods/5
         [HttpGet("{id}")]
-        [Authorize(Roles = Roles.User)]
+        [Authorize]
         public async Task<ActionResult<GetShippingMethodDto>> GetShippingMethod(int id)
         {
             var shippingMethod = await _context.ShippingMethods.FindAsync(id);

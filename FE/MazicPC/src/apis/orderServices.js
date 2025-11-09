@@ -7,6 +7,11 @@ const orderServices = {
     return res.data;
   },
 
+  async getAdminOrders() {
+    const res = await axiosClient.get("Orders/admin");
+    return res.data;
+  },
+
   // 🔍 Lấy chi tiết 1 đơn hàng
   async getOrder(id) {
     const res = await axiosClient.get(`Orders/${id}`);
