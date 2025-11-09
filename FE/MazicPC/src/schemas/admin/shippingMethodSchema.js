@@ -8,11 +8,13 @@ const shippingMethodSchema = {
     name: z
       .string({ message: "Tên phương thức giao hàng phải là chuỗi." })
       .min(1, { message: "Tên phương thức giao hàng không được để trống." })
-      .max(100, { message: "Tên phương thức giao hàng không được vượt quá 100 ký tự." }),
+      .max(100, {
+        message: "Tên phương thức giao hàng không được vượt quá 100 ký tự.",
+      }),
 
-    fee: z
-      .number({ message: "Phí giao hàng phải là số." })
-      .min(0, { message: "Phí giao hàng phải lớn hơn hoặc bằng 0." }),
+    fee: z.refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+      message: "Phí giao hàng phải lớn hơn hoặc bằng 0.",
+    }),
   }),
 
   put: z.object({
@@ -22,11 +24,15 @@ const shippingMethodSchema = {
       z
         .string({ message: "Tên phương thức giao hàng phải là chuỗi." })
         .min(1, { message: "Tên phương thức giao hàng không được để trống." })
-        .max(100, { message: "Tên phương thức giao hàng không được vượt quá 100 ký tự." })
+        .max(100, {
+          message: "Tên phương thức giao hàng không được vượt quá 100 ký tự.",
+        })
     ),
 
     fee: nonEmptyStringOrEmptyToUndefined(
-      z.number().min(0, { message: "Phí giao hàng phải lớn hơn hoặc bằng 0." })
+      z.refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+        message: "Phí giao hàng phải lớn hơn hoặc bằng 0.",
+      })
     ),
   }),
 };

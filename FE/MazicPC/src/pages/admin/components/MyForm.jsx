@@ -158,6 +158,14 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
                     {...register(field.name)}
                     isInvalid={!!errors[field.name]}
                   />
+                ) : field.type === "date" ? (
+                  <Form.Control
+                    type="date"
+                    {...register(field.name, {
+                      setValueAs: (v) => v || null, // Chuyển chuỗi rỗng thành null
+                    })}
+                    isInvalid={!!errors[field.name]}
+                  />
                 ) : (
                   <Form.Control
                     type={field.type || "text"}

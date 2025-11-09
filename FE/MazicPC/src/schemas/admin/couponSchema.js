@@ -1,64 +1,96 @@
 import { z } from "zod";
 
+// Helper: cho phép "" => undefined (dùng cho form edit)
 const nonEmptyStringOrEmptyToUndefined = (schema) =>
   schema.optional().or(z.literal("").transform(() => undefined));
 
+// Helper: field ngày (convert string → Date và validate)
+const dateField = (label) =>
+  z
+    .string({ required_error: `${label} không hợp lệ.` })
+    .transform((val) => new Date(val))
+    .refine((date) => !isNaN(date.getTime()), {
+      message: `${label} không hợp lệ.`,
+    });
+
 const couponSchema = {
-  post: z.object({
-    code: z
-      .string({ message: "Mã giảm giá phải là chuỗi." })
-      .min(1, { message: "Mã giảm giá không được để trống." })
-      .max(50, { message: "Mã giảm giá không được vượt quá 50 ký tự." }),
-
-    discount: z
-      .number({ message: "Giá trị giảm phải là số." })
-      .positive({ message: "Giá trị giảm phải lớn hơn 0." }),
-
-    isPercent: z.boolean({ message: "isPercent phải là boolean." }),
-
-    startDate: z
-      .date({ invalid_type_error: "Ngày bắt đầu không hợp lệ." })
-      .refine(date => !isNaN(date.getTime()), { message: "Ngày bắt đầu không hợp lệ." }),
-
-    endDate: z
-      .date({ invalid_type_error: "Ngày kết thúc không hợp lệ." })
-      .refine(date => !isNaN(date.getTime()), { message: "Ngày kết thúc không hợp lệ." })
-      .refine((endDate, ctx) => {
-        const startDate = ctx.parent.startDate;
-        return startDate ? endDate > startDate : true;
-      }, { message: "Ngày kết thúc phải sau ngày bắt đầu." }),
-
-    quantity: z
-      .number({ message: "Số lượng phải là số." })
-      .positive({ message: "Số lượng phải lớn hơn 0." })
-      .max(10000, { message: "Số lượng không được vượt quá 10,000." }),
-  }),
-
-  put: z.object({
-    id: z.number({ message: "ID phải là số." }),
-
-    code: nonEmptyStringOrEmptyToUndefined(
-      z
+  // ===== Schema khi thêm mới =====
+  post: z
+    .object({
+      code: z
         .string({ message: "Mã giảm giá phải là chuỗi." })
         .min(1, { message: "Mã giảm giá không được để trống." })
-        .max(50, { message: "Mã giảm giá không được vượt quá 50 ký tự." })
+        .max(50, { message: "Mã giảm giá không được vượt quá 50 ký tự." }),
+
+      discount: z
+        .union([z.string(), z.number()])
+        .transform((val) => Number(val))
+        .refine((val) => val > 0, { message: "Giá trị giảm phải lớn hơn 0." }),
+
+      isPercent: z.boolean({ message: "isPercent phải là boolean." }),
+
+      startDate: dateField("Ngày bắt đầu"),
+      endDate: dateField("Ngày kết thúc"),
+
+      quantity: z
+        .union([z.string(), z.number()])
+        .transform((val) => Number(val))
+        .refine((val) => val > 0 && val <= 10000, {
+          message: "Số lượng phải là số dương và không vượt quá 10,000.",
+        }),
+    })
+    // ✅ kiểm tra ngày kết thúc > ngày bắt đầu ở cấp object
+    .refine((data) => data.endDate > data.startDate, {
+      message: "Ngày kết thúc phải sau ngày bắt đầu.",
+      path: ["endDate"],
+    }),
+
+  // ===== Schema khi cập nhật =====
+  put: z
+    .object({
+      id: z.number({ message: "ID phải là số." }),
+
+      code: nonEmptyStringOrEmptyToUndefined(
+        z
+          .string({ message: "Mã giảm giá phải là chuỗi." })
+          .min(1, { message: "Mã giảm giá không được để trống." })
+          .max(50, { message: "Mã giảm giá không được vượt quá 50 ký tự." })
+      ),
+
+      discount: nonEmptyStringOrEmptyToUndefined(
+        z
+          .union([z.string(), z.number()])
+          .transform((val) => Number(val))
+          .refine((val) => val > 0, {
+            message: "Giá trị giảm phải lớn hơn 0.",
+          })
+      ),
+
+      isPercent: z.boolean().optional(),
+
+      startDate: nonEmptyStringOrEmptyToUndefined(dateField("Ngày bắt đầu")),
+      endDate: nonEmptyStringOrEmptyToUndefined(dateField("Ngày kết thúc")),
+
+      quantity: nonEmptyStringOrEmptyToUndefined(
+        z
+          .union([z.string(), z.number()])
+          .transform((val) => Number(val))
+          .refine((val) => val > 0 && val <= 10000, {
+            message: "Số lượng phải là số dương và không vượt quá 10,000.",
+          })
+      ),
+    })
+    // ✅ kiểm tra logic ngày trong update nếu cả hai có mặt
+    .refine(
+      (data) =>
+        !data.startDate ||
+        !data.endDate ||
+        new Date(data.endDate) > new Date(data.startDate),
+      {
+        message: "Ngày kết thúc phải sau ngày bắt đầu.",
+        path: ["endDate"],
+      }
     ),
-
-    discount: nonEmptyStringOrEmptyToUndefined(z.number().positive()),
-
-    isPercent: z.boolean().optional(),
-
-    startDate: nonEmptyStringOrEmptyToUndefined(
-      z.date().refine(date => !isNaN(date.getTime()), { message: "Ngày bắt đầu không hợp lệ." })
-    ),
-
-    endDate: nonEmptyStringOrEmptyToUndefined(
-      z.date()
-        .refine(date => !isNaN(date.getTime()), { message: "Ngày kết thúc không hợp lệ." })
-    ),
-
-    quantity: nonEmptyStringOrEmptyToUndefined(z.number().positive().max(10000)),
-  }),
 };
 
 export default couponSchema;

@@ -25,6 +25,8 @@ import {
   cilUser,
   cilTags,
   cilWallpaper,
+  cilGift, // thêm import cho mã giảm giá
+  cilTruck, // thêm import cho shipping method
 } from "@coreui/icons";
 import { useDispatch } from "react-redux";
 import { setCurrentPage } from "../../../redux/slices/currentPageSlice";
@@ -64,6 +66,7 @@ const AppSidebar = () => {
       <CSidebarNav>
         <CNavTitle>Chức năng</CNavTitle>
 
+        {/* Dashboard riêng một mục */}
         <CNavItem>
           <CNavLink
             onClick={() => handleSelect("dashboard")}
@@ -73,37 +76,100 @@ const AppSidebar = () => {
           </CNavLink>
         </CNavItem>
 
-        <CNavItem>
-          <CNavLink
-            onClick={() => handleSelect("account")}
-            style={{ cursor: "pointer" }}
-          >
-            <CIcon customClassName="nav-icon" icon={cilLockLocked} /> Tài khoản
-          </CNavLink>
-        </CNavItem>
-
-        <CNavItem>
-          <CNavLink
-            onClick={() => handleSelect("user")}
-            style={{ cursor: "pointer" }}
-          >
-            <CIcon customClassName="nav-icon" icon={cilUser} /> Người dùng
-          </CNavLink>
-        </CNavItem>
-
-        <CNavItem>
-          <CNavLink
-            onClick={() => handleSelect("category")}
-            style={{ cursor: "pointer" }}
-          >
-            <CIcon customClassName="nav-icon" icon={cilList} /> Danh mục
-          </CNavLink>
-        </CNavItem>
-
+        {/* Nhóm Quản lý người dùng */}
         <CNavGroup
           toggler={
             <>
-              <CIcon customClassName="nav-icon" icon={cilTags} /> Khuyến mãi
+              <CIcon customClassName="nav-icon" icon={cilUser} /> Quản lý người
+              dùng
+            </>
+          }
+        >
+          <CNavItem>
+            <CNavLink
+              onClick={() => handleSelect("account")}
+              style={{ cursor: "pointer" }}
+            >
+              <span className="nav-icon">
+                <span className="nav-icon-bullet"></span>
+              </span>
+              Tài khoản
+            </CNavLink>
+          </CNavItem>
+          <CNavItem>
+            <CNavLink
+              onClick={() => handleSelect("user")}
+              style={{ cursor: "pointer" }}
+            >
+              <span className="nav-icon">
+                <span className="nav-icon-bullet"></span>
+              </span>
+              Người dùng
+            </CNavLink>
+          </CNavItem>
+        </CNavGroup>
+
+        {/* Nhóm Quản lý sản phẩm */}
+        <CNavGroup
+          toggler={
+            <>
+              <CIcon customClassName="nav-icon" icon={cilBasket} /> Quản lý sản
+              phẩm
+            </>
+          }
+        >
+          <CNavItem>
+            <CNavLink
+              onClick={() => handleSelect("category")}
+              style={{ cursor: "pointer" }}
+            >
+              <span className="nav-icon">
+                <span className="nav-icon-bullet"></span>
+              </span>
+              Danh mục
+            </CNavLink>
+          </CNavItem>
+          <CNavItem>
+            <CNavLink
+              onClick={() => handleSelect("manufacturer")}
+              style={{ cursor: "pointer" }}
+            >
+              <span className="nav-icon">
+                <span className="nav-icon-bullet"></span>
+              </span>
+              Hãng sản xuất
+            </CNavLink>
+          </CNavItem>
+          <CNavItem>
+            <CNavLink
+              onClick={() => handleSelect("product")}
+              style={{ cursor: "pointer" }}
+            >
+              <span className="nav-icon">
+                <span className="nav-icon-bullet"></span>
+              </span>
+              Sản phẩm
+            </CNavLink>
+          </CNavItem>
+          <CNavItem>
+            <CNavLink
+              onClick={() => handleSelect("productImage")}
+              style={{ cursor: "pointer" }}
+            >
+              <span className="nav-icon">
+                <span className="nav-icon-bullet"></span>
+              </span>
+              Ảnh sản phẩm
+            </CNavLink>
+          </CNavItem>
+        </CNavGroup>
+
+        {/* Nhóm Khuyến mãi & Giảm giá */}
+        <CNavGroup
+          toggler={
+            <>
+              <CIcon customClassName="nav-icon" icon={cilTags} /> Khuyến mãi &
+              Giảm giá
             </>
           }
         >
@@ -115,10 +181,9 @@ const AppSidebar = () => {
               <span className="nav-icon">
                 <span className="nav-icon-bullet"></span>
               </span>
-              Sản phẩm
+              Khuyến mãi sản phẩm
             </CNavLink>
           </CNavItem>
-
           <CNavItem>
             <CNavLink
               onClick={() => handleSelect("category-promotion")}
@@ -127,10 +192,9 @@ const AppSidebar = () => {
               <span className="nav-icon">
                 <span className="nav-icon-bullet"></span>
               </span>
-              Danh mục
+              Khuyến mãi danh mục
             </CNavLink>
           </CNavItem>
-
           <CNavItem>
             <CNavLink
               onClick={() => handleSelect("manufacturer-promotion")}
@@ -139,10 +203,9 @@ const AppSidebar = () => {
               <span className="nav-icon">
                 <span className="nav-icon-bullet"></span>
               </span>
-              Nhà sản xuất
+              Khuyến mãi nhà sản xuất
             </CNavLink>
           </CNavItem>
-
           <CNavItem>
             <CNavLink
               onClick={() => handleSelect("global-promotion")}
@@ -151,79 +214,54 @@ const AppSidebar = () => {
               <span className="nav-icon">
                 <span className="nav-icon-bullet"></span>
               </span>
-              Toàn hệ thống
+              Khuyến mãi toàn hệ thống
+            </CNavLink>
+          </CNavItem>
+          <CNavItem>
+            <CNavLink
+              onClick={() => handleSelect("coupon")}
+              style={{ cursor: "pointer" }}
+            >
+              <span className="nav-icon">
+                <span className="nav-icon-bullet"></span>
+              </span>
+              Mã giảm giá
             </CNavLink>
           </CNavItem>
         </CNavGroup>
 
-        <CNavItem>
-          <CNavLink
-            onClick={() => handleSelect("manufacturer")}
-            style={{ cursor: "pointer" }}
-          >
-            <CIcon customClassName="nav-icon" icon={cilFactory} /> Hãng sản xuất
-          </CNavLink>
-        </CNavItem>
-
-        <CNavItem>
-          <CNavLink
-            onClick={() => handleSelect("product")}
-            style={{ cursor: "pointer" }}
-          >
-            <CIcon customClassName="nav-icon" icon={cilBasket} /> Sản phẩm
-          </CNavLink>
-        </CNavItem>
-
-        <CNavItem>
-          <CNavLink
-            onClick={() => handleSelect("productImage")}
-            style={{ cursor: "pointer" }}
-          >
-            <CIcon customClassName="nav-icon" icon={cilImage} /> Ảnh sản phẩm
-          </CNavLink>
-        </CNavItem>
-
-        <CNavItem>
-          <CNavLink
-            onClick={() => handleSelect("banner")}
-            style={{ cursor: "pointer" }}
-          >
-            <CIcon customClassName="nav-icon" icon={cilWallpaper} /> Banner
-          </CNavLink>
-        </CNavItem>
-
-        <CNavItem href="#">
-          <CIcon customClassName="nav-icon" icon={cilSpeedometer} /> With badge{" "}
-          <CBadge color="primary ms-auto">NEW</CBadge>
-        </CNavItem>
-
+        {/* Nhóm Giao hàng & Hiển thị */}
         <CNavGroup
           toggler={
             <>
-              <CIcon customClassName="nav-icon" icon={cilPuzzle} /> Nav dropdown
+              <CIcon customClassName="nav-icon" icon={cilTruck} /> Giao hàng &
+              Hiển thị
             </>
           }
         >
-          <CNavItem href="#">
-            <span className="nav-icon">
-              <span className="nav-icon-bullet"></span>
-            </span>{" "}
-            Nav dropdown item
+          <CNavItem>
+            <CNavLink
+              onClick={() => handleSelect("shipping-method")}
+              style={{ cursor: "pointer" }}
+            >
+              <span className="nav-icon">
+                <span className="nav-icon-bullet"></span>
+              </span>
+              Phương thức vận chuyển
+            </CNavLink>
           </CNavItem>
-          <CNavItem href="#">
-            <span className="nav-icon">
-              <span className="nav-icon-bullet"></span>
-            </span>{" "}
-            Nav dropdown item
+          <CNavItem>
+            <CNavLink
+              onClick={() => handleSelect("banner")}
+              style={{ cursor: "pointer" }}
+            >
+              <span className="nav-icon">
+                <span className="nav-icon-bullet"></span>
+              </span>
+              Banner
+            </CNavLink>
           </CNavItem>
         </CNavGroup>
-        <CNavItem href="https://coreui.io">
-          <CIcon customClassName="nav-icon" icon={cilCloudDownload} /> Download
-          CoreUI
-        </CNavItem>
-        <CNavItem href="https://coreui.io/pro/">
-          <CIcon customClassName="nav-icon" icon={cilLayers} /> Try CoreUI PRO
-        </CNavItem>
       </CSidebarNav>
     </CSidebar>
   );
