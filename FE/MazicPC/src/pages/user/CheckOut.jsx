@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useMemo, useState } from "react";
 import {
   Card,
   Col,
@@ -17,8 +17,9 @@ import {
   FaTruck,
   FaCcVisa,
   FaMoneyBillWave,
+  FaCheckCircle,
 } from "react-icons/fa";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import shippingAddressService from "../../apis/shippingAddressService";
@@ -26,6 +27,8 @@ import orderServices from "../../apis/orderServices";
 import cartService from "../../apis/cartService";
 import { IoAddCircleOutline } from "react-icons/io5";
 import ROUTERS from "../../utils/router";
+import shippingMethodServices from "../../apis/shippingMethodServices";
+import couponServices from "../../apis/couponServices";
 
 const formatPrice = (v) =>
   new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
@@ -36,11 +39,19 @@ const CheckOut = () => {
   const navigate = useNavigate();
   const user = useSelector((s) => s.auth?.user);
   const { state } = useLocation();
+  const queryClient = useQueryClient();
 
   // ✅ nhận items & from từ route
   const items = state?.items || [];
   const from = state?.from || "detail";
 
+  // Fetch shipping methods
+  const { data: shippingMethods = [], isLoading: loadingShipping } = useQuery({
+    queryKey: ["shippingMethods"],
+    queryFn: () => shippingMethodServices.getShippingMethods(),
+  });
+
+  // Fetch addresses
   const { data: addresses = [], isLoading: addrLoading } = useQuery({
     queryKey: ["shippingAddresses"],
     queryFn: () => shippingAddressService.getShippingAddresses(),
@@ -49,15 +60,53 @@ const CheckOut = () => {
   const [selectedAddrId, setSelectedAddrId] = useState(
     () => addresses?.[0]?.id || null
   );
-  const [shippingMethod, setShippingMethod] = useState("STANDARD");
+  const [shippingMethod, setShippingMethod] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("COD");
-  const [coupon, setCoupon] = useState("");
+  const [couponCode, setCouponCode] = useState("");
+  const [couponData, setCouponData] = useState(null);
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState("");
+  const [couponMessage, setCouponMessage] = useState(null);
 
-  const addNewAddress = () => navigate(ROUTERS.USER.ADDRESS);
+  // coupon validation mutation (gọi khi nhấn "Áp dụng")
+  const getErrorMessage = (err) => {
+    if (!err) return "Có lỗi xảy ra";
+    if (typeof err === "string") return err;
+    if (err.response && err.response.data) {
+      const d = err.response.data;
+      if (typeof d === "string") return d;
+      if (d.message) return d.message;
+      try {
+        return JSON.stringify(d);
+      } catch {
+        return String(d);
+      }
+    }
+    if (err.message) return err.message;
+    try {
+      return JSON.stringify(err);
+    } catch {
+      return String(err);
+    }
+  };
 
-  // ✅ subtotal dựa vào finalPrice
+  const validateCouponMutation = useMutation({
+    mutationFn: (code) => couponServices.validateCoupon(code),
+    onSuccess: (data) => {
+      // server trả về { message, discount, isPercent, startDate, endDate }
+      setCouponData(data);
+      setCouponMessage({ text: data.message || "Mã hợp lệ", type: "success" });
+      // nếu muốn refresh cart hoặc các query liên quan:
+      queryClient.invalidateQueries(["cart"]);
+    },
+    onError: (err) => {
+      const msg = getErrorMessage(err);
+      setCouponData(null);
+      setCouponMessage({ text: msg, type: "error" });
+    },
+  });
+
+  // Price calculations
   const subtotal = useMemo(
     () =>
       items.reduce((sum, it) => {
@@ -68,24 +117,45 @@ const CheckOut = () => {
     [items]
   );
 
-  const shippingFee = useMemo(
-    () => (shippingMethod === "EXPRESS" ? 45000 : 20000),
-    [shippingMethod]
-  );
+  const shippingFee = useMemo(() => {
+    const method = shippingMethods.find(
+      (m) => String(m.id) === String(shippingMethod)
+    );
+    return method?.fee ?? 0;
+  }, [shippingMethod, shippingMethods]);
 
   const discount = useMemo(() => {
-    if (!coupon) return 0;
-    if (coupon === "SALE10") return Math.round(subtotal * 0.1);
-    return 0;
-  }, [coupon, subtotal]);
+    if (!couponData) return 0;
+    // server returns { discount, isPercent }
+    if (couponData.isPercent) {
+      return Math.round(subtotal * (Number(couponData.discount) / 100));
+    }
+    return Number(couponData.discount) || 0;
+  }, [couponData, subtotal]);
 
   const total = subtotal + shippingFee - discount;
+
+  // Handle apply coupon
+  const handleApplyCoupon = async () => {
+    setCouponMessage(null);
+    setCouponData(null);
+    const code = (couponCode || "").trim();
+    if (!code) {
+      setCouponMessage({ text: "Vui lòng nhập mã giảm giá.", type: "error" });
+      return;
+    }
+    validateCouponMutation.mutate(code);
+  };
 
   // ✅ thanh toán
   const handlePlaceOrder = async () => {
     setError("");
     if (!selectedAddrId) {
       setError("Vui lòng chọn địa chỉ nhận hàng.");
+      return;
+    }
+    if (!shippingMethod) {
+      setError("Vui lòng chọn phương thức vận chuyển.");
       return;
     }
     if (!items.length) {
@@ -96,27 +166,25 @@ const CheckOut = () => {
     setPlacing(true);
     try {
       const payload = {
-        items: items.map((it) => ({
-          productId: it.productId,
-          quantity: it.quantity ?? 1,
-          price: it.finalPrice ?? it.price ?? 0,
+        shippingAddressId: Number(selectedAddrId),
+        shippingMethodId: Number(shippingMethod),
+        couponCode: couponCode || null,
+        paymentMethod: paymentMethod, // "COD" or "VNPAY"
+        orderItems: items.map((it) => ({
+          productId: Number(it.productId),
+          quantity: Number(it.quantity ?? 1),
         })),
-        shippingAddressId: selectedAddrId,
-        shippingMethod,
-        paymentMethod,
-        coupon: coupon || null,
-        totalAmount: total,
-        note: "",
       };
 
       const res = await orderServices.createOrder(payload);
 
-      // ✅ nếu thanh toán từ giỏ hàng, gọi API xoá item đã thanh toán
+      // Clear cart if order from cart
       if (from === "cart") {
         const productIds = items.map((it) => it.productId);
         await cartService.deleteCarts(productIds);
       }
 
+      // Handle payment redirect if any
       if (res?.paymentUrl) {
         window.location.href = res.paymentUrl;
         return;
@@ -191,24 +259,25 @@ const CheckOut = () => {
                 <FaTruck className="me-2" />
                 Phương thức vận chuyển
               </h6>
-              <Form>
-                <Form.Check
-                  type="radio"
-                  id="ship-standard"
-                  name="shipping"
-                  label={`Giao tiêu chuẩn — ${formatPrice(20000)}`}
-                  checked={shippingMethod === "STANDARD"}
-                  onChange={() => setShippingMethod("STANDARD")}
-                />
-                <Form.Check
-                  type="radio"
-                  id="ship-express"
-                  name="shipping"
-                  label={`Giao nhanh — ${formatPrice(45000)}`}
-                  checked={shippingMethod === "EXPRESS"}
-                  onChange={() => setShippingMethod("EXPRESS")}
-                />
-              </Form>
+              {loadingShipping ? (
+                <div className="text-center py-2">
+                  <Spinner animation="border" size="sm" />
+                </div>
+              ) : (
+                <Form>
+                  {shippingMethods.map((method) => (
+                    <Form.Check
+                      key={method.id}
+                      type="radio"
+                      id={`ship-${method.id}`}
+                      name="shipping"
+                      label={`${method.name} — ${formatPrice(method.fee)}`}
+                      checked={String(shippingMethod) === String(method.id)}
+                      onChange={() => setShippingMethod(method.id)}
+                    />
+                  ))}
+                </Form>
+              )}
             </div>
 
             <hr />
@@ -300,14 +369,45 @@ const CheckOut = () => {
             </ListGroup>
 
             <Card.Body>
-              <InputGroup className="mb-3">
+              <InputGroup className="mb-1">
                 <Form.Control
-                  placeholder="Mã giảm giá (ví dụ: SALE10)"
-                  value={coupon}
-                  onChange={(e) => setCoupon(e.target.value.toUpperCase())}
+                  placeholder="Nhập mã giảm giá"
+                  value={couponCode}
+                  onChange={(e) => {
+                    setCouponCode(e.target.value.toUpperCase());
+                    // nếu user thay đổi mã, xóa thông báo/ket quả trước đó
+                    setCouponMessage(null);
+                    setCouponData(null);
+                  }}
+                  disabled={validateCouponMutation.isLoading}
                 />
-                <Button variant="outline-secondary">Áp dụng</Button>
+                <Button
+                  variant="outline-secondary"
+                  onClick={handleApplyCoupon}
+                  disabled={validateCouponMutation.isLoading}
+                >
+                  {validateCouponMutation.isLoading ? (
+                    <Spinner animation="border" size="sm" />
+                  ) : (
+                    "Áp dụng"
+                  )}
+                </Button>
               </InputGroup>
+
+              {couponMessage?.text && (
+                <div
+                  className={`small mb-3 ${
+                    couponMessage.type === "error"
+                      ? "text-danger"
+                      : "text-success"
+                  }`}
+                >
+                  {couponMessage.type === "success" && (
+                    <FaCheckCircle className="me-1" />
+                  )}
+                  {couponMessage.text}
+                </div>
+              )}
 
               <div className="d-flex justify-content-between">
                 <div className="text-muted">Tạm tính</div>
@@ -345,7 +445,9 @@ const CheckOut = () => {
                 variant="primary"
                 size="lg"
                 onClick={handlePlaceOrder}
-                disabled={placing || !items.length || addrLoading}
+                disabled={
+                  placing || !items.length || addrLoading || !shippingMethod
+                }
               >
                 {placing ? (
                   <>
@@ -361,30 +463,29 @@ const CheckOut = () => {
       </Row>
 
       <style jsx>{`
-  .object-fit-cover {
-    object-fit: cover;
-  }
+        .object-fit-cover {
+          object-fit: cover;
+        }
 
-  /* ✅ Khi item được chọn (active) */
-  .list-group-item.active {
-    background-color: #ff4d4f !important; /* đỏ nổi bật */
-    border-color: #ff4d4f !important;
-    color: #fff !important; /* chữ trắng */
-  }
+        /* ✅ Khi item được chọn (active) */
+        .list-group-item.active {
+          background-color: #ff4d4f !important; /* đỏ nổi bật */
+          border-color: #ff4d4f !important;
+          color: #fff !important; /* chữ trắng */
+        }
 
-  /* ✅ Đảm bảo text con (h5, div, small) cũng trắng */
-  .list-group-item.active .fw-bold,
-  .list-group-item.active .text-muted,
-  .list-group-item.active small {
-    color: #fff !important;
-  }
+        /* ✅ Đảm bảo text con (h5, div, small) cũng trắng */
+        .list-group-item.active .fw-bold,
+        .list-group-item.active .text-muted,
+        .list-group-item.active small {
+          color: #fff !important;
+        }
 
-  /* ✅ Hover nhẹ */
-  .list-group-item:hover {
-    background-color: #fff5f5;
-  }
-`}</style>
-
+        /* ✅ Hover nhẹ */
+        .list-group-item:hover {
+          background-color: #fff5f5;
+        }
+      `}</style>
     </Container>
   );
 };

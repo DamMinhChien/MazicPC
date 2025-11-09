@@ -16,7 +16,6 @@ namespace MazicPC.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = Roles.Admin)]
     public class ShippingMethodsController : ControllerBase
     {
         private readonly MazicPcContext _context;
@@ -30,6 +29,7 @@ namespace MazicPC.Controllers
 
         // GET: api/ShippingMethods
         [HttpGet]
+        [Authorize(Roles = Roles.User)]
         public async Task<ActionResult<IEnumerable<GetShippingMethodDto>>> GetShippingMethods()
         {
             var shippingMethods = await _context.ShippingMethods.ToListAsync();
@@ -38,6 +38,7 @@ namespace MazicPC.Controllers
 
         // GET: api/ShippingMethods/5
         [HttpGet("{id}")]
+        [Authorize(Roles = Roles.User)]
         public async Task<ActionResult<GetShippingMethodDto>> GetShippingMethod(int id)
         {
             var shippingMethod = await _context.ShippingMethods.FindAsync(id);
@@ -52,6 +53,7 @@ namespace MazicPC.Controllers
 
         // PUT: api/ShippingMethods/5
         [HttpPut("{id}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> PutShippingMethod(int id, ShippingMethodDto shippingMethodDto)
         {
             var shippingMethod = await _context.ShippingMethods.FindAsync(id);
@@ -66,6 +68,7 @@ namespace MazicPC.Controllers
 
         // POST: api/ShippingMethods
         [HttpPost]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<ActionResult<GetShippingMethodDto>> PostShippingMethod(ShippingMethodDto shippingMethodDto)
         {
             var shippingMethod = _mapper.Map<ShippingMethod>(shippingMethodDto);
@@ -80,6 +83,7 @@ namespace MazicPC.Controllers
 
         // DELETE: api/ShippingMethods/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> DeleteShippingMethod(int id)
         {
             var shippingMethod = await _context.ShippingMethods.FindAsync(id);
@@ -95,6 +99,7 @@ namespace MazicPC.Controllers
         }
 
         [HttpDelete("bulk")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> DeleteShippingMethods([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())

@@ -35,6 +35,11 @@ const couponServices = {
   async deleteCoupons(ids) {
     await axiosClient.delete("Coupons/bulk", { data: ids });
   },
+
+  async validateCoupon(code) {
+    const res = await axiosClient.get(`Coupons/validate/${code}`);
+    return res.data;
+  }
 };
 
 export default couponServices;

@@ -197,26 +197,55 @@ namespace MazicPC.Controllers
 
             // 1️⃣ Kiểm tra địa chỉ giao hàng
             var shippingAddress = await _context.ShippingAddresses
-                .FindAsync(dto.ShippingAddressId);
+                .FirstOrDefaultAsync(a => a.Id == dto.ShippingAddressId && a.AccountId == accountId);
             if (shippingAddress == null)
-                return BadRequest("Địa chỉ giao hàng không tồn tại.");
+                return BadRequest("Địa chỉ giao hàng không hợp lệ hoặc không thuộc về bạn.");
 
-            // 2️⃣ Khởi tạo Order
+            // 2️⃣ Kiểm tra phương thức giao hàng
+            var shippingMethod = await _context.ShippingMethods
+                .FirstOrDefaultAsync(s => s.Id == dto.ShippingMethodId);
+            if (shippingMethod == null)
+                return BadRequest("Phương thức giao hàng không hợp lệ hoặc đã bị vô hiệu.");
+
+            // 3️⃣ Kiểm tra mã giảm giá (nếu có)
+            Coupon? coupon = null;
+            if (!string.IsNullOrWhiteSpace(dto.CouponCode))
+            {
+                coupon = await _context.Coupons
+                    .FirstOrDefaultAsync(c => c.Code == dto.CouponCode);
+
+                if (coupon == null)
+                    return BadRequest("Mã giảm giá không tồn tại.");
+
+                // Kiểm tra thời gian
+                var now = DateTime.UtcNow;
+                if (now < coupon.StartDate)
+                    return BadRequest("Mã giảm giá chưa đến thời gian áp dụng.");
+                if (now > coupon.EndDate)
+                    return BadRequest("Mã giảm giá đã hết hạn.");
+
+                // Kiểm tra số lượng
+                if (coupon.Quantity <= 0)
+                    return BadRequest("Mã giảm giá đã hết lượt sử dụng.");
+            }
+
+            // 4️⃣ Khởi tạo Order
             var order = new Order
             {
                 AccountId = (int)accountId!,
                 ShippingAddressId = dto.ShippingAddressId,
+                ShippingMethodId = dto.ShippingMethodId,
                 Status = "pending",
+                CreatedAt = DateTime.Now,
                 OrderItems = new List<OrderItem>()
             };
 
-            // 3️⃣ Thêm sản phẩm
+            // 5️⃣ Thêm sản phẩm
             foreach (var item in dto.OrderItems)
             {
-                var product = await _context.Products
-                    .FirstOrDefaultAsync(p => p.Id == item.ProductId);
+                var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == item.ProductId);
                 if (product == null)
-                    return BadRequest($"Sản phẩm với ID {item.ProductId} không tồn tại.");
+                    return BadRequest($"Sản phẩm ID {item.ProductId} không tồn tại.");
 
                 var (finalPrice, _, _) = await _promotionHelper.CalculateDiscountAsync(product);
 
@@ -228,28 +257,51 @@ namespace MazicPC.Controllers
                 });
             }
 
-            // 4️⃣ Tính tổng tiền
-            order.TotalAmount = order.OrderItems.Sum(i => i.Price * i.Quantity);
+            // 6️⃣ Tính tổng tiền hàng
+            var totalProductAmount = order.OrderItems.Sum(i => i.Price * i.Quantity);
 
-            // 5️⃣ Thêm thông tin Payment
-            order.Payments = new List<Payment>
+            // 7️⃣ Áp dụng mã giảm giá (nếu có)
+            decimal discountAmount = 0;
+            if (coupon != null)
             {
-                new Payment
-                {
-                    PaymentMethod = dto.PaymentMethod,
-                    Status = dto.PaymentMethod.ToLower() == "cod" ? "pending" : "processing",
-                    Amount = order.TotalAmount,
-                    CreatedAt = DateTime.Now
-                }
-            };
+                discountAmount = coupon.IsPercent
+                    ? totalProductAmount * (decimal)(coupon.Discount / 100m)
+                    : (decimal)coupon.Discount;
 
-            // 6️⃣ Lưu xuống DB
+                // Giới hạn không vượt quá tổng tiền hàng
+                discountAmount = Math.Min(discountAmount, totalProductAmount);
+
+                // Giảm lượt sử dụng coupon
+                coupon.Quantity -= 1;
+                _context.Coupons.Update(coupon);
+            }
+
+            // 8️⃣ Cộng phí giao hàng
+            var shippingFee = shippingMethod.Fee;
+
+            // 9️⃣ Tính tổng cuối cùng
+            order.TotalAmount = totalProductAmount - discountAmount + shippingFee;
+
+            // 10️⃣ Tạo payment record
+            order.Payments = new List<Payment>
+    {
+        new Payment
+        {
+            PaymentMethod = dto.PaymentMethod,
+            Status = dto.PaymentMethod.ToLower() == "cod" ? "pending" : "processing",
+            Amount = order.TotalAmount,
+            CreatedAt = DateTime.Now
+        }
+    };
+
+            // 11️⃣ Lưu đơn hàng
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            // 7️⃣ Map sang DTO trả về
+            // 12️⃣ Map DTO trả về
             var result = _mapper.Map<GetOrderDto>(order);
             return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, result);
         }
+
     }
 }
