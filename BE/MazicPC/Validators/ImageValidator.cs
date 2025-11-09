@@ -1,4 +1,4 @@
-﻿namespace MazicPC.Extensions
+﻿namespace MazicPC.Validators
 {
     public static class ImageValidator
     {

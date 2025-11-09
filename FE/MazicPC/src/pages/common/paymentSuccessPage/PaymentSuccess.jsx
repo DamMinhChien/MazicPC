@@ -11,7 +11,7 @@ export default function PaymentSuccess() {
 
   useEffect(() => {
     if (countdown === 0) {
-      navigate(ROUTERS.USER.PROFILE);
+      navigate(ROUTERS.USER.PURCHASE, { replace: true });
       return;
     }
     const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
@@ -49,17 +49,17 @@ export default function PaymentSuccess() {
               </h2>
               <p className="text-muted mb-4">
                 Cảm ơn bạn đã mua hàng! Bạn sẽ được chuyển hướng đến{" "}
-                <strong>trang hồ sơ</strong> trong{" "}
+                <strong>trang đơn mua</strong> trong{" "}
                 <span className="text-success fw-semibold">{countdown}s</span>.
               </p>
 
-              <Button
+              <Button 
                 variant="success"
                 size="lg"
                 className="w-100 mb-3"
-                onClick={() => navigate(ROUTERS.USER.PROFILE)}
+                onClick={() => navigate(ROUTERS.USER.PURCHASE, { replace: true })}
               >
-                Đi tới hồ sơ ngay
+                Đi tới đơn mua ngay
               </Button>
 
               <small className="text-secondary">

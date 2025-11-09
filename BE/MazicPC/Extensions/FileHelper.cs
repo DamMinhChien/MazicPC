@@ -1,4 +1,6 @@
-﻿namespace MazicPC.Extensions
+﻿using MazicPC.Validators;
+
+namespace MazicPC.Extensions
 {
     public static class FileHelper
     {

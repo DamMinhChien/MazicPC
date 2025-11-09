@@ -150,18 +150,17 @@ const Header = ({ showSnow, toggleSnow }) => {
                 />
               }
             >
-              <NavDropdown.Item as={Link} to={ROUTERS.USER.PROFILE || "#profile"}>
+              <NavDropdown.Item as={Link} to={ROUTERS.USER.PROFILE}>
                 <FaUserAlt className="me-2" />
                 Hồ sơ
               </NavDropdown.Item>
 
-              <NavDropdown.Item as={Link} to={ROUTERS.USER.ORDER || "#orders"}>
-                <FaBoxOpen className="me-2" />
-                Đơn hàng
-              </NavDropdown.Item>
-
               <NavDropdown.Divider />
-              {/* Đã bỏ mục Đăng xuất ở đây theo yêu cầu */}
+
+              <NavDropdown.Item as={Link} to={ROUTERS.USER.PURCHASE}>
+                <FaBoxOpen className="me-2" />
+                Đơn mua
+              </NavDropdown.Item>
             </NavDropdown>
 
             <Nav.Link onClick={toggleSnow}>
