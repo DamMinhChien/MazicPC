@@ -1,0 +1,107 @@
+﻿using MazicPC.DTOs.MoMoDTO;
+using MazicPC.Enum;
+using MazicPC.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace MazicPC.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize]
+    public class MoMoController : ControllerBase
+    {
+        private readonly IConfiguration _config;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly MazicPcContext _context;
+
+        public MoMoController(IConfiguration config, IHttpClientFactory httpClientFactory, MazicPcContext context)
+        {
+            _context = context;
+            _config = config;
+            _httpClientFactory = httpClientFactory;
+        }
+
+        [HttpPost("create-payment")]
+        public async Task<IActionResult> CreatePayment([FromBody] MoMoPaymentRequestDto dto)
+        {
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == dto.OrderId);
+            if (order == null) return BadRequest("Đơn hàng không tồn tại");
+
+            var endpoint = _config["MoMo:Endpoint"];
+            var partnerCode = _config["MoMo:PartnerCode"];
+            var accessKey = _config["MoMo:AccessKey"];
+            var secretKey = _config["MoMo:SecretKey"];
+            var returnUrl = _config["MoMo:ReturnUrl"];
+            var notifyUrl = _config["MoMo:NotifyUrl"];
+            var requestType = _config["MoMo:RequestType"];
+            var amount = order.Account;
+
+            string orderId = Guid.NewGuid().ToString();
+            string requestId = Guid.NewGuid().ToString();
+            string orderInfo = $"Thanh toán đơn hàng {order.Id}";
+            string extraData = orderId.ToString();
+
+            string rawHash = $"accessKey={accessKey}&amount={amount}&extraData={extraData}&ipnUrl={notifyUrl}&orderId={orderId}&orderInfo={orderInfo}&partnerCode={partnerCode}&redirectUrl={returnUrl}&requestId={requestId}&requestType={requestType}";
+
+            using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey!));
+            var signatureBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(rawHash));
+            string signature = BitConverter.ToString(signatureBytes).Replace("-", "").ToLower();
+
+            var payload = new
+            {
+                partnerCode,
+                accessKey,
+                requestId,
+                amount = amount.ToString(),
+                orderId,
+                orderInfo,
+                returnUrl,
+                notifyUrl,
+                extraData,
+                requestType,
+                signature
+            };
+
+            //post đến server momo
+            var client = _httpClientFactory.CreateClient();
+            var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
+            var response = await client.PostAsync(endpoint, content);
+            var responseBody = await response.Content.ReadAsStringAsync();
+
+            var payment = order.Payments.FirstOrDefault();
+            if (payment != null)
+            {
+                payment.TransactionCode = orderId;
+                await _context.SaveChangesAsync();
+            }
+
+            return Content(responseBody, "application/json");
+        }
+
+        [HttpPost("notify")]
+        public async Task<IActionResult> MoMoNotify([FromBody] dynamic data)
+        {
+            int orderId = int.Parse((string)data.extraData);
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+            if (order == null) return BadRequest();
+
+            // Cập nhật trạng thái payment
+            int status = (int)data.status; // 0 = thành công
+            var payment = order.Payments.FirstOrDefault();
+            if (payment != null)
+            {
+                payment.Status = status == 0 ? PaymentStatus.Completed.ToString() : PaymentStatus.Failed.ToString();
+                payment.PaidAt = DateTime.Now;
+                await _context.SaveChangesAsync();
+            }
+            return Ok();
+        }
+
+    }
+}
