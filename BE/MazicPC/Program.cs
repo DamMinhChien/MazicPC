@@ -21,6 +21,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddHttpClient();
+
 builder.Services.AddAutoMapper(typeof(Program));
 // ConnectionString
 builder.Services.AddDbContext<MazicPcContext>(options =>

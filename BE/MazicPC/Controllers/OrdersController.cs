@@ -298,6 +298,13 @@ namespace MazicPC.Controllers
                 // Giảm lượt sử dụng coupon
                 coupon.Quantity -= 1;
                 _context.Coupons.Update(coupon);
+
+                _context.AccountCoupons.Add(new AccountCoupon
+                {
+                    AccountId = (int)accountId,
+                    CouponId = coupon.Id,
+                    UsedAt = DateTime.Now
+                });
             }
 
             // 8️⃣ Cộng phí giao hàng
@@ -308,15 +315,15 @@ namespace MazicPC.Controllers
 
             // 10️⃣ Tạo payment record
             order.Payments = new List<Payment>
-    {
-        new Payment
-        {
-            PaymentMethod = dto.PaymentMethod,
-            Status = dto.PaymentMethod.ToLower() == PaymentMethodType.cod.ToString() ? PaymentStatus.Pending.ToString() : PaymentStatus.Processing.ToString(),
-            Amount = order.TotalAmount,
-            CreatedAt = DateTime.Now
-        }
-    };
+            {
+                new Payment
+                {
+                    PaymentMethod = dto.PaymentMethod,
+                    Status = PaymentStatus.Pending.ToString(),
+                    Amount = order.TotalAmount,
+                    CreatedAt = DateTime.Now
+                }
+            };
 
             // 11️⃣ Lưu đơn hàng
             _context.Orders.Add(order);
