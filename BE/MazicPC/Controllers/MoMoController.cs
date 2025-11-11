@@ -13,7 +13,6 @@ namespace MazicPC.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class MoMoController : ControllerBase
     {
         private readonly IConfiguration _config;
@@ -28,6 +27,7 @@ namespace MazicPC.Controllers
         }
 
         [HttpPost("create-payment")]
+        [Authorize(Roles = Roles.User)]
         public async Task<IActionResult> CreatePayment([FromBody] MoMoPaymentRequestDto dto)
         {
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == dto.OrderId);
@@ -38,16 +38,16 @@ namespace MazicPC.Controllers
             var accessKey = _config["MoMo:AccessKey"];
             var secretKey = _config["MoMo:SecretKey"];
             var returnUrl = _config["MoMo:ReturnUrl"];
-            var notifyUrl = _config["MoMo:NotifyUrl"];
+            var ipnUrl = _config["MoMo:IpnUrl"];
             var requestType = _config["MoMo:RequestType"];
-            var amount = order.Account;
+            var amount = (long)order.TotalAmount;
 
             string orderId = Guid.NewGuid().ToString();
             string requestId = Guid.NewGuid().ToString();
             string orderInfo = $"Thanh toán đơn hàng {order.Id}";
-            string extraData = orderId.ToString();
+            string extraData = order.Id.ToString();
 
-            string rawHash = $"accessKey={accessKey}&amount={amount}&extraData={extraData}&ipnUrl={notifyUrl}&orderId={orderId}&orderInfo={orderInfo}&partnerCode={partnerCode}&redirectUrl={returnUrl}&requestId={requestId}&requestType={requestType}";
+            string rawHash = $"accessKey={accessKey}&amount={amount}&extraData={extraData}&ipnUrl={ipnUrl}&orderId={orderId}&orderInfo={orderInfo}&partnerCode={partnerCode}&redirectUrl={returnUrl}&requestId={requestId}&requestType={requestType}";
 
             using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey!));
             var signatureBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(rawHash));
@@ -58,11 +58,12 @@ namespace MazicPC.Controllers
                 partnerCode,
                 accessKey,
                 requestId,
-                amount = amount.ToString(),
+                amount,
                 orderId,
                 orderInfo,
-                returnUrl,
-                notifyUrl,
+                redirectUrl = returnUrl,
+                lang = "vi",
+                ipnUrl,
                 extraData,
                 requestType,
                 signature
@@ -85,21 +86,32 @@ namespace MazicPC.Controllers
         }
 
         [HttpPost("notify")]
-        public async Task<IActionResult> MoMoNotify([FromBody] dynamic data)
+        public async Task<IActionResult> MoMoNotify([FromBody] MoMoNotifyDto data)
         {
-            int orderId = int.Parse((string)data.extraData);
-            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+            Console.WriteLine("MoMo callback: " + JsonConvert.SerializeObject(data));
+
+            int orderId = int.Parse(data.ExtraData);
+            var order = await _context.Orders.Include(o => o.Payments)
+                                             .FirstOrDefaultAsync(o => o.Id == orderId);
             if (order == null) return BadRequest();
 
-            // Cập nhật trạng thái payment
-            int status = (int)data.status; // 0 = thành công
             var payment = order.Payments.FirstOrDefault();
             if (payment != null)
             {
-                payment.Status = status == 0 ? PaymentStatus.Completed.ToString() : PaymentStatus.Failed.ToString();
-                payment.PaidAt = DateTime.Now;
+                if (data.ResultCode == 0)
+                {
+                    payment.Status = PaymentStatus.Completed.ToString();
+                    payment.PaidAt = DateTime.Now;
+                    order.Status = OrderStatus.Confirmed.ToString();
+                }
+                else
+                {
+                    payment.Status = PaymentStatus.Failed.ToString();
+                }
+
                 await _context.SaveChangesAsync();
             }
+
             return Ok();
         }
 

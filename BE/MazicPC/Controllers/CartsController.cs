@@ -209,9 +209,49 @@ namespace MazicPC.Controllers
 
         }
 
-        private bool CartExists(int id)
+        [HttpDelete("bulk")]
+        public async Task<IActionResult> DeleteCartBulk([FromBody] List<int> ids)
         {
-            return _context.Carts.Any(e => e.Id == id);
+            var accId = this.GetCurrentAccountId();
+            if (accId == null) return Unauthorized();
+
+            if (ids == null || !ids.Any())
+                return BadRequest("Danh sách sản phẩm trống.");
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Lấy giỏ hàng của user
+                var cart = await _context.Carts
+                    .FirstOrDefaultAsync(c => c.AccountId == accId);
+
+                if (cart == null)
+                    return NotFound("Không tìm thấy giỏ hàng.");
+
+                // Lấy tất cả cart items cần xóa
+                var cartItems = await _context.CartItems
+                    .Where(ci => ci.CartId == cart.Id
+                 && ci.ProductId.HasValue
+                 && ids.Contains(ci.ProductId.Value))
+                    .ToListAsync();
+
+                if (!cartItems.Any())
+                    return NotFound("Không tìm thấy sản phẩm nào trong giỏ hàng.");
+
+                _context.CartItems.RemoveRange(cartItems);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return BadRequest($"Lỗi khi xóa sản phẩm trong giỏ hàng: {ex.Message}");
+            }
         }
+
     }
 }

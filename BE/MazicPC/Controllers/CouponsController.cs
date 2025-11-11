@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using MazicPC.DTOs.CouponDTO;
 using MazicPC.DTOs.ShippingMethodDTO;
+using MazicPC.Extensions;
 using MazicPC.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +17,6 @@ namespace MazicPC.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = Roles.Admin)]
     public class CouponsController : ControllerBase
     {
         private readonly MazicPcContext _context;
@@ -29,6 +30,7 @@ namespace MazicPC.Controllers
 
         // GET: api/Coupons
         [HttpGet]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<ActionResult<IEnumerable<GetCouponDto>>> GetCoupons()
         {
             var coupons = await _context.Coupons.ToListAsync();
@@ -37,6 +39,7 @@ namespace MazicPC.Controllers
 
         // GET: api/Coupons/5
         [HttpGet("{id}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<ActionResult<GetCouponDto>> GetCoupon(int id)
         {
             var coupon = await _context.Coupons.FindAsync(id);
@@ -51,6 +54,7 @@ namespace MazicPC.Controllers
 
         // PUT: api/Coupons/5
         [HttpPut("{id}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> PutCoupon(int id, CouponDto couponDto)
         {
             var coupon = await _context.Coupons.FindAsync(id);
@@ -65,6 +69,7 @@ namespace MazicPC.Controllers
 
         // POST: api/Coupons
         [HttpPost]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<ActionResult<GetCouponDto>> PostCoupon(CouponDto couponDto)
         {
             var coupon = _mapper.Map<Coupon>(couponDto);
@@ -79,6 +84,7 @@ namespace MazicPC.Controllers
 
         // DELETE: api/Coupons/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> DeleteCoupon(int id)
         {
             var coupon = await _context.Coupons.FindAsync(id);
@@ -94,6 +100,7 @@ namespace MazicPC.Controllers
         }
 
         [HttpDelete("bulk")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> DeleteCoupons([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
@@ -111,28 +118,32 @@ namespace MazicPC.Controllers
         }
 
         // GET: api/Coupons/validate/SALE10
-        [AllowAnonymous]
+        [Authorize]
         [HttpGet("validate/{code}")]
         public async Task<IActionResult> ValidateCoupon(string code)
         {
+            var accountId = this.GetCurrentAccountId();
             if (string.IsNullOrWhiteSpace(code))
-                return BadRequest(new { message = "Mã giảm giá không được để trống." });
+                return BadRequest("Mã giảm giá không được để trống.");
 
             var coupon = await _context.Coupons.FirstOrDefaultAsync(c => c.Code == code);
 
             if (coupon == null)
-                return NotFound(new { message = "Mã giảm giá không tồn tại." });
+                return NotFound("Mã giảm giá không tồn tại.");
+
+            var exists = await _context.AccountCoupons.AnyAsync(ac => ac.AccountId == accountId && ac.CouponId == coupon.Id);
+            if (exists) return BadRequest("Bạn đã sử dụng mã giảm giá này rồi.");
 
             var now = DateTime.UtcNow;
 
             if (now < coupon.StartDate)
-                return BadRequest(new { message = "Mã giảm giá chưa bắt đầu có hiệu lực." });
+                return BadRequest("Mã giảm giá chưa bắt đầu có hiệu lực.");
 
             if (now > coupon.EndDate)
-                return BadRequest(new { message = "Mã giảm giá đã hết hạn." });
+                return BadRequest("Mã giảm giá đã hết hạn.");
 
             if (coupon.UsedCount >= coupon.Quantity)
-                return BadRequest(new { message = "Mã giảm giá đã được sử dụng hết." });
+                return BadRequest("Mã giảm giá đã được sử dụng hết.");
 
             // Hợp lệ
             var result = new

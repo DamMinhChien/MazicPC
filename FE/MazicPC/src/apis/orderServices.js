@@ -31,10 +31,8 @@ const orderServices = {
   },
 
   // 🔄 Admin: Cập nhật trạng thái đơn hàng
-  async updateOrderStatus(id, newStatus) {
-    const res = await axiosClient.put(`Orders/${id}/status`, newStatus, {
-      headers: { "Content-Type": "application/json" },
-    });
+  async updateOrderStatus(order) {
+    const res = await axiosClient.put(`Orders/${order.id}/status`, { status: order.status });
     return res.data;
   },
 

@@ -196,11 +196,11 @@ const Purchase = () => {
                     <div className="fw-semibold">
                       {order.payment.paymentMethod === "COD"
                         ? "Thanh toán khi nhận hàng"
-                        : "Thanh toán điện tử"}
+                        : `Thanh toán điện tử (${order.payment.paymentMethod})`}
                     </div>
                     <div className="text-muted small">
                       Trạng thái:{" "}
-                      {order.payment.status === "PAID"
+                      {order.payment.status === "Completed"
                         ? "Đã thanh toán"
                         : "Chưa thanh toán"}
                     </div>
