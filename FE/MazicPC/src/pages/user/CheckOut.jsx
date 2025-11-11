@@ -29,11 +29,56 @@ import { IoAddCircleOutline } from "react-icons/io5";
 import ROUTERS from "../../utils/router";
 import shippingMethodServices from "../../apis/shippingMethodServices";
 import couponServices from "../../apis/couponServices";
+import momoService from "../../apis/momoService";
+import MyToast from "../../components/MyToast";
 
 const formatPrice = (v) =>
   new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
     v || 0
   );
+
+// Add this helper function at the top level
+const getErrorMessage = (error) => {
+  if (!error) return "Có lỗi xảy ra";
+
+  // Case 1: String error
+  if (typeof error === "string") return error;
+
+  // Case 2: FluentValidation error object
+  if (error.errors) {
+    // FluentValidation returns { errors: { propertyName: ["error1", "error2"] } }
+    const firstError = Object.values(error.errors)[0];
+    if (Array.isArray(firstError)) {
+      return firstError[0];
+    }
+  }
+
+  // Case 3: Axios error with response data
+  if (error.response?.data) {
+    const data = error.response.data;
+    // Handle FluentValidation response
+    if (data.errors) {
+      const firstError = Object.values(data.errors)[0];
+      if (Array.isArray(firstError)) {
+        return firstError[0];
+      }
+    }
+    // Handle string response
+    if (typeof data === "string") return data;
+    // Handle object with message
+    if (data.message) return data.message;
+  }
+
+  // Case 4: Error with message property
+  if (error.message) return error.message;
+
+  // Fallback: try to stringify the error
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return "Có lỗi xảy ra";
+  }
+};
 
 const CheckOut = () => {
   const navigate = useNavigate();
@@ -68,41 +113,37 @@ const CheckOut = () => {
   const [error, setError] = useState("");
   const [couponMessage, setCouponMessage] = useState(null);
 
-  // coupon validation mutation (gọi khi nhấn "Áp dụng")
-  const getErrorMessage = (err) => {
-    if (!err) return "Có lỗi xảy ra";
-    if (typeof err === "string") return err;
-    if (err.response && err.response.data) {
-      const d = err.response.data;
-      if (typeof d === "string") return d;
-      if (d.message) return d.message;
-      try {
-        return JSON.stringify(d);
-      } catch {
-        return String(d);
-      }
-    }
-    if (err.message) return err.message;
-    try {
-      return JSON.stringify(err);
-    } catch {
-      return String(err);
-    }
-  };
+  // Add toast state
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    type: "danger",
+    title: "Lỗi",
+  });
 
+  // coupon validation mutation (gọi khi nhấn "Áp dụng")
   const validateCouponMutation = useMutation({
     mutationFn: (code) => couponServices.validateCoupon(code),
     onSuccess: (data) => {
       // server trả về { message, discount, isPercent, startDate, endDate }
       setCouponData(data);
-      setCouponMessage({ text: data.message || "Mã hợp lệ", type: "success" });
+      setToast({
+        show: true,
+        message: data.message || "Áp dụng mã giảm giá thành công",
+        type: "success",
+        title: "Thành công",
+      });
       // nếu muốn refresh cart hoặc các query liên quan:
       queryClient.invalidateQueries(["cart"]);
     },
     onError: (err) => {
-      const msg = getErrorMessage(err);
       setCouponData(null);
-      setCouponMessage({ text: msg, type: "error" });
+      setToast({
+        show: true,
+        message: getErrorMessage(err),
+        type: "danger",
+        title: "Lỗi",
+      });
     },
   });
 
@@ -169,7 +210,7 @@ const CheckOut = () => {
         shippingAddressId: Number(selectedAddrId),
         shippingMethodId: Number(shippingMethod),
         couponCode: couponCode || null,
-        paymentMethod: paymentMethod, // "COD" or "VNPAY"
+        paymentMethod: paymentMethod, // "COD" or "MOMO"
         orderItems: items.map((it) => ({
           productId: Number(it.productId),
           quantity: Number(it.quantity ?? 1),
@@ -184,16 +225,25 @@ const CheckOut = () => {
         await cartService.deleteCarts(productIds);
       }
 
-      // Handle payment redirect if any
-      if (res?.paymentUrl) {
-        window.location.href = res.paymentUrl;
-        return;
+      if (paymentMethod === "MOMO") {
+        const momoRes = await momoService.createPayment(res.id);
+        // redirect to momo payment url
+        if (momoRes && momoRes.payUrl) {
+          window.location.href = momoRes.payUrl;
+          return; // exit to avoid navigating to success page
+        } else {
+          throw new Error("Khởi tạo thanh toán MoMo thất bại");
+        }
       }
 
       navigate(ROUTERS.COMMON.PAYMENT_SUCCESS, { replace: true });
     } catch (err) {
-      console.error(err);
-      setError(err?.message || "Đặt hàng thất bại. Vui lòng thử lại.");
+      setToast({
+        show: true,
+        message: getErrorMessage(err),
+        type: "danger",
+        title: "Lỗi đặt hàng",
+      });
     } finally {
       setPlacing(false);
     }
@@ -300,16 +350,16 @@ const CheckOut = () => {
                 />
                 <Form.Check
                   type="radio"
-                  id="pay-vnpay"
+                  id="pay-momo"
                   name="payment"
                   label={
                     <>
                       <FaCcVisa className="me-2" />
-                      Thanh toán điện tử (VNPay)
+                      Thanh toán ví điện tử (MoMo)
                     </>
                   }
-                  checked={paymentMethod === "VNPAY"}
-                  onChange={() => setPaymentMethod("VNPAY")}
+                  checked={paymentMethod === "MOMO"}
+                  onChange={() => setPaymentMethod("MOMO")}
                 />
               </Form>
             </div>
@@ -461,6 +511,15 @@ const CheckOut = () => {
           </Card>
         </Col>
       </Row>
+
+      {/* Replace the old toast with new implementation */}
+      <MyToast
+        show={toast.show}
+        message={toast.message}
+        bg={toast.type}
+        title={toast.title}
+        onClose={() => setToast((prev) => ({ ...prev, show: false }))}
+      />
 
       <style jsx>{`
         .object-fit-cover {

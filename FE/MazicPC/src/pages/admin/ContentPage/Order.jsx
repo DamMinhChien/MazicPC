@@ -49,7 +49,7 @@ const Order = () => {
   const handleEdit = async (order) => {
     try {
       setLoading(true);
-      await orderService.updateOrder(order);
+      await orderService.updateOrderStatus(order);
       setSuccess("Cập nhật đơn hàng thành công");
       fetchOrders();
     } catch (error) {
