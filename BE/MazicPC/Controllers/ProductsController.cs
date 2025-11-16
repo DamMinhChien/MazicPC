@@ -39,7 +39,7 @@ namespace MazicPC.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserGetProductDto>>> GetProducts()
         {
-            var products = await _context.Products.ToListAsync();
+            var products = await _context.Products.OrderBy(p => p.Name).ToListAsync();
 
             var result = new List<UserGetProductDto>();
 

@@ -33,8 +33,26 @@ const Product = () => {
       setLoading(true);
       const res = await categoryServices.getCategoriesNotRoot();
       setCategoryNotRoot(res);
-    } catch (err) {
-      setError(err.message || "Có lỗi xảy ra khi tải danh mục gốc");
+    } catch (error) {
+      let data = error.response?.data;
+
+      if (typeof data === "string") {
+        try {
+          data = JSON.parse(data);
+        } catch {}
+      }
+
+      if (data?.errors && Array.isArray(data.errors)) {
+        setError(data.errors.map((e) => e.errorMessage).join(", "));
+        return;
+      }
+
+      if (Array.isArray(data)) {
+        setError(data.map((e) => e.errorMessage).join(", "));
+        return;
+      }
+
+      setError(data?.message || error.message);
     } finally {
       setLoading(false);
     }

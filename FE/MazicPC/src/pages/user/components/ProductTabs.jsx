@@ -22,6 +22,7 @@ const ProductTabs = ({ product }) => {
             </span>
           }
         >
+          <h4 className="text-center fw-bold text-danger my-3">{product.name}</h4>
           <div className="p-4 text-dark">
             {product.videoUrl && (
               <div className="ratio ratio-16x9 w-75 mx-auto">
@@ -33,7 +34,6 @@ const ProductTabs = ({ product }) => {
                   ></iframe>
                 </div>
             )}
-            <h4 className="text-center fw-bold text-danger">{product.name}</h4>
             <h5
               className="mt-4 text-center"
               style={{ textIndent: "2em" }}

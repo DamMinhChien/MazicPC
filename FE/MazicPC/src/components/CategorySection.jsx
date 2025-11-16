@@ -6,7 +6,7 @@ const CategorySection = ({ categories, products }) => {
   const [maxItem] = useState(20);
   useEffect(()=>{
     //console.log("àgfiesafhsakf", categories);
-    
+     
   },[]) 
   return (
     <div className="my-5">

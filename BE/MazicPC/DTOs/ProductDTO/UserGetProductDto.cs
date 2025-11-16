@@ -2,7 +2,6 @@
 {
     public class UserGetProductDto
     {
-        public string? VideoUrl { get; set; }
         public int Id { get; set; }
         public string Name { get; set; } = null!;
         public string CategoryName { get; set; } = null!;
@@ -15,6 +14,7 @@
 
         public int? WarrantyMonths { get; set; }
         public string? ImageUrl { get; set; }   // ảnh đại diện
+        public string? VideoUrl { get; set; }
         public decimal FinalPrice { get; set; }
         public decimal? DiscountValue { get; set; }
         public string? PromotionName { get; set; }

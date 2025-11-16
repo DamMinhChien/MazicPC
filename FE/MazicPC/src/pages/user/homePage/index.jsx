@@ -142,7 +142,10 @@ const HomePage = () => {
           </Col>
         </Row>
 
-        <Container className="my-3">
+        {/* ----------------------------------Show Room------------------------------------ */}
+        <ShowRoom />
+
+        <Container className="my-4 bg-white p-4 rounded-3 shadow-lg">
           <TextHeader title="Lựa chọn thỏa thích" />
           <Row className="my-5">
             <Col lg={6}>
@@ -178,10 +181,8 @@ const HomePage = () => {
               </div>
             </Col>
           </Row>
-        </Container>
+        </Container> 
 
-        {/* ----------------------------------Show Room------------------------------------ */}
-        <ShowRoom />
         <Container fluid>
           {categories.map((cat) => (
             <CategorySection
