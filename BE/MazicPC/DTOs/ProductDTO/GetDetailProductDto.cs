@@ -6,7 +6,6 @@ namespace MazicPC.DTOs.ProductDTO
 {
     public class GetDetailProductDto 
     {
-        public string? VideoUrl { get; set; }
         public int Id { get; set; }
 
         public string Name { get; set; } = null!;
@@ -19,6 +18,7 @@ namespace MazicPC.DTOs.ProductDTO
         public string ManufacturerName { get; set; } = null!;
 
         public List<UserGetProductImageDto> Images { get; set; } = new();
+        public string? VideoUrl { get; set; }
 
         public string? ShortDescription { get; set; }
 

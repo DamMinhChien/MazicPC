@@ -72,6 +72,7 @@ const columnLabels = {
   status: "Trạng Thái",
   paymentMethod: "Phương Thức Thanh Toán",
   paymentStatus: "Trạng Thái Thanh Toán",
+  videoUrl: "Video",
 };
 
 export default columnLabels;

@@ -4,8 +4,13 @@ import columnLabels from "../../../utils/columnLabels";
 const ProductSpecsTable = ({ product }) => {
   if (!product) return null;
 
-  // Lấy danh sách key bỏ qua 12 trường đầu
-  const entries = Object.entries(product).slice(16);
+  const entries = Object.entries(product)
+    .slice(16)
+    .filter(([key, value]) => {
+      if (value === null || value === undefined) return false;
+      if (typeof value === "string" && value.trim() === "") return false;
+      return true;
+    });
 
   return (
     <Card className="shadow-sm border-0 rounded-4">
@@ -17,15 +22,11 @@ const ProductSpecsTable = ({ product }) => {
               const label = columnLabels[key];
               if (!label) return null;
 
-              // Nếu là boolean -> Có / Không
               if (typeof value === "boolean") value = value ? "Có" : "Không";
 
               return (
                 <tr key={key}>
-                  <th className="w-25 fw-bold" 
-                  >
-                    {label}
-                  </th>
+                  <th className="w-25 fw-bold">{label}</th>
                   <td className="text-dark">{String(value)}</td>
                 </tr>
               );

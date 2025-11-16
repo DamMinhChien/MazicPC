@@ -6,8 +6,30 @@ export function formatCurrency(value, currency = "VND") {
 }
 
 export function toEmbedUrl(url) {
-  return url.replace("watch?v=", "embed/");
+  try {
+    const u = new URL(url);
+
+    // youtube.com/watch?v=xxxx
+    if (u.searchParams.get("v")) {
+      return `https://www.youtube.com/embed/${u.searchParams.get("v")}`;
+    }
+
+    // youtu.be/xxxx
+    if (u.hostname === "youtu.be") {
+      return `https://www.youtube.com/embed/${u.pathname.slice(1)}`;
+    }
+
+    // Nếu URL đã là embed thì return nguyên
+    if (url.includes("/embed/")) {
+      return url;
+    }
+
+    return url; // fallback
+  } catch (e) {
+    return url;
+  }
 }
+
 
 export function toPascalCase(str) {
   if (!str) return "";

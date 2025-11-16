@@ -10,11 +10,12 @@ namespace MazicPC.Validators.ProductValidator
             // Product
 
             RuleFor(x => x.VideoUrl)
-            .MaximumLength(255)
-            .WithMessage("VideoUrl không được vượt quá 255 ký tự.")
-            .Matches(@"^(https?:\/\/)?([\w\-])+\.{1}([a-zA-Z]{2,63})([\/\w\-]*)*\/?$")
-            .When(x => !string.IsNullOrWhiteSpace(x.VideoUrl))
-            .WithMessage("VideoUrl không đúng định dạng đường dẫn.");
+                .MaximumLength(255)
+                .WithMessage("VideoUrl không được vượt quá 255 ký tự.")
+                .Matches(@"^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$")
+                .When(x => !string.IsNullOrWhiteSpace(x.VideoUrl))
+                .WithMessage("VideoUrl không đúng định dạng đường dẫn YouTube hợp lệ.");
+
 
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Tên sản phẩm là bắt buộc")
