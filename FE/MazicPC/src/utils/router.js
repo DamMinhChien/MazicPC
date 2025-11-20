@@ -16,6 +16,7 @@ const ROUTERS = {
     ADDRESS: "/address",
     PROFILE: "/profile",
     PURCHASE: "/purchase",
+    SHOP: "/shop",
   },
   COMMON: {
     AUTH: "/auth",
