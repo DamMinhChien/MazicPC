@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MazicPC.DTOs.ChatDTO;
 using MazicPC.DTOs.Product;
 using MazicPC.DTOs.ProductDTO;
 using MazicPC.DTOs.ProductImageDTO;
@@ -21,6 +22,11 @@ namespace MazicPC.Mapper
                 .ForMember(dest => dest.ManufacturerName,
                            opt => opt.MapFrom(src => src.Manufacturer != null ? src.Manufacturer.Name : string.Empty));
 
+            CreateMap<Product, ChatGetProductDto>()
+                .ForMember(dest => dest.CategoryName,
+                           opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
+                .ForMember(dest => dest.ManufacturerName,
+                           opt => opt.MapFrom(src => src.Manufacturer != null ? src.Manufacturer.Name : string.Empty));
 
             CreateMap<Product, ProductDto>()
                 .ReverseMap()

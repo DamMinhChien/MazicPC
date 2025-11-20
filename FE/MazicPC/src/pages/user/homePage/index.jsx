@@ -18,6 +18,7 @@ import statsService from "../../../apis/statsService";
 import TestimonialCard from "../components/TestimonialCard";
 import PurchaseSteps from "../components/PurchaseSteps";
 import GoogleMapEmbed from "../components/GoogleMapEmbed";
+import Chat from "../components/Chat";
 
 const HomePage = () => {
   const [categories, setCategories] = useState([]);
@@ -115,6 +116,7 @@ const HomePage = () => {
 
   return (
     <main>
+      <Chat />
       <HeroSection />
       <Container>
         <Row className="align-items-stretch">

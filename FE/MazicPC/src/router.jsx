@@ -24,6 +24,7 @@ import Profile from "./pages/user/Profile";
 import Order from "./pages/user/Order";
 import PaymentSuccess from "./pages/common/paymentSuccessPage/PaymentSuccess";
 import Purchase from "./pages/user/Purchase";
+import Shop from "./pages/user/static/shop/shop";
 
 const RouterCustom = () => {
   const userRouter = [
@@ -90,6 +91,10 @@ const RouterCustom = () => {
       component: <Purchase />,
       private: true,
       allowedRoles: ["user"],
+    },
+    {
+      path: ROUTERS.USER.SHOP,
+      component: <Shop />,
     },
 
     /* ---------------- COMMON ---------------- */

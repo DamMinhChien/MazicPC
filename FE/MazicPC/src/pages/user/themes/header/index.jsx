@@ -42,7 +42,7 @@ const Header = ({ showSnow, toggleSnow }) => {
   // avatar (theo yêu cầu dùng user.user.avatarUrl, fallback)
   const avatarSrc = user?.user?.avatarUrl || "/avatar_placeholder.jpg";
 
-  // 🔒 Mỗi khi URL thay đổi → tự đóng menu
+  // Mỗi khi URL thay đổi → tự đóng menu
   useEffect(() => {
     setShowMenu(false);
   }, [location]);
@@ -122,8 +122,12 @@ const Header = ({ showSnow, toggleSnow }) => {
                   )}
                 </NavDropdown>
 
-                <Nav.Link as={Link} to={ROUTERS.USER.HOME} className="fw-bold">
-                  Tin tức
+                <Nav.Link as={Link} to={ROUTERS.USER.SHOP} className="fw-bold">
+                  Cửa hàng
+                </Nav.Link>
+
+                <Nav.Link as={Link} to={ROUTERS.USER.GIOI_THIEU_CONG_TY} className="fw-bold">
+                  Về chúng tôi
                 </Nav.Link>
               </Nav>
             </Offcanvas.Body>

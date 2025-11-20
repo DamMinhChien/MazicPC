@@ -3,7 +3,7 @@ import MyBreadcrumb from "../../../../components/MyBreadcrumb";
 
 const GioiThieuCongTy = () => {
   return (
-    <Container className="mb-3">
+    <Container className="mb-3 bg-white p-4 rounded-4 shadow-sm">
       <MyBreadcrumb />
       <h3 className="fw-bold">Giới thiệu</h3>
       <h5 className="fw-bold">CÔNG TY TNHH MAZICPC VIỆT NAM </h5>
