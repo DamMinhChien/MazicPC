@@ -59,7 +59,7 @@ namespace MazicPC.Controllers
             foreach (var item in cart.CartItems)
             {
                 var product = item.Product!;
-                var (finalPrice, discount, promoName) = await promotionHelper.CalculateDiscountAsync(product);
+                var (finalPrice, discount, promoName, _, _) = await promotionHelper.CalculateDiscountAsync(product);
                 items.Add(new
                 {
                     item.ProductId,

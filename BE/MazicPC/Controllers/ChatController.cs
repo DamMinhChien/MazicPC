@@ -76,7 +76,7 @@ namespace MazicPC.Controllers
 
             foreach (var product in products)
             {
-                var (finalPrice, discount, promoName) = await _promotionHelper.CalculateDiscountAsync(product);
+                var (finalPrice, discount, promoName, _, _) = await _promotionHelper.CalculateDiscountAsync(product);
                 var dto = _mapper.Map<ChatGetProductDto>(product);
 
                 dto.FinalPrice = finalPrice;

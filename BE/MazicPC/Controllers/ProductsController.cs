@@ -45,7 +45,7 @@ namespace MazicPC.Controllers
 
             foreach (var product in products)
             {
-                var (finalPrice, discount, promoName) = await promotionHelper.CalculateDiscountAsync(product);
+                var (finalPrice, discount, promoName, _, _) = await promotionHelper.CalculateDiscountAsync(product);
                 var dto = _mapper.Map<UserGetProductDto>(product);
 
                 dto.FinalPrice = finalPrice;
@@ -134,7 +134,7 @@ namespace MazicPC.Controllers
             var res = new List<object>();
             foreach (var product in productList)
             {
-                var (finalPrice, discount, promoName) = await promotionHelper.CalculateDiscountAsync(product);
+                var (finalPrice, discount, promoName, _, _) = await promotionHelper.CalculateDiscountAsync(product);
 
                 res.Add(new
                 {
@@ -171,7 +171,7 @@ namespace MazicPC.Controllers
             var product = await _context.Products.FindAsync(id);
             if (product == null) return NotFound();
 
-            var (finalPrice, discount, promoName) = await promotionHelper.CalculateDiscountAsync(product);
+            var (finalPrice, discount, promoName, _, _) = await promotionHelper.CalculateDiscountAsync(product);
 
             var dto = _mapper.Map<UserGetProductDto>(product);
             dto.FinalPrice = finalPrice;
@@ -188,12 +188,14 @@ namespace MazicPC.Controllers
             if (product == null)
                 return NotFound();
 
-            var (finalPrice, discountValue, promotionName) = await promotionHelper.CalculateDiscountAsync(product);
+            var (finalPrice, discountValue, promotionName, startDate, endDate) = await promotionHelper.CalculateDiscountAsync(product);
 
             var dto = _mapper.Map<GetDetailProductDto>(product);
             dto.FinalPrice = finalPrice;
             dto.DiscountValue = discountValue;
             dto.PromotionName = promotionName;
+            dto.StartDate = startDate;
+            dto.EndDate = endDate;
 
             return Ok(dto);
         }

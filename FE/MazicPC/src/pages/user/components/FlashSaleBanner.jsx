@@ -2,14 +2,13 @@ import Countdown from "react-countdown";
 import { Container, Row, Col, Badge } from "react-bootstrap";
 import { FaBolt } from "react-icons/fa";
 
-export default function FlashSaleBanner() {
-  // Giả lập thời gian kết thúc (7 ngày 12h 11m 45s từ bây giờ)
-  const endTime =
-    Date.now() +
-    7 * 24 * 60 * 60 * 1000 +
-    12 * 60 * 60 * 1000 +
-    11 * 60 * 1000 +
-    45 * 1000;
+export default function FlashSaleBanner({ product }) {
+  if (!product || !product.promotionName) return null;
+
+  const start = new Date(product.startDate);
+  const end = new Date(product.endDate);
+  
+  if (start.getTime() > Date.now() || Date.now() > end.getTime()) return null;
 
   const renderer = ({ days, hours, minutes, seconds }) => (
     <Container
@@ -43,7 +42,7 @@ export default function FlashSaleBanner() {
     </Container>
   );
 
-  return <Countdown date={endTime} renderer={renderer} />;
+  return <Countdown date={end.getTime()} renderer={renderer} />;
 }
 
 // Component phụ hiển thị mỗi ô thời gian

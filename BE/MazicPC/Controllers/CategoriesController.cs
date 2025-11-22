@@ -80,7 +80,7 @@ namespace MazicPC.Controllers
                         .First(p => p.Id == productDto.Id);
 
                     // Gọi helper để lấy giá giảm
-                    var (finalPrice, discountValue, promotionName) = await _promotionHelper.CalculateDiscountAsync(productEntity);
+                    var (finalPrice, discountValue, promotionName, _, _) = await _promotionHelper.CalculateDiscountAsync(productEntity);
 
                     // Gán vào DTO
                     productDto.FinalPrice = finalPrice;

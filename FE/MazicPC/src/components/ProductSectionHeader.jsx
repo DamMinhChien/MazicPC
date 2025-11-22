@@ -4,8 +4,7 @@ import styles from "../styles/CategoryLabel.module.css";
 import ROUTERS from "../utils/router";
 
 const ProductSectionHeader = ({ title }) => {
-  const category = title; // hoặc bạn có thể đổi tên prop cho rõ nghĩa hơn
-
+  const category = title;
   // Hàm build URL query
   const buildFilterUrl = (min, max) => {
     const params = new URLSearchParams();
@@ -18,7 +17,7 @@ const ProductSectionHeader = ({ title }) => {
   return (
     <Stack
       direction="horizontal"
-      className="justify-content-between align-items-center mb-3 bg-warning-subtle"
+      className="justify-content-between align-items-center mb-3 bg-white rounded-3 shadow-sm"
     >
       <div className={styles.categoryLabel}>
         <h4 className="fw-bold">{title}</h4>
