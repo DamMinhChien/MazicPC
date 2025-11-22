@@ -114,8 +114,10 @@ namespace MazicPC.Controllers
                     return BadRequest("Đơn hàng đã bị hủy trước đó.");
 
                 if (order.Status == OrderStatus.Delivering.ToString() ||
-                    order.Status == OrderStatus.Completed.ToString())
-                    return BadRequest("Đơn hàng đã giao hoặc đang vận chuyển, không thể hủy.");
+                    order.Status == OrderStatus.Completed.ToString() ||
+                    order.Status == OrderStatus.Returning.ToString() ||
+                    order.Status == OrderStatus.Returned.ToString())
+                    return BadRequest("Đơn hàng đã giao, đang vận chuyển, đang hoàn hàng hoặc đã hoàn, không thể hủy.");
 
                 // 3️⃣ Cập nhật trạng thái đơn hàng
                 order.Status = OrderStatus.Cancelled.ToString();
@@ -140,12 +142,6 @@ namespace MazicPC.Controllers
                     payment.Status = PaymentStatus.Cancelled.ToString();
                     payment.UpdatedAt = DateTime.UtcNow;
 
-                    // Nếu thanh toán online (ví điện tử, thẻ) → đánh dấu refund
-                    if (payment.PaymentMethod.ToLower() != PaymentMethodType.cod.ToString())
-                    {
-                        payment.Status = PaymentStatus.Refunded.ToString();
-                                                          // TODO: gọi service refund thực tế nếu cần
-                    }
                 }
 
                 // 6️⃣ Lưu tất cả thay đổi
@@ -297,7 +293,7 @@ namespace MazicPC.Controllers
                     if (item.Quantity > product.StockQty)
                         return BadRequest("Sản phẩm đã hết hàng!");
 
-                    var (finalPrice, _, _) = await _promotionHelper.CalculateDiscountAsync(product);
+                    var (finalPrice, _, _, _, _) = await _promotionHelper.CalculateDiscountAsync(product);
 
                     order.OrderItems.Add(new OrderItem
                     {

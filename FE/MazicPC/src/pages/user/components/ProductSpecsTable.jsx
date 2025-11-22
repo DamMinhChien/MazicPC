@@ -5,7 +5,7 @@ const ProductSpecsTable = ({ product }) => {
   if (!product) return null;
 
   const entries = Object.entries(product)
-    .slice(16)
+    .slice(18)
     .filter(([key, value]) => {
       if (value === null || value === undefined) return false;
       if (typeof value === "string" && value.trim() === "") return false;

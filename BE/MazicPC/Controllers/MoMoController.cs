@@ -33,7 +33,7 @@ namespace MazicPC.Controllers
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == dto.OrderId);
             if (order == null) return BadRequest("Đơn hàng không tồn tại");
 
-            var endpoint = _config["MoMo:Endpoint"];
+            var endpoint = _config["MoMo:CreateEndpoint"];
             var partnerCode = _config["MoMo:PartnerCode"];
             var accessKey = _config["MoMo:AccessKey"];
             var secretKey = _config["MoMo:SecretKey"];
@@ -78,7 +78,7 @@ namespace MazicPC.Controllers
             var payment = order.Payments.FirstOrDefault();
             if (payment != null)
             {
-                payment.TransactionCode = orderId;
+                payment.Status = PaymentStatus.Processing.ToString();
                 await _context.SaveChangesAsync();
             }
 
@@ -101,6 +101,7 @@ namespace MazicPC.Controllers
                 if (data.ResultCode == 0)
                 {
                     payment.Status = PaymentStatus.Completed.ToString();
+                    payment.TransactionCode = data.TransId.ToString();
                     payment.PaidAt = DateTime.Now;
                     order.Status = OrderStatus.Confirmed.ToString();
                 }
@@ -113,6 +114,79 @@ namespace MazicPC.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpPost("refund-payment")]
+        [Authorize(Roles = Roles.User)]
+        public async Task<IActionResult> RefundPayment([FromBody] MoMoPaymentRequestDto dto)
+        {
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == dto.OrderId);
+            if (order == null) return BadRequest("Đơn hàng không tồn tại");
+            if (order.Status != OrderStatus.Cancelled.ToString()) return BadRequest("Cần phải hủy đơn hàng trước khi thanh toán");
+
+            var payment = order.Payments.FirstOrDefault();
+            if (payment == null || payment.PaymentMethod.ToLower() != PaymentMethodType.momo.ToString()) return BadRequest("Đơn hàng chưa được thanh toán hoặc không phải thanh toán bằng MoMo");
+
+            var endpoint = _config["MoMo:RefundEndpoint"];
+            var partnerCode = _config["MoMo:PartnerCode"];
+            var accessKey = _config["MoMo:AccessKey"];
+            var secretKey = _config["MoMo:SecretKey"];
+            var amount = (long)order.TotalAmount;
+            var lang = "vi";
+            var description = "";
+            if (!long.TryParse(payment!.TransactionCode, out long transId))
+            {
+                return BadRequest("Mã giao dịch không hợp lệ");
+            }
+
+            string orderId = Guid.NewGuid().ToString();
+            string requestId = Guid.NewGuid().ToString();
+
+            string rawHash = $"accessKey={accessKey}&amount={amount}&description={description}&orderId={orderId}&partnerCode={partnerCode}&requestId={requestId}&transId={transId}";
+
+            using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey!));
+            var signatureBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(rawHash));
+            string signature = BitConverter.ToString(signatureBytes).Replace("-", "").ToLower();
+
+            var payload = new
+            {
+                partnerCode,
+                requestId,
+                transId,
+                amount,
+                orderId,
+                lang,
+                description,
+                signature
+            };
+
+            // post đến server momo
+            var client = _httpClientFactory.CreateClient();
+            var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
+            var response = await client.PostAsync(endpoint, content);
+            var responseBody = await response.Content.ReadAsStringAsync();
+
+            // parse JSON
+            var momoResponse = JsonConvert.DeserializeObject<MomoRefundResponseDto>(responseBody);
+
+            if (momoResponse == null)
+            {
+                return BadRequest("Không đọc được phản hồi từ MoMo");
+            }
+
+            if (momoResponse.ResultCode != 0)
+            {
+                return BadRequest(momoResponse.Message);
+            }
+
+            // refund thành công
+            payment.TransactionCode = momoResponse.TransId.ToString();
+            payment.Status = PaymentStatus.Refunded.ToString();
+            payment.UpdatedAt = DateTime.Now;
+            order.Status = OrderStatus.Returning.ToString();
+            await _context.SaveChangesAsync();
+
+            return Ok(momoResponse.Message);
         }
 
     }

@@ -181,7 +181,7 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = async () => {
-    // 1️⃣ Chưa login hoặc không phải role user
+    // Chưa login hoặc không phải role user
     if (!user || user.role.toLowerCase() !== "user") {
       console.log("user: ", user);
       setShowConfirm(true);
@@ -190,7 +190,7 @@ const ProductDetail = () => {
 
     try {
       setLoading(true);
-      // 2️⃣ Gọi API thêm sản phẩm vào giỏ
+      // Gọi API thêm sản phẩm vào giỏ
       await dispatch(
         addToCart({
           productId: Number(id),
@@ -198,10 +198,10 @@ const ProductDetail = () => {
         })
       ).unwrap();
 
-      // 3️⃣ Lấy lại giỏ hàng mới nhất
+      // Lấy lại giỏ hàng mới nhất
       await dispatch(fetchCart());
 
-      // 4️⃣ Điều hướng sang trang giỏ hàng
+      // Điều hướng sang trang giỏ hàng
       navigate(ROUTERS.USER.CART);
     } catch (err) {
       setError(err.message || "Thêm vào giỏ hàng thất bại!");
@@ -278,7 +278,7 @@ const ProductDetail = () => {
           </Col>
           <Col md={7}>
             <div>
-              <FlashSaleBanner />
+              <FlashSaleBanner product={product}/>
 
               <div className="my-3 d-flex align-items-center gap-3">
                 {product.finalPrice && product.discountValue ? (

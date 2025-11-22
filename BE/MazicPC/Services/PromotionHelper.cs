@@ -12,7 +12,7 @@ namespace MazicPC.Services
             _context = context;
         }
 
-        public async Task<(decimal finalPrice, decimal? discountValue, string? promotionName)>
+        public async Task<(decimal finalPrice, decimal? discountValue, string? promotionName, DateTime? startDate, DateTime? EndDate)>
             CalculateDiscountAsync(Product product)
         {
             var now = DateTime.Now;
@@ -35,7 +35,7 @@ namespace MazicPC.Services
                         ?? promotions.FirstOrDefault(x => x.TargetType == "product" && x.TargetId == product.Id);
 
             if (matched == null)
-                return (product.Price, null, null);
+                return (product.Price, null, null, null, null);
 
             var promo = matched.Promotion;
             decimal discount = promo.DiscountType.ToLower() == "percent"
@@ -44,7 +44,7 @@ namespace MazicPC.Services
 
             decimal finalPrice = Math.Max(0, product.Price - discount);
 
-            return (finalPrice, discount, promo.Name);
+            return (finalPrice, discount, promo.Name,promo.StartDate, promo.EndDate);
         }
     }
 }
