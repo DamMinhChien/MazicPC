@@ -11,7 +11,7 @@ const DashboardPage = () => {
     import("@coreui/coreui/dist/css/coreui.min.css");
   }, []);
   return (
-    <Container fluid className="d-flex">
+    <Container fluid className="d-flex bg-white">
       <AppSidebar />
       <div className="wrapper d-flex flex-column min-vh-100 flex-grow-1" style={{marginLeft: "80px"}}>
         <AppHeader />
