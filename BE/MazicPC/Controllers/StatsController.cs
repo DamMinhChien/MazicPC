@@ -97,5 +97,80 @@ namespace MazicPC.Controllers
 
             return Ok(res);
         }
+
+        [HttpGet("revenue-by-week")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> GetRevenueByWeek()
+        {
+            var now = DateTime.Now;
+            var currentMonth = now.Month;
+            var currentYear = now.Year;
+
+            // Lấy các đơn đã thanh toán trong tháng hiện tại
+            var orders = await _context.Orders
+                .Where(o => o.Payments != null &&
+                o.Payments.Any(p => p.PaidAt != null &&
+                                    p.PaidAt.Value.Month == currentMonth &&
+                                    p.PaidAt.Value.Year == currentYear))
+                .ToListAsync();
+
+            // Tạo mảng doanh thu theo tuần (tối đa 5 tuần)
+            decimal[] revenueByWeek = new decimal[5];
+
+            foreach (var order in orders)
+            {
+                var paidAt = order.Payments.First().PaidAt!.Value;
+                int week = GetWeekOfMonth(paidAt) - 1; // index từ 0
+                revenueByWeek[week] += order.TotalAmount; // cộng tiền đơn vào tuần tương ứng
+            }
+
+            // Tạo labels
+            var labels = Enumerable.Range(1, 5)
+                .Select(x => $"Tuần {x}")
+                .ToList();
+
+            return Ok(new
+            {
+                labels,
+                data = revenueByWeek
+            });
+        }
+
+        int GetWeekOfMonth(DateTime date)
+        {
+            var firstDay = new DateTime(date.Year, date.Month, 1);
+            return (date.Day + (int)firstDay.DayOfWeek - 1) / 7 + 1;
+        }
+    
+
+        [HttpGet("revenue-by-category")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> GetRevenueByCategory()
+        {
+            // Lấy các đơn đã thanh toán theo danh mục
+            var query = await _context.Orders
+                .Where(o => o.Payments != null && o.Payments.Any(p => p.PaidAt != null))
+                .SelectMany(o => o.OrderItems.Where(oi => oi.Product != null && oi.Product.Category != null).Select(oi => new
+                {
+                    Category = oi.Product!.Category!.Name,
+                    Amount = o.Payments.First(p => p.PaidAt != null).Amount,
+                }))
+                .GroupBy(o => o.Category)
+                .Select(g => new
+                {
+                    Category = g.Key,
+                    Revenue = g.Sum(cat => cat.Amount)
+                })
+                .ToListAsync();
+
+            var labels = query.Select(q => q.Category).ToList();
+            var data = query.Select(q => q.Revenue).ToList();
+
+            return Ok(new
+            {
+                labels,
+                data
+            });
+        }
     }
 }

@@ -1,4 +1,4 @@
-import { CCol, CRow } from "@coreui/react";
+import { CCol, CRow, CCard, CCardBody, CCardHeader } from "@coreui/react";
 import DashboardWidget from "../components/DashboardWidget";
 import { useQuery } from "@tanstack/react-query";
 import statsService from "../../../apis/statsService";
@@ -6,49 +6,66 @@ import MyFullSpinner from "@components/MyFullSpinner";
 import { motion } from "framer-motion";
 import TextHeader from "../../user/components/TextHeader";
 import MyBarChart from "../components/MyBarChart";
+import { CChartLine, CChartPie } from "@coreui/react-chartjs";
+import chroma from "chroma-js";
 
 const MotionCol = motion(CCol);
 
 const Dashboard = () => {
-  const { data: totalsData = {}, isLoading: isLoadingTotals } = useQuery({
-    queryKey: ["stats", "dashboard"],
-    queryFn: async () => statsService.getTotalsAdmin(),
+  // Load API
+
+  const { data: totals = {}, isLoading: loadingTotals } = useQuery({
+    queryKey: ["stats_totals"],
+    queryFn: statsService.getTotalsAdmin,
   });
 
-  const { data: categoryData = {}, isLoading: isLoadingCategory } = useQuery({
-    queryKey: ["categoryData", "dashboard"],
-    queryFn: async () => statsService.getStatisticByCategory(),
+  const { data: revenueData = {}, isLoading: loadingRevenue } = useQuery({
+    queryKey: ["stats_revenue"],
+    queryFn: statsService.getRevenue,
   });
 
-  const { data: manufacturerData = {}, isLoading: isLoadingManufacturer } =
-    useQuery({
-      queryKey: ["manufacturerData", "dashboard"],
-      queryFn: async () => statsService.getStatisticByManufacturer(),
-    });
+    const { data: revenueByCategoryData = {}, isLoading: loadingRevenueByCategoryData } = useQuery({
+    queryKey: ["stats_revenueByCategoryData"],
+    queryFn: statsService.getRevenueByCategoryData,
+  });
+
+  const { data: categoryData = {}, isLoading: loadingCategory } = useQuery({
+    queryKey: ["stats_category"],
+    queryFn: statsService.getStatisticByCategory,
+  });
+
+  const { data: manufacturerData = {}, isLoading: loadingManu } = useQuery({
+    queryKey: ["stats_manufacturer"],
+    queryFn: statsService.getStatisticByManufacturer,
+  });
+
+  const labels = revenueData.labels || [];
+  const revenue = revenueData.data || [];
+
+  const labelsByCategory = revenueByCategoryData.labels || [];
+  const revenueByCategory = revenueByCategoryData.data|| [];
+
+  const colors = chroma
+  .scale(["#4e79a7", "#f28e2b", "#e15759"])
+  .colors(labelsByCategory.length)
 
   return (
-    <>
+    <div>
       <TextHeader title="Thống kê" />
+
+      {/* ==== TOP WIDGETS ==== */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="my-5"
+        transition={{ duration: 0.5 }}
+        className="my-4"
       >
-        <CRow>
-          <MotionCol
-            sm={6}
-            lg={3}
-            whileHover={{
-              scale: 1.03,
-              boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
-            }}
-            transition={{ type: "spring", stiffness: 200, damping: 12 }}
-          >
+        <CRow xs={{ gutter: 4 }}>
+          <MotionCol sm={6} lg={3} whileHover={{ scale: 1.03 }}>
             <DashboardWidget
               color="primary"
               title="Doanh thu"
-              value="$9.000"
+              value="₫9.000.000"
               percent={40.9}
               trend="up"
               chartType="line"
@@ -56,19 +73,11 @@ const Dashboard = () => {
             />
           </MotionCol>
 
-          <MotionCol
-            sm={6}
-            lg={3}
-            whileHover={{
-              scale: 1.03,
-              boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
-            }}
-            transition={{ type: "spring", stiffness: 200, damping: 12 }}
-          >
+          <MotionCol sm={6} lg={3} whileHover={{ scale: 1.03 }}>
             <DashboardWidget
               color="info"
               title="Đơn hàng"
-              value={totalsData?.orderCount || "0"}
+              value={totals.orderCount || "0"}
               percent={12.5}
               trend="up"
               chartType="line"
@@ -76,19 +85,11 @@ const Dashboard = () => {
             />
           </MotionCol>
 
-          <MotionCol
-            sm={6}
-            lg={3}
-            whileHover={{
-              scale: 1.03,
-              boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
-            }}
-            transition={{ type: "spring", stiffness: 200, damping: 12 }}
-          >
+          <MotionCol sm={6} lg={3} whileHover={{ scale: 1.03 }}>
             <DashboardWidget
               color="warning"
-              title="Số lượng hàng tồn kho"
-              value={totalsData?.productsQuantityTotal || "0"}
+              title="Tồn kho"
+              value={totals.productsQuantityTotal || "0"}
               percent={-5.2}
               trend="down"
               chartType="line"
@@ -96,63 +97,85 @@ const Dashboard = () => {
             />
           </MotionCol>
 
-          <MotionCol
-            sm={6}
-            lg={3}
-            whileHover={{
-              scale: 1.03,
-              boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
-            }}
-            transition={{ type: "spring", stiffness: 200, damping: 12 }}
-          >
+          <MotionCol sm={6} lg={3} whileHover={{ scale: 1.03 }}>
             <DashboardWidget
               color="danger"
-              title="Số lượng sản phẩm"
-              value={totalsData?.productCount || "0"}
+              title="Sản phẩm"
+              value={totals.productCount || "0"}
               percent={8.3}
               trend="up"
               chartType="bar"
-              chartData={[78, 81, 80, 45, 34, 12, 40, 85, 65, 23]}
+              chartData={[78, 81, 80, 45, 34, 12, 40]}
             />
           </MotionCol>
         </CRow>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="my-5"
-      >
-        {/* <TextHeader title="Thống kê theo danh mục" className="mb-4" /> */}
-        <CRow>
-          <CCol md={6}>
-            <MyBarChart
-              data={categoryData.data}
-              xKey={categoryData.xKey}
-              yKeys={categoryData.yKeys}
-              labels={categoryData.labels}
-              colors={categoryData.colors} // bộ 1
-              title={categoryData.title}
-            />
-          </CCol>
-          <CCol md={6}>
-            <MyBarChart
-              data={manufacturerData.data}
-              xKey={manufacturerData.xKey}
-              yKeys={manufacturerData.yKeys}
-              labels={manufacturerData.labels}
-              colors={manufacturerData.colors} // bộ 1
-              title={manufacturerData.title}
-            />
-          </CCol>
-        </CRow>
-      </motion.div>
+      {/* ==== BAR CHARTS ==== */}
+      <CRow className="my-4">
+        <CCol md={6}>
+          <MyBarChart {...categoryData} />
+        </CCol>
 
+        <CCol md={6}>
+          <MyBarChart {...manufacturerData} />
+        </CCol>
+      </CRow>
+
+      {/* ==== LINE CHARTS ==== */}
+      <CRow className="my-4">
+        <CCol md={6}>
+          <CCard>
+            <CCardHeader>Doanh thu theo tuần</CCardHeader>
+            <CCardBody>
+              <CChartLine
+                data={{
+                  labels,
+                  datasets: [
+                    {
+                      label: "Doanh thu (VND)",
+                      data: revenue,
+                      tension: 0.4,
+                      borderWidth: 3,
+                      pointRadius: 4,
+                    },
+                  ],
+                }}
+              />
+            </CCardBody>
+          </CCard>
+        </CCol>
+
+        <CCol md={6}>
+          <CCard>
+            <CCardHeader>Biểu đồ doanh thu theo danh mục</CCardHeader>
+            <CCardBody className="mx-auto">
+              <CChartPie
+                data={{
+                  labels: labelsByCategory,
+                  datasets: [
+                    {
+                      data: revenueByCategory,
+                      backgroundColor: colors,
+                    },
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                }}
+                style={{ height: '325px' }}
+              />
+            </CCardBody>
+          </CCard>
+        </CCol>
+      </CRow>
+
+      {/* ==== LOADING ==== */}
       <MyFullSpinner
-        show={isLoadingTotals || isLoadingCategory || isLoadingManufacturer}
+        show={loadingTotals || loadingCategory || loadingManu || loadingRevenue}
       />
-    </>
+    </div>
   );
 };
 
