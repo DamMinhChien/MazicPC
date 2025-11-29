@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router-dom";
-import HomePage from "./pages/user/homePage";
 import ROUTERS from "./utils/router";
 import MasterLayout from "./pages/user/themes/masterLayout";
 import GioiThieuCongTy from "./pages/user/static/gioi-thieu-cong-ty";
@@ -25,6 +24,7 @@ import Order from "./pages/user/Order";
 import PaymentSuccess from "./pages/common/paymentSuccessPage/PaymentSuccess";
 import Purchase from "./pages/user/Purchase";
 import Shop from "./pages/user/static/shop/shop";
+import HomePage from "./pages/user/homePage/HomePage";
 
 const RouterCustom = () => {
   const userRouter = [

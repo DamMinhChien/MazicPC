@@ -320,6 +320,7 @@ namespace MazicPC.Controllers
 
                     // Giảm lượt sử dụng coupon và add AccountCoupon
                     coupon.Quantity -= 1;
+                    coupon.UsedCount += 1;
                     _context.Coupons.Update(coupon);
 
                     _context.AccountCoupons.Add(new AccountCoupon

@@ -19,11 +19,15 @@ import TestimonialCard from "../components/TestimonialCard";
 import PurchaseSteps from "../components/PurchaseSteps";
 import GoogleMapEmbed from "../components/GoogleMapEmbed";
 import Chat from "../components/Chat";
+import { parseApiError } from "../../../utils/helper";
+import couponServices from "../../../apis/couponServices";
+import CouponList from "../components/CouponList";
 
 const HomePage = () => {
   const [categories, setCategories] = useState([]);
   const [banners, setBanners] = useState([]);
   const [manufacturers, setManufacturers] = useState([]);
+  const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -37,7 +41,7 @@ const HomePage = () => {
 
         setCategories(res);
       } catch (err) {
-        setError(err.message || "Có lỗi xảy ra khi tải product");
+        setError(parseApiError(error));
         setCategories([]);
       } finally {
         setLoading(false);
@@ -50,25 +54,7 @@ const HomePage = () => {
         const res = await bannerServices.getBannersWithProduct();
         setBanners(res);
       } catch (error) {
-        let errMsg = "Đã xảy ra lỗi không xác định";
-
-        if (error.response) {
-          const data = error.response.data;
-
-          if (typeof data === "string") {
-            errMsg = data;
-          } else if (Array.isArray(data)) {
-            errMsg = data.map((e) => e.message || JSON.stringify(e)).join(", ");
-          } else if (typeof data === "object" && data !== null) {
-            errMsg = data.message || JSON.stringify(data);
-          } else {
-            errMsg = String(data);
-          }
-        } else {
-          errMsg = error.message;
-        }
-
-        setError(errMsg);
+        setError(parseApiError(error));
       } finally {
         setLoading(false);
       }
@@ -80,25 +66,19 @@ const HomePage = () => {
         const res = await manufacturerServices.getManufacturers();
         setManufacturers(res);
       } catch (error) {
-        let errMsg = "Đã xảy ra lỗi không xác định";
+        setError(parseApiError(error));
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        if (error.response) {
-          const data = error.response.data;
-
-          if (typeof data === "string") {
-            errMsg = data;
-          } else if (Array.isArray(data)) {
-            errMsg = data.map((e) => e.message || JSON.stringify(e)).join(", ");
-          } else if (typeof data === "object" && data !== null) {
-            errMsg = data.message || JSON.stringify(data);
-          } else {
-            errMsg = String(data);
-          }
-        } else {
-          errMsg = error.message;
-        }
-
-        setError(errMsg);
+    const fetchCoupons = async () => {
+      try {
+        setLoading(true);
+        const res = await couponServices.getCoupons();
+        setCoupons(res);
+      } catch (error) {
+        setError(parseApiError(error));
       } finally {
         setLoading(false);
       }
@@ -107,6 +87,7 @@ const HomePage = () => {
     fetchCategories();
     fetchBanners();
     fetchManufacturer();
+    fetchCoupons();
   }, []);
 
   const { data = {} } = useQuery({
@@ -183,7 +164,7 @@ const HomePage = () => {
               </div>
             </Col>
           </Row>
-        </Container> 
+        </Container>
 
         <Container fluid>
           {categories.map((cat) => (
@@ -193,6 +174,11 @@ const HomePage = () => {
               products={cat.products}
             />
           ))}
+        </Container>
+
+        <Container className="my-4 bg-white p-4 rounded-3 shadow-lg">
+          <TextHeader title="Voucher siêu hời!" />
+          <CouponList coupons={coupons} />
         </Container>
 
         <Container>
@@ -229,9 +215,9 @@ const HomePage = () => {
       </Container>
 
       <section>
-          <TextHeader title="Ghé thăm chúng tôi" />
-          <GoogleMapEmbed />
-        </section>
+        <TextHeader title="Ghé thăm chúng tôi" />
+        <GoogleMapEmbed />
+      </section>
 
       <MyToast
         title="Lỗi"
