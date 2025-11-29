@@ -30,16 +30,15 @@ namespace MazicPC.Controllers
 
         // GET: api/Coupons
         [HttpGet]
-        [Authorize(Roles = Roles.Admin)]
         public async Task<ActionResult<IEnumerable<GetCouponDto>>> GetCoupons()
         {
-            var coupons = await _context.Coupons.ToListAsync();
+            var now = DateTime.UtcNow;
+            var coupons = await _context.Coupons.Where(c => c.StartDate <= now && c.EndDate >= now).ToListAsync();
             return Ok(_mapper.Map<IEnumerable<GetCouponDto>>(coupons));
         }
 
         // GET: api/Coupons/5
         [HttpGet("{id}")]
-        [Authorize(Roles = Roles.Admin)]
         public async Task<ActionResult<GetCouponDto>> GetCoupon(int id)
         {
             var coupon = await _context.Coupons.FindAsync(id);
@@ -109,7 +108,7 @@ namespace MazicPC.Controllers
             var coupons = await _context.Coupons.Where(coupon => ids.Contains(coupon.Id)).ToListAsync();
 
             if (!coupons.Any())
-                return NotFound("Không tìm thấy phương thức vận chuyển nào.");
+                return NotFound("Không tìm thấy mã giảm giá nào.");
 
             _context.Coupons.RemoveRange(coupons);
             await _context.SaveChangesAsync();

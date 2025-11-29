@@ -255,7 +255,7 @@ const DataTable = ({
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Previous
+            Trang trước
           </Button>
           <Button
             size="sm"
@@ -263,7 +263,7 @@ const DataTable = ({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Next
+            Trang sau
           </Button>
         </div>
       </div>
