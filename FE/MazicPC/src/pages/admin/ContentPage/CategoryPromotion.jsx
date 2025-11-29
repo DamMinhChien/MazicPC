@@ -7,6 +7,7 @@ import MyToast from "../../../components/MyToast";
 import MyFullSpinner from "@components/MyFullSpinner";
 import SubmitContext from "@utils/SubmitContext";
 import promotionSchema from "../../../schemas/admin/promotionSchema";
+import { parseApiError } from "../../../utils/helper";
 
 const CategoryPromotion = () => {
   const [promotions, setPromotions] = useState([]);
@@ -20,8 +21,26 @@ const CategoryPromotion = () => {
       setLoading(true);
       const res = await promotionService.getPromotionsByType("category");
       setPromotions(res);
-    } catch (err) {
-      setError(err.message || "Có lỗi xảy ra khi tải khuyến mãi");
+    } catch (error) {
+    let errMsg = "Đã xảy ra lỗi không xác định";
+
+    const data = error.response?.data;
+
+    if (typeof data === "string") {
+      // API trả plain text
+      errMsg = data;
+    } else if (Array.isArray(data)) {
+      // API trả mảng lỗi
+      errMsg = data.map(e => e.message || JSON.stringify(e)).join(", ");
+    } else if (typeof data === "object" && data !== null) {
+      // API trả object
+      errMsg = data.message || JSON.stringify(data);
+    } else if (error.message) {
+      // fallback từ axios error
+      errMsg = error.message;
+    }
+
+    setError(errMsg);
     } finally {
       setLoading(false);
     }
@@ -92,10 +111,7 @@ const CategoryPromotion = () => {
       setSuccess("Thêm khuyến mãi thành công");
       fetchPromotions();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors))
-        setError(errors.map((e) => e.message).join(", "));
-      else setError(errors.message || error.message);
+    setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -124,10 +140,7 @@ const CategoryPromotion = () => {
       setSuccess("Cập nhật khuyến mãi thành công");
       fetchPromotions();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors))
-        setError(errors.map((e) => e.message).join(", "));
-      else setError(errors.message || error.message);
+   setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -141,10 +154,7 @@ const CategoryPromotion = () => {
       setSuccess("Xóa khuyến mãi thành công");
       fetchPromotions();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors))
-        setError(errors.map((e) => e.message).join(", "));
-      else setError(errors.message || error.message);
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -158,10 +168,7 @@ const CategoryPromotion = () => {
       setSuccess(`Xóa thành công ${ids.length} khuyến mãi`);
       fetchPromotions();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors))
-        setError(errors.map((e) => e.message).join(", "));
-      else setError(errors.message || error.message);
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }

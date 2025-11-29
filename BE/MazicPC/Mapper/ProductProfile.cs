@@ -13,6 +13,10 @@ namespace MazicPC.Mapper
             CreateMap<Product, UserGetProductDto>()
                 .ForMember(dest => dest.CategoryName,
                     opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
+                .ForMember(dest => dest.CategoryId,
+                    opt => opt.MapFrom(src => src.Category != null ? src.Category.Id : 0))
+                .ForMember(dest => dest.ManufacturerId,
+                    opt => opt.MapFrom(src => src.Manufacturer != null ? src.Manufacturer.Id : 0))
                 .ForMember(dest => dest.ManufacturerName,
                     opt => opt.MapFrom(src => src.Manufacturer != null ? src.Manufacturer.Name : string.Empty));
 

@@ -5,6 +5,7 @@ import MyFullSpinner from "@components/MyFullSpinner";
 import orderService from "../../../apis/orderServices";
 import SubmitContext from "@utils/SubmitContext";
 import orderSchema from "../../../schemas/admin/orderSchema";
+import { parseApiError } from "../../../utils/helper";
 
 const Order = () => {
   const [orders, setOrders] = useState([]);
@@ -42,6 +43,8 @@ const Order = () => {
         { value: "Delivering", label: "Đang giao" },
         { value: "Completed", label: "Đã giao" },
         { value: "Cancelled", label: "Đã hủy" },
+        { value: "Returning", label: "Đang hoàn hàng" },
+        { value: "Returned", label: "Đã hoàn hàng" },
       ],
     },
   ];
@@ -53,10 +56,7 @@ const Order = () => {
       setSuccess("Cập nhật đơn hàng thành công");
       fetchOrders();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors))
-        setError(errors.map((e) => e.message).join(", "));
-      else setError(errors.message || error.message);
+    setError(parseApiError(error));
     } finally {
       setLoading(false);
     }

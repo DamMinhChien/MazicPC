@@ -6,6 +6,7 @@ import MyFullSpinner from "@components/MyFullSpinner";
 import SubmitContext from "@utils/SubmitContext";
 import bannerSchema from "../../../schemas/admin/bannerSchema";
 import productService from "../../../apis/productService";
+import { parseApiError } from "../../../utils/helper";
 
 const Banner = () => {
   const [banners, setBanners] = useState([]);
@@ -53,7 +54,7 @@ const Banner = () => {
       type: "select",
       loadOptions: handleLoadOptions,
     },
-    { name: "file", label: "Ảnh", type: "file" },
+    { name: "imageUrl", label: "Ảnh", type: "file" },
     { name: "isActive", label: "Kích hoạt", type: "switch" },
   ];
 
@@ -65,13 +66,7 @@ const Banner = () => {
       setSuccess("Thêm banner thành công");
       setBanners((prev) => [...prev, res]);
     } catch (error) {
-      setLoading(false);
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -84,13 +79,7 @@ const Banner = () => {
       setSuccess("Cập nhật banner thành công");
       fetchBanners();
     } catch (error) {
-      setLoading(false);
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -103,13 +92,7 @@ const Banner = () => {
       setSuccess("Xóa banner thành công");
       fetchBanners();
     } catch (error) {
-      setLoading(false);
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -122,13 +105,7 @@ const Banner = () => {
       setSuccess(`Xóa thành công ${ids.length} banner`);
       fetchBanners();
     } catch (error) {
-      setLoading(false);
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }

@@ -5,6 +5,7 @@ import MyFullSpinner from "@components/MyFullSpinner";
 import shippingMethodService from "../../../apis/shippingMethodServices";
 import SubmitContext from "@utils/SubmitContext";
 import shippingMethodSchema from "../../../schemas/admin/shippingMethodSchema";
+import { parseApiError } from "../../../utils/helper";
 
 const ShippingMethod = () => {
   const [shippingMethods, setShippingMethods] = useState([]);
@@ -43,10 +44,7 @@ const ShippingMethod = () => {
       setSuccess("Thêm phương thức giao hàng thành công");
       fetchShippingMethods();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors))
-        setError(errors.map((e) => e.message).join(", "));
-      else setError(errors.message || error.message);
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -59,10 +57,7 @@ const ShippingMethod = () => {
       setSuccess("Cập nhật phương thức giao hàng thành công");
       fetchShippingMethods();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors))
-        setError(errors.map((e) => e.message).join(", "));
-      else setError(errors.message || error.message);
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -75,10 +70,7 @@ const ShippingMethod = () => {
       setSuccess("Xóa phương thức giao hàng thành công");
       fetchShippingMethods();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors))
-        setError(errors.map((e) => e.message).join(", "));
-      else setError(errors.message || error.message);
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -91,10 +83,7 @@ const ShippingMethod = () => {
       setSuccess(`Xóa thành công ${ids.length} phương thức giao hàng`);
       fetchShippingMethods();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors))
-        setError(errors.map((e) => e.message).join(", "));
-      else setError(errors.message || error.message);
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }

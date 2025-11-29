@@ -5,6 +5,7 @@ import MyToast from "../../../components/MyToast";
 import MyFullSpinner from "@components/MyFullSpinner";
 import SubmitContext from "@utils/SubmitContext";
 import categorySchema from "../../../schemas/admin/categorySchema";
+import { parseApiError } from "../../../utils/helper";
 
 const Category = () => {
   const [categories, setCategories] = useState([]);
@@ -51,7 +52,7 @@ const Category = () => {
     { name: "id", label: "ID", type: "hidden" },
     { name: "name", label: "Tên danh mục" },
     { name: "slug", label: "Slug" },
-    { name: "file", label: "Ảnh", type: "file" },
+    { name: "imageUrl", label: "Ảnh", type: "file" },
     {
       name: "parentId",
       label: "Danh mục cha",
@@ -72,13 +73,7 @@ const Category = () => {
       fetchCategories();
       fetchCategoriesRoot();
     } catch (error) {
-      setLoading(false);
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+    setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -92,13 +87,7 @@ const Category = () => {
       fetchCategories();
       fetchCategoriesRoot();
     } catch (error) {
-      setLoading(false);
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+    setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -111,13 +100,7 @@ const Category = () => {
       setSuccess("Xóa danh mục thành công");
       fetchCategories();
     } catch (error) {
-      setLoading(false);
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -130,13 +113,7 @@ const Category = () => {
       setSuccess(`Xóa thành công ${ids.length} danh mục`);
       fetchCategories();
     } catch (error) {
-      setLoading(false);
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }

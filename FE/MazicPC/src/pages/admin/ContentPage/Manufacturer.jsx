@@ -5,6 +5,7 @@ import MyToast from "../../../components/MyToast";
 import MyFullSpinner from "@components/MyFullSpinner";
 import SubmitContext from "@utils/SubmitContext";
 import manufacturerSchema from "../../../schemas/admin/manufacturerSchema";
+import { parseApiError } from "../../../utils/helper";
 
 const Manufacturer = () => {
   const [manufacturers, setManufacturers] = useState([]);
@@ -51,13 +52,7 @@ const Manufacturer = () => {
       setSuccess("Thêm nhà sản xuất thành công");
       setManufacturers((prev) => [...prev, res]);
     } catch (error) {
-      setLoading(false);
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -70,13 +65,7 @@ const Manufacturer = () => {
       setSuccess("Cập nhật nhà sản xuất thành công");
       fetchManufacturers();
     } catch (error) {
-      setLoading(false);
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -90,13 +79,7 @@ const Manufacturer = () => {
       setSuccess("Xóa nhà sản xuất thành công");
       fetchManufacturers();
     } catch (error) {
-      setLoading(false);
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -109,13 +92,7 @@ const Manufacturer = () => {
       setSuccess(`Xóa thành công ${ids.length} nhà sản xuất`);
       fetchManufacturers();
     } catch (error) {
-      setLoading(false);
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }

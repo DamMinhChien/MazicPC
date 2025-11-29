@@ -5,7 +5,9 @@
         public int Id { get; set; }
         public string Name { get; set; } = null!;
         public string CategoryName { get; set; } = null!;
+        public int? CategoryId { get; set; } = null!;
         public string ManufacturerName { get; set; } = null!;
+        public int? ManufacturerId { get; set; } = null!;
         public string? ShortDescription { get; set; }
         public string? Description { get; set; }
 
