@@ -172,5 +172,16 @@ namespace MazicPC.Controllers
                 data
             });
         }
+
+        [HttpGet("revenue")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> GetRevenue()
+        {
+            var revenue = await _context.Payments
+                .Where(p => p.PaidAt != null)
+                .SumAsync(p => p.Amount);
+
+            return Ok(revenue);
+        }
     }
 }

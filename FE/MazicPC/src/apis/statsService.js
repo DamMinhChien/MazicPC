@@ -20,8 +20,13 @@ const getStatisticByManufacturer = async () => {
   return res.data;
 };
 
-const getRevenue = async () => {
+const getRevenueByWeek = async () => {
   const res = await axiosClient.get("stats/revenue-by-week");
+  return res.data;
+}
+
+const getRevenue = async () => {
+  const res = await axiosClient.get("stats/revenue");
   return res.data;
 }
 
@@ -36,6 +41,7 @@ const statsService = {
   getStatisticByCategory,
   getStatisticByManufacturer,
   getRevenue,
+  getRevenueByWeek,
   getRevenueByCategoryData,
 };
 
