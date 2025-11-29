@@ -5,6 +5,7 @@ import MyToast from "../../../components/MyToast";
 import MyFullSpinner from "@components/MyFullSpinner";
 import userService from "../../../apis/userService";
 import SubmitContext from "@utils/SubmitContext";
+import { parseApiError } from "../../../utils/helper";
 
 const User = () => {
   const [users, setUsers] = useState([]);
@@ -37,7 +38,7 @@ const User = () => {
     { name: "id", label: "ID", type: "hidden" },
     { name: "phone", label: "Số điện thoại" },
     { name: "address", label: "Địa chỉ" },
-    { name: "file", label: "Ảnh đại diện", type: "file" },
+    { name: "imageUrl", label: "Ảnh đại diện", type: "file" },
     { name: "fullName", label: "Họ và tên" },
   ];
 
@@ -49,16 +50,11 @@ const User = () => {
     try {
       setLoading(true);
       await userService.updateUser(user);
-      
+
       setSuccess("Cập nhật người dùng thành công");
       fetchUsers();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      setError(
-        Array.isArray(errors)
-          ? errors.map((e) => e.message).join(", ")
-          : errors.message || error.message
-      );
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -71,12 +67,7 @@ const User = () => {
       setSuccess("Xóa người dùng thành công");
       fetchUsers();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      setError(
-        Array.isArray(errors)
-          ? errors.map((e) => e.message).join(", ")
-          : errors.message || error.message
-      );
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -89,12 +80,7 @@ const User = () => {
       setSuccess(`Xóa thành công ${ids.length} người dùng`);
       fetchUsers();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      setError(
-        Array.isArray(errors)
-          ? errors.map((e) => e.message).join(", ")
-          : errors.message || error.message
-      );
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -103,14 +89,14 @@ const User = () => {
   return (
     <>
       <SubmitContext.Provider
-        value={{ title, handleAdd, handleEdit, handleDel, handleDelMany}}
+        value={{ title, handleAdd, handleEdit, handleDel, handleDelMany }}
       >
         <AdminLayout
           data={users}
           fields={fields}
           postSchema={userSchema.put}
           putSchema={userSchema.put}
-          addButtonShow= {true} 
+          addButtonShow={true}
         />
       </SubmitContext.Provider>
 

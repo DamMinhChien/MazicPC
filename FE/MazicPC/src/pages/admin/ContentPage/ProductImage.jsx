@@ -6,6 +6,7 @@ import SubmitContext from "@utils/SubmitContext";
 import productImageSchema from "../../../schemas/admin/productImageSchema";
 import productImageService from "../../../apis/productImageService";
 import productService from "../../../apis/productService";
+import { parseApiError } from "../../../utils/helper";
 
 const ProductImage = () => {
   const [images, setImages] = useState([]);
@@ -51,7 +52,7 @@ const ProductImage = () => {
       type: "select",
       loadOptions: handleLoadOptions,
     },
-    { name: "file", label: "Ảnh", type: "file" },
+    { name: "imageUrl", label: "Ảnh", type: "file" },
     { name: "isPrimary", label: "Ảnh chính", type: "switch" },
   ];
 
@@ -64,12 +65,7 @@ const ProductImage = () => {
       setImages((prev) => [...prev, res]);
       fetchImages();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -82,12 +78,7 @@ const ProductImage = () => {
       setSuccess("Cập nhật ảnh thành công");
       fetchImages();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -100,12 +91,7 @@ const ProductImage = () => {
       setSuccess("Xóa ảnh thành công");
       fetchImages();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -118,12 +104,7 @@ const ProductImage = () => {
       setSuccess(`Xóa thành công ${ids.length} ảnh`);
       fetchImages();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }

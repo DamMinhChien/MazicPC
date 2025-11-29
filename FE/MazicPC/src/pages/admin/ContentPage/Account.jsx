@@ -5,6 +5,7 @@ import MyToast from "../../../components/MyToast";
 import MyFullSpinner from "@components/MyFullSpinner";
 import SubmitContext from "@utils/SubmitContext";
 import accountSchema from "../../../schemas/admin/accountSchema";
+import { parseApiError } from "../../../utils/helper";
 
 const Account = () => {
   const [accounts, setAccounts] = useState([]);
@@ -60,13 +61,7 @@ const Account = () => {
       setSuccess("Thêm tài khoản thành công");
       setAccounts((prev) => [...prev, res]);
     } catch (error) {
-      setLoading(false);
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -78,13 +73,7 @@ const Account = () => {
       setSuccess("Cập nhật tài khoản thành công");
       fetAccounts();
     } catch (error) {
-      setLoading(false);
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -97,13 +86,7 @@ const Account = () => {
       setSuccess("Xóa tài khoản thành công");
       fetAccounts();
     } catch (error) {
-      setLoading(false);
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -115,13 +98,7 @@ const Account = () => {
       setSuccess(`Xóa thành công ${ids.length} tài khoản`);
       fetAccounts();
     } catch (error) {
-      setLoading(false);
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }

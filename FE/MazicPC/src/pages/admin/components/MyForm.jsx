@@ -33,7 +33,16 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
   }, []);
 
   useEffect(() => {
+    if (Object.keys(options).length > 0 && defaultValues) {
+      reset(defaultValues);
+    }
+  }, [options, defaultValues]);
+
+  useEffect(() => {
     const fileField = fields.find((f) => f.type === "file")?.name;
+    console.log("field: ", fields);
+    console.log("fileField: ", fileField);
+    console.log("defaultValues: ", defaultValues);
     if (
       mode === "edit" &&
       defaultValues &&
@@ -57,6 +66,7 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
     console.log("Sửa từ MyForm:", data);
     console.log("DefaultValues:", defaultValues);
     console.log("fields:", fields);
+    
     if (mode === "edit") {
       // console.log("schema:", Object.keys(schema.shape));
       // Lấy file (nếu có)
@@ -69,7 +79,7 @@ const MyForm = ({ schema, defaultValues, fields, mode }) => {
       handleAdd(rest);
       console.log("Thêm từ MyForm:", rest);
     }
-  };
+  };console.log("options:", options);
 
   return (
     <Form

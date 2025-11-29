@@ -7,6 +7,7 @@ import MyToast from "../../../components/MyToast";
 import MyFullSpinner from "@components/MyFullSpinner";
 import SubmitContext from "@utils/SubmitContext";
 import promotionSchema from "../../../schemas/admin/promotionSchema";
+import { parseApiError } from "../../../utils/helper";
 
 const ProductPromotion = () => {
   const [promotions, setPromotions] = useState([]);
@@ -92,10 +93,7 @@ const ProductPromotion = () => {
       setSuccess("Thêm khuyến mãi thành công");
       fetchPromotions();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors))
-        setError(errors.map((e) => e.message).join(", "));
-      else setError(errors.message || error.message);
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -124,10 +122,7 @@ const ProductPromotion = () => {
       setSuccess("Cập nhật khuyến mãi thành công");
       fetchPromotions();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors))
-        setError(errors.map((e) => e.message).join(", "));
-      else setError(errors.message || error.message);
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -141,10 +136,7 @@ const ProductPromotion = () => {
       setSuccess("Xóa khuyến mãi thành công");
       fetchPromotions();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors))
-        setError(errors.map((e) => e.message).join(", "));
-      else setError(errors.message || error.message);
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -158,10 +150,7 @@ const ProductPromotion = () => {
       setSuccess(`Xóa thành công ${ids.length} khuyến mãi`);
       fetchPromotions();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors))
-        setError(errors.map((e) => e.message).join(", "));
-      else setError(errors.message || error.message);
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }

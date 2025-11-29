@@ -7,6 +7,7 @@ import productSchema from "../../../schemas/admin/productSchema";
 import productService from "../../../apis/productService";
 import manufacturerService from "../../../apis/manufacturerService";
 import categoryServices from "../../../apis/categoryService";
+import { parseApiError } from "../../../utils/helper";
 
 const Product = () => {
   const [products, setProducts] = useState([]);
@@ -34,25 +35,7 @@ const Product = () => {
       const res = await categoryServices.getCategoriesNotRoot();
       setCategoryNotRoot(res);
     } catch (error) {
-      let data = error.response?.data;
-
-      if (typeof data === "string") {
-        try {
-          data = JSON.parse(data);
-        } catch {}
-      }
-
-      if (data?.errors && Array.isArray(data.errors)) {
-        setError(data.errors.map((e) => e.errorMessage).join(", "));
-        return;
-      }
-
-      if (Array.isArray(data)) {
-        setError(data.map((e) => e.errorMessage).join(", "));
-        return;
-      }
-
-      setError(data?.message || error.message);
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -109,7 +92,7 @@ const Product = () => {
     { name: "price", label: "Giá", type: "number" },
     { name: "stockQty", label: "Số lượng tồn", type: "number" },
     { name: "warrantyMonths", label: "Bảo hành (tháng)", type: "number" },
-    { name: "file", label: "Ảnh", type: "file" },
+    { name: "imageUrl", label: "Ảnh", type: "file" },
     { name: "videoUrl", label: "Link video sản phẩm", type: "url" },
 
     // Thông số kỹ thuật
@@ -148,25 +131,7 @@ const Product = () => {
       fetchCategoriesNotRoot();
       loadManufacturers();
     } catch (error) {
-      let errMsg = "Đã xảy ra lỗi không xác định";
-
-      if (error.response) {
-        const data = error.response.data;
-
-        if (typeof data === "string") {
-          errMsg = data;
-        } else if (Array.isArray(data)) {
-          errMsg = data.map((e) => e.message || JSON.stringify(e)).join(", ");
-        } else if (typeof data === "object" && data !== null) {
-          errMsg = data.message || JSON.stringify(data);
-        } else {
-          errMsg = String(data);
-        }
-      } else {
-        errMsg = error.message;
-      }
-
-      setError(errMsg);
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -183,28 +148,7 @@ const Product = () => {
       fetchCategoriesNotRoot();
       loadManufacturers();
     } catch (error) {
-      let errMsg = "Đã xảy ra lỗi không xác định";
-
-      if (error.response) {
-        const data = error.response.data;
-
-        if (typeof data === "string") {
-          // server trả về text thuần
-          errMsg = data;
-        } else if (Array.isArray(data)) {
-          // server trả về mảng lỗi
-          errMsg = data.map((e) => e.message || JSON.stringify(e)).join(", ");
-        } else if (typeof data === "object" && data !== null) {
-          // server trả về JSON object
-          errMsg = data.message || JSON.stringify(data);
-        } else {
-          errMsg = String(data);
-        }
-      } else {
-        errMsg = error.message;
-      }
-
-      setError(errMsg);
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -219,12 +163,7 @@ const Product = () => {
       fetchCategoriesNotRoot();
       loadManufacturers();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.message).join(", "));
-      } else {
-        setError(errors.message || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -239,12 +178,7 @@ const Product = () => {
       fetchCategoriesNotRoot();
       loadManufacturers();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors)) {
-        setError(errors.map((e) => e.errorMessage).join(", "));
-      } else {
-        setError(errors.errorMessage || error.message);
-      }
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }

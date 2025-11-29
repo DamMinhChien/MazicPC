@@ -5,6 +5,7 @@ import MyToast from "../../../components/MyToast";
 import MyFullSpinner from "@components/MyFullSpinner";
 import SubmitContext from "@utils/SubmitContext";
 import couponSchema from "../../../schemas/admin/couponSchema";
+import { parseApiError } from "../../../utils/helper";
 
 const Coupon = () => {
   const [coupons, setCoupons] = useState([]);
@@ -47,10 +48,7 @@ const Coupon = () => {
       setSuccess("Thêm mã giảm giá thành công");
       fetchCoupons();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors))
-        setError(errors.map((e) => e.message).join(", "));
-      else setError(errors.message || error.message);
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -63,10 +61,7 @@ const Coupon = () => {
       setSuccess("Cập nhật mã giảm giá thành công");
       fetchCoupons();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors))
-        setError(errors.map((e) => e.message).join(", "));
-      else setError(errors.message || error.message);
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -79,10 +74,7 @@ const Coupon = () => {
       setSuccess("Xóa mã giảm giá thành công");
       fetchCoupons();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors))
-        setError(errors.map((e) => e.message).join(", "));
-      else setError(errors.message || error.message);
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
@@ -95,10 +87,7 @@ const Coupon = () => {
       setSuccess(`Xóa thành công ${ids.length} mã giảm giá`);
       fetchCoupons();
     } catch (error) {
-      const errors = error.response?.data || error.message;
-      if (Array.isArray(errors))
-        setError(errors.map((e) => e.message).join(", "));
-      else setError(errors.message || error.message);
+      setError(parseApiError(error));
     } finally {
       setLoading(false);
     }
