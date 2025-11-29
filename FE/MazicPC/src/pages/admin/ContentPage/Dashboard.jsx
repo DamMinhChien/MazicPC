@@ -19,16 +19,24 @@ const Dashboard = () => {
     queryFn: statsService.getTotalsAdmin,
   });
 
-  const { data: revenueData = {}, isLoading: loadingRevenue } = useQuery({
-    queryKey: ["stats_revenue"],
-    queryFn: statsService.getRevenue,
+  const { data: revenueByWeekData = {}, isLoading: loadingRevenue } = useQuery({
+    queryKey: ["stats_revenueByWeek"],
+    queryFn: statsService.getRevenueByWeek,
   });
 
-    const { data: revenueByCategoryData = {}, isLoading: loadingRevenueByCategoryData } = useQuery({
+  const {
+    data: revenueByCategoryData = {},
+    isLoading: loadingRevenueByCategoryData,
+  } = useQuery({
     queryKey: ["stats_revenueByCategoryData"],
     queryFn: statsService.getRevenueByCategoryData,
   });
 
+  const { data: revenueData = {}, isLoading: loadingRevenueData } = useQuery({
+    queryKey: ["stats_revenue"],
+    queryFn: statsService.getRevenue,
+  });
+  
   const { data: categoryData = {}, isLoading: loadingCategory } = useQuery({
     queryKey: ["stats_category"],
     queryFn: statsService.getStatisticByCategory,
@@ -39,15 +47,17 @@ const Dashboard = () => {
     queryFn: statsService.getStatisticByManufacturer,
   });
 
-  const labels = revenueData.labels || [];
-  const revenue = revenueData.data || [];
+  const labels = revenueByWeekData.labels || [];
+  const revenue = revenueByWeekData.data || [];
 
   const labelsByCategory = revenueByCategoryData.labels || [];
-  const revenueByCategory = revenueByCategoryData.data|| [];
+  const revenueByCategory = revenueByCategoryData.data || [];
+
+  const totalRevenue = revenueData || 0;
 
   const colors = chroma
-  .scale(["#4e79a7", "#f28e2b", "#e15759"])
-  .colors(labelsByCategory.length)
+    .scale(["#4e79a7", "#f28e2b", "#e15759"])
+    .colors(labelsByCategory.length);
 
   return (
     <div>
@@ -65,7 +75,7 @@ const Dashboard = () => {
             <DashboardWidget
               color="primary"
               title="Doanh thu"
-              value="₫9.000.000"
+              value={totalRevenue.toLocaleString("vi-VN") + " ₫"}
               percent={40.9}
               trend="up"
               chartType="line"
@@ -164,7 +174,7 @@ const Dashboard = () => {
                   responsive: true,
                   maintainAspectRatio: false,
                 }}
-                style={{ height: '325px' }}
+                style={{ height: "325px" }}
               />
             </CCardBody>
           </CCard>
@@ -173,7 +183,14 @@ const Dashboard = () => {
 
       {/* ==== LOADING ==== */}
       <MyFullSpinner
-        show={loadingTotals || loadingCategory || loadingManu || loadingRevenue}
+        show={
+          loadingTotals ||
+          loadingCategory ||
+          loadingManu ||
+          loadingRevenue ||
+          loadingRevenueByCategoryData ||
+          loadingRevenueData
+        }
       />
     </div>
   );
