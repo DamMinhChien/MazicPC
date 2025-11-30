@@ -3,8 +3,10 @@ using System.Collections.Generic;
 
 namespace MazicPC.Models;
 
+/// Represents a discount coupon that can be applied to orders.
 public partial class Coupon
 {
+ 
     public int Id { get; set; }
 
     public string Code { get; set; } = null!;

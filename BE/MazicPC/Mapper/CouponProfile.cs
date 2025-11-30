@@ -9,6 +9,7 @@ namespace MazicPC.Mapper
     {
         public CouponProfile()
         {
+            //MAPPer
             CreateMap<CouponDto, Coupon>().ReverseMap();
             CreateMap<Coupon, GetCouponDto>();
         }
