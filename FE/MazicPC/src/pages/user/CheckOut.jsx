@@ -82,11 +82,12 @@ const getErrorMessage = (error) => {
 
 const CheckOut = () => {
   const navigate = useNavigate();
+  const addNewAddress = () => navigate(ROUTERS.USER.ADDRESS);
   const user = useSelector((s) => s.auth?.user);
   const { state } = useLocation();
   const queryClient = useQueryClient();
 
-  // ✅ nhận items & from từ route
+  // nhận items & from từ route
   const items = state?.items || [];
   const from = state?.from || "detail";
 

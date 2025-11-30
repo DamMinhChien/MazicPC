@@ -30,17 +30,25 @@ const orderServices = {
     return res.data;
   },
 
-  // 🔄 Admin: Cập nhật trạng thái đơn hàng
+  // Admin: Cập nhật trạng thái đơn hàng
   async updateOrderStatus(order) {
-    const res = await axiosClient.put(`Orders/${order.id}/status`, { status: order.status });
+    const res = await axiosClient.put(`Orders/${order.id}/status`, {
+      status: order.status,
+    });
     return res.data;
   },
 
-  // // 💳 Lấy thông tin thanh toán của 1 đơn hàng
+  //  Lấy thông tin thanh toán của 1 đơn hàng
   // async getOrderPayments(id) {
   //   const res = await axiosClient.get(`Orders/${id}/payments`);
   //   return res.data;
   // },
+
+  //  Trả hàng
+  async returnOrder(id) {
+    const response = await axiosClient.put(`/orders/${id}/return`);
+    return response.data;
+  },
 };
 
 export default orderServices;

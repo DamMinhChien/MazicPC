@@ -20,7 +20,6 @@ import Cart from "./pages/user/Cart";
 import CheckOut from "./pages/user/CheckOut";
 import Address from "./pages/user/Address";
 import Profile from "./pages/user/Profile";
-import Order from "./pages/user/Order";
 import PaymentSuccess from "./pages/common/paymentSuccessPage/PaymentSuccess";
 import Purchase from "./pages/user/Purchase";
 import Shop from "./pages/user/static/shop/shop";
@@ -79,12 +78,6 @@ const RouterCustom = () => {
       private: true,
       allowedRoles: ["user", "admin"],
       layout: false,
-    },
-    {
-      path: ROUTERS.USER.ORDER,
-      component: <Order />,
-      private: true,
-      allowedRoles: ["user"],
     },
     {
       path: ROUTERS.USER.PURCHASE,
