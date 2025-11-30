@@ -4,7 +4,8 @@ using System.Collections.Generic;
 namespace MazicPC.Models;
 
 public partial class Review
-{
+{ 
+    //model riview
     public int Id { get; set; }
 
     public int ProductId { get; set; }
