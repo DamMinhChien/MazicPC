@@ -136,13 +136,13 @@ namespace MazicPC.Controllers
                 }
 
                 // 5️⃣ Cập nhật Payment
-                var payment = order.Payments.FirstOrDefault();
-                if (payment != null)
-                {
-                    payment.Status = PaymentStatus.Cancelled.ToString();
-                    payment.UpdatedAt = DateTime.UtcNow;
+                //var payment = order.Payments.FirstOrDefault();
+                //if (payment != null)
+                //{
+                //    payment.Status = PaymentStatus.Cancelled.ToString();
+                //    payment.UpdatedAt = DateTime.UtcNow;
 
-                }
+                //}
 
                 // 6️⃣ Lưu tất cả thay đổi
                 await _context.SaveChangesAsync();
@@ -365,6 +365,34 @@ namespace MazicPC.Controllers
                 await transaction.RollbackAsync();
                 return BadRequest($"Lỗi khi tạo đơn hàng: {ex.Message}");
             }
+        }
+        [HttpPut("{id}/return")]
+        [Authorize(Roles = Roles.User)]
+        public async Task<IActionResult> RequestReturn(int id)
+        {
+            var accountId = this.GetCurrentAccountId();
+            if (accountId == null) return Unauthorized();
+
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .Include(o => o.Payments)
+                .FirstOrDefaultAsync(o => o.Id == id && o.AccountId == accountId);
+
+            if (order == null)
+                return NotFound("Không tìm thấy đơn hàng.");
+
+            var status = System.Enum.Parse<OrderStatus>(order.Status);
+
+            if (status != OrderStatus.Completed)
+                return BadRequest("Chỉ có thể yêu cầu trả hàng khi đơn đã giao thành công.");
+
+            // Cập nhật trạng thái
+            order.Status = OrderStatus.Returning.ToString();
+            order.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Yêu cầu trả hàng đã được gửi.");
         }
 
 

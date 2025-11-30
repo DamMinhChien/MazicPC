@@ -30,7 +30,7 @@ namespace MazicPC.Controllers
         [Authorize(Roles = Roles.User)]
         public async Task<IActionResult> CreatePayment([FromBody] MoMoPaymentRequestDto dto)
         {
-            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == dto.OrderId);
+            var order = await _context.Orders.Include(o => o.Payments).FirstOrDefaultAsync(o => o.Id == dto.OrderId);
             if (order == null) return BadRequest("Đơn hàng không tồn tại");
 
             var endpoint = _config["MoMo:CreateEndpoint"];
@@ -48,10 +48,8 @@ namespace MazicPC.Controllers
             string extraData = order.Id.ToString();
 
             string rawHash = $"accessKey={accessKey}&amount={amount}&extraData={extraData}&ipnUrl={ipnUrl}&orderId={orderId}&orderInfo={orderInfo}&partnerCode={partnerCode}&redirectUrl={returnUrl}&requestId={requestId}&requestType={requestType}";
-
             using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey!));
-            var signatureBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(rawHash));
-            string signature = BitConverter.ToString(signatureBytes).Replace("-", "").ToLower();
+            var signature = BitConverter.ToString(hmac.ComputeHash(Encoding.UTF8.GetBytes(rawHash))).Replace("-", "").ToLower();
 
             var payload = new
             {
@@ -69,40 +67,50 @@ namespace MazicPC.Controllers
                 signature
             };
 
-            //post đến server momo
             var client = _httpClientFactory.CreateClient();
             var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
             var response = await client.PostAsync(endpoint, content);
             var responseBody = await response.Content.ReadAsStringAsync();
 
-            var payment = order.Payments.FirstOrDefault();
+            Console.WriteLine("MoMo CreatePayment Response Raw:");
+            Console.WriteLine(responseBody);
+
+            // Cập nhật payment trạng thái Processing
+            var payment = order.Payments.Where(p => p.PaymentMethod.ToLower() == PaymentMethodType.momo.ToString().ToLower())
+                   .OrderByDescending(p => p.CreatedAt).FirstOrDefault();
             if (payment != null)
             {
                 payment.Status = PaymentStatus.Processing.ToString();
+                payment.CreatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
 
             return Content(responseBody, "application/json");
         }
 
+
         [HttpPost("notify")]
         public async Task<IActionResult> MoMoNotify([FromBody] MoMoNotifyDto data)
         {
             Console.WriteLine("MoMo callback: " + JsonConvert.SerializeObject(data));
 
-            int orderId = int.Parse(data.ExtraData);
+            if (!int.TryParse(data.ExtraData, out int orderId))
+                return BadRequest();
+
             var order = await _context.Orders.Include(o => o.Payments)
                                              .FirstOrDefaultAsync(o => o.Id == orderId);
-            if (order == null) return BadRequest();
+            if (order == null)
+                return BadRequest();
 
-            var payment = order.Payments.FirstOrDefault();
+            var payment = order.Payments.Where(p => p.PaymentMethod.ToLower() == PaymentMethodType.momo.ToString().ToLower())
+                   .OrderByDescending(p => p.CreatedAt).FirstOrDefault();
             if (payment != null)
             {
                 if (data.ResultCode == 0)
                 {
                     payment.Status = PaymentStatus.Completed.ToString();
-                    payment.TransactionCode = data.TransId.ToString();
-                    payment.PaidAt = DateTime.Now;
+                    payment.TransactionCode = data.TransId.ToString(); // ✅ lưu TransId thực
+                    payment.PaidAt = DateTime.UtcNow;
                     order.Status = OrderStatus.Confirmed.ToString();
                 }
                 else
@@ -116,15 +124,17 @@ namespace MazicPC.Controllers
             return Ok();
         }
 
+
         [HttpPost("refund-payment")]
         [Authorize(Roles = Roles.User)]
         public async Task<IActionResult> RefundPayment([FromBody] MoMoPaymentRequestDto dto)
         {
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == dto.OrderId);
             if (order == null) return BadRequest("Đơn hàng không tồn tại");
-            if (order.Status != OrderStatus.Cancelled.ToString()) return BadRequest("Cần phải hủy đơn hàng trước khi thanh toán");
+            if (order.Status != OrderStatus.Cancelled.ToString() && order.Status != OrderStatus.Returned.ToString()) return BadRequest("Cần phải hủy đơn hàng hoặc đã trả hàng trước khi hoàn tiền");
 
-            var payment = order.Payments.FirstOrDefault();
+            var payment = order.Payments.Where(p => p.PaymentMethod.ToLower() == PaymentMethodType.momo.ToString().ToLower())
+                   .OrderByDescending(p => p.CreatedAt).FirstOrDefault();
             if (payment == null || payment.PaymentMethod.ToLower() != PaymentMethodType.momo.ToString()) return BadRequest("Đơn hàng chưa được thanh toán hoặc không phải thanh toán bằng MoMo");
 
             var endpoint = _config["MoMo:RefundEndpoint"];
@@ -160,11 +170,21 @@ namespace MazicPC.Controllers
                 signature
             };
 
+            Console.WriteLine($"MoMo Refund Request:");
+            Console.WriteLine($"endpoint: {endpoint}");
+            Console.WriteLine($"rawHash: {rawHash}");
+            Console.WriteLine($"signature: {signature}");
+            Console.WriteLine($"payload: {JsonConvert.SerializeObject(payload)}");
+
             // post đến server momo
             var client = _httpClientFactory.CreateClient();
             var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
             var response = await client.PostAsync(endpoint, content);
             var responseBody = await response.Content.ReadAsStringAsync();
+
+            Console.WriteLine("MoMo Refund Response:");
+            Console.WriteLine($"statusCode: {response.StatusCode}");
+            Console.WriteLine($"body: {responseBody}");
 
             // parse JSON
             var momoResponse = JsonConvert.DeserializeObject<MomoRefundResponseDto>(responseBody);
@@ -180,10 +200,10 @@ namespace MazicPC.Controllers
             }
 
             // refund thành công
-            payment.TransactionCode = momoResponse.TransId.ToString();
+            //payment.TransactionCode = momoResponse.TransId.ToString();
             payment.Status = PaymentStatus.Refunded.ToString();
             payment.UpdatedAt = DateTime.Now;
-            order.Status = OrderStatus.Returning.ToString();
+            order.Status = OrderStatus.Returned.ToString();
             await _context.SaveChangesAsync();
 
             return Ok(momoResponse.Message);

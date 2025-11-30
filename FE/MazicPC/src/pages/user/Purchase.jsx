@@ -22,6 +22,9 @@ const getPaymentStatusLabel = (status) => {
     case "Pending":
       return "Chờ thanh toán";
 
+    case "Processing":
+      return "Đang xử lý thanh toán";
+
     case "Failed":
       return "Thanh toán thất bại";
 
@@ -38,7 +41,6 @@ const getPaymentStatusLabel = (status) => {
       return "Không xác định";
   }
 };
-
 
 // Helper function to format price
 const formatPrice = (v) =>
@@ -68,14 +70,22 @@ const STATUS_BADGES = {
 };
 
 // Chuẩn hóa status từ server
-const normalizeStatus = (s) => String(s ?? "").trim().toUpperCase();
+const normalizeStatus = (s) =>
+  String(s ?? "")
+    .trim()
+    .toUpperCase();
 
 const Purchase = () => {
   const queryClient = useQueryClient();
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showRefundModal, setShowRefundModal] = useState(false);
-  const [toast, setToast] = useState({ show: false, message: "", type: "success" });
+  const [showReturnModal, setShowReturnModal] = useState(false);
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    type: "success",
+  });
   const [statusFilter, setStatusFilter] = useState("ALL");
 
   // Fetch orders
@@ -89,11 +99,19 @@ const Purchase = () => {
     mutationFn: (orderId) => orderServices.cancelOrder(orderId),
     onSuccess: () => {
       queryClient.invalidateQueries(["orders"]);
-      setToast({ show: true, message: "Đã hủy đơn hàng thành công", type: "success" });
+      setToast({
+        show: true,
+        message: "Đã hủy đơn hàng thành công",
+        type: "success",
+      });
       setShowCancelModal(false);
     },
     onError: (err) => {
-      setToast({ show: true, message: err?.message || "Hủy đơn hàng thất bại", type: "danger" });
+      setToast({
+        show: true,
+        message: err?.message || "Hủy đơn hàng thất bại",
+        type: "danger",
+      });
     },
   });
 
@@ -102,11 +120,40 @@ const Purchase = () => {
     mutationFn: (orderId) => momoService.refundPayment(orderId),
     onSuccess: () => {
       queryClient.invalidateQueries(["orders"]);
-      setToast({ show: true, message: "Hoàn tiền thành công", type: "success" });
+      setToast({
+        show: true,
+        message: "Hoàn tiền thành công",
+        type: "success",
+      });
       setShowRefundModal(false);
     },
     onError: (err) => {
-      setToast({ show: true, message: err?.response?.data || err?.message || "Hoàn tiền thất bại", type: "danger" });
+      setToast({
+        show: true,
+        message: err?.response?.data || err?.message || "Hoàn tiền thất bại",
+        type: "danger",
+      });
+    },
+  });
+
+  // Return order mutation
+  const returnMutation = useMutation({
+    mutationFn: (orderId) => orderServices.returnOrder(orderId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["orders"]);
+      setToast({
+        show: true,
+        message: "Yêu cầu trả hàng thành công",
+        type: "success",
+      });
+      setShowReturnModal(false);
+    },
+    onError: (err) => {
+      setToast({
+        show: true,
+        message: err?.message || "Yêu cầu trả hàng thất bại",
+        type: "danger",
+      });
     },
   });
 
@@ -120,10 +167,18 @@ const Purchase = () => {
     setShowRefundModal(true);
   };
 
+  const handleReturn = (order) => {
+    setSelectedOrder(order);
+    setShowReturnModal(true);
+  };
+
   // Filter orders by selected status
   const filteredOrders = orders.filter((order) => {
     const ordStatus = normalizeStatus(order.status);
-    return normalizeStatus(statusFilter) === "ALL" || ordStatus === normalizeStatus(statusFilter);
+    return (
+      normalizeStatus(statusFilter) === "ALL" ||
+      ordStatus === normalizeStatus(statusFilter)
+    );
   });
 
   if (isLoading) {
@@ -134,8 +189,9 @@ const Purchase = () => {
     );
   }
 
-  const statusForCancelButton = ["PENDING", "CONFIRMED", "COMPLETED"];
-  const statusForRefundButton = ["CANCELLED"];
+  const statusForCancelButton = ["PENDING", "CONFIRMED"];
+  const statusForRefundButton = ["CANCELLED", "RETURNED"];
+  const statusForReturnButton = ["COMPLETED"];
 
   return (
     <Container className="py-5">
@@ -175,12 +231,18 @@ const Purchase = () => {
               <div className="d-flex justify-content-between align-items-center">
                 <h6 className="mb-0">
                   Đơn hàng #{order.id}
-                  <span className="text-muted ms-2">· {formatDate(order.createdAt)}</span>
+                  <span className="text-muted ms-2">
+                    · {formatDate(order.createdAt)}
+                  </span>
                 </h6>
                 <Badge
-                  bg={STATUS_BADGES[normalizeStatus(order.status)]?.bg || "secondary"}
+                  bg={
+                    STATUS_BADGES[normalizeStatus(order.status)]?.bg ||
+                    "secondary"
+                  }
                 >
-                  {STATUS_BADGES[normalizeStatus(order.status)]?.text || order.status}
+                  {STATUS_BADGES[normalizeStatus(order.status)]?.text ||
+                    order.status}
                 </Badge>
               </div>
             </Card.Header>
@@ -205,7 +267,8 @@ const Purchase = () => {
                   <FaMapMarkerAlt className="text-danger mt-1 me-2" />
                   <div>
                     <div className="fw-semibold">
-                      {order.shippingAddress.fullName} · {order.shippingAddress.phone}
+                      {order.shippingAddress.fullName} ·{" "}
+                      {order.shippingAddress.phone}
                     </div>
                     <div className="text-muted small">
                       {order.shippingAddress.detailAddress},{" "}
@@ -225,7 +288,8 @@ const Purchase = () => {
                         : `Thanh toán điện tử (${order.payment.paymentMethod})`}
                     </div>
                     <div className="text-muted small">
-                      Trạng thái: {getPaymentStatusLabel(order?.payment?.status)}
+                      Trạng thái:{" "}
+                      {getPaymentStatusLabel(order?.payment?.status)}
                     </div>
                   </div>
                 </div>
@@ -233,33 +297,52 @@ const Purchase = () => {
                 <div className="d-flex justify-content-between align-items-center mt-3">
                   <div className="text-muted">Tổng tiền</div>
                   <div>
-                    <span className="fs-5 fw-bold text-danger">{formatPrice(order.totalAmount)}</span>
+                    <span className="fs-5 fw-bold text-danger">
+                      {formatPrice(order.totalAmount)}
+                    </span>
                   </div>
                 </div>
 
                 {/* Nút hành động */}
                 <div className="text-end mt-3">
-                  {statusForCancelButton.includes(normalizeStatus(order.status)) && (
+                  {statusForCancelButton.includes(
+                    normalizeStatus(order.status)
+                  ) && (
                     <Button
                       variant="outline-danger"
                       size="sm"
                       onClick={() => handleCancel(order)}
+                      className="me-2"
                     >
                       Hủy đơn hàng
                     </Button>
                   )}
 
-                  {statusForRefundButton.includes(normalizeStatus(order.status)) &&
+                  {statusForReturnButton.includes(
+                    normalizeStatus(order.status)
+                  ) && (
+                    <Button
+                      variant="outline-warning"
+                      size="sm"
+                      onClick={() => handleReturn(order)}
+                      className="me-2"
+                    >
+                      Trả hàng
+                    </Button>
+                  )}
+
+                  {statusForRefundButton.includes(
+                    normalizeStatus(order.status)
+                  ) &&
                     order.payment.paymentMethod === "MOMO" && (
                       <Button
                         variant="outline-success"
                         size="sm"
                         onClick={() => handleRefund(order)}
                       >
-                        {console.log("order:", order)}
                         Hoàn tiền
                       </Button>
-                  )}
+                    )}
                 </div>
               </ListGroup.Item>
             </ListGroup>
@@ -274,7 +357,9 @@ const Purchase = () => {
         </Modal.Header>
         <Modal.Body>
           <p>Bạn có chắc chắn muốn hủy đơn hàng #{selectedOrder?.id}?</p>
-          <p className="text-muted small mb-0">Lưu ý: Hành động này không thể hoàn tác.</p>
+          <p className="text-muted small mb-0">
+            Lưu ý: Hành động này không thể hoàn tác.
+          </p>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowCancelModal(false)}>
@@ -285,7 +370,13 @@ const Purchase = () => {
             onClick={() => cancelMutation.mutate(selectedOrder?.id)}
             disabled={cancelMutation.isLoading}
           >
-            {cancelMutation.isLoading ? <><Spinner animation="border" size="sm" /> Đang hủy...</> : "Xác nhận hủy"}
+            {cancelMutation.isLoading ? (
+              <>
+                <Spinner animation="border" size="sm" /> Đang hủy...
+              </>
+            ) : (
+              "Xác nhận hủy"
+            )}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -296,8 +387,12 @@ const Purchase = () => {
           <Modal.Title>Xác nhận hoàn tiền</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>Bạn có chắc chắn muốn hoàn tiền cho đơn hàng #{selectedOrder?.id}?</p>
-          <p className="text-muted small mb-0">Tiền hoàn sẽ được gửi về tài khoản của khách hàng.</p>
+          <p>
+            Bạn có chắc chắn muốn hoàn tiền cho đơn hàng #{selectedOrder?.id}?
+          </p>
+          <p className="text-muted small mb-0">
+            Tiền hoàn sẽ được gửi về tài khoản của khách hàng.
+          </p>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowRefundModal(false)}>
@@ -308,7 +403,47 @@ const Purchase = () => {
             onClick={() => refundMutation.mutate(selectedOrder?.id)}
             disabled={refundMutation.isLoading}
           >
-            {refundMutation.isLoading ? <><Spinner animation="border" size="sm" /> Đang hoàn tiền...</> : "Xác nhận hoàn tiền"}
+            {refundMutation.isLoading ? (
+              <>
+                <Spinner animation="border" size="sm" /> Đang hoàn tiền...
+              </>
+            ) : (
+              "Xác nhận hoàn tiền"
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Return Modal */}
+      <Modal show={showReturnModal} onHide={() => setShowReturnModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Xác nhận trả hàng</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            Bạn có chắc chắn muốn trả lại sản phẩm của đơn hàng #
+            {selectedOrder?.id}?
+          </p>
+          <p className="text-muted small mb-0">
+            Lưu ý: Vui lòng đảm bảo sản phẩm còn trong tình trạng tốt.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowReturnModal(false)}>
+            Đóng
+          </Button>
+          <Button
+            variant="warning"
+            onClick={() => returnMutation.mutate(selectedOrder?.id)}
+            disabled={returnMutation.isLoading}
+          >
+            {returnMutation.isLoading ? (
+              <>
+                <Spinner animation="border" size="sm" /> Đang xử lý...
+              </>
+            ) : (
+              "Xác nhận trả hàng"
+            )}
           </Button>
         </Modal.Footer>
       </Modal>
