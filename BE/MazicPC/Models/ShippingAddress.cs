@@ -5,6 +5,7 @@ namespace MazicPC.Models;
 
 public partial class ShippingAddress
 {
+    //SHipping
     public int Id { get; set; }
 
     public int AccountId { get; set; }
