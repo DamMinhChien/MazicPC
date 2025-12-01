@@ -145,7 +145,7 @@ namespace MazicPC.Controllers
 
                 // 5️⃣ Cập nhật Payment
                 var payment = order.Payments.FirstOrDefault();
-                if (payment != null && payment.PaymentMethod == PaymentMethodType.cod.ToString())
+                if (payment != null && payment.PaymentMethod.ToLower() == PaymentMethodType.cod.ToString().ToLower())
                 {
                     payment.Status = PaymentStatus.Cancelled.ToString();
                     payment.UpdatedAt = DateTime.UtcNow;
@@ -177,8 +177,11 @@ namespace MazicPC.Controllers
             if (!SysEnum.TryParse(dto.Status, true, out OrderStatus newStatus))
                 return BadRequest("Trạng thái không hợp lệ.");
 
-            // 2️⃣ Lấy đơn hàng
-            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
+            // 2️⃣ Lấy đơn hàng cùng các payment và order items
+            var order = await _context.Orders
+                .Include(o => o.Payments)
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == id);
 
             if (order == null)
                 return NotFound("Không tìm thấy đơn hàng.");
@@ -191,11 +194,25 @@ namespace MazicPC.Controllers
 
             // 4️⃣ Cập nhật trạng thái đơn hàng
             order.Status = newStatus.ToString();
-            order.UpdatedAt = DateTime.Now;
+            order.UpdatedAt = DateTime.UtcNow;
 
-            // 5️⃣ Đồng bộ trạng thái thanh toán
+            // 5️⃣ Bù lại stock nếu trạng thái là Returned
+            if (newStatus == OrderStatus.Returned)
+            {
+                foreach (var item in order.OrderItems)
+                {
+                    var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == item.ProductId);
+                    if (product != null)
+                    {
+                        product.StockQty += item.Quantity;
+                        product.UpdatedAt = DateTime.UtcNow;
+                    }
+                }
+            }
+
+            // 6️⃣ Đồng bộ trạng thái thanh toán (chỉ với COD)
             var payment = order.Payments.FirstOrDefault();
-            if (payment != null && payment.PaymentMethod == PaymentMethodType.cod.ToString())
+            if (payment != null && payment.PaymentMethod.ToLower() == PaymentMethodType.cod.ToString().ToLower())
             {
                 switch (newStatus)
                 {
@@ -229,6 +246,7 @@ namespace MazicPC.Controllers
                 newStatus = newStatus.ToString()
             });
         }
+
 
         [HttpPost]
         [Authorize(Roles = Roles.User)]
