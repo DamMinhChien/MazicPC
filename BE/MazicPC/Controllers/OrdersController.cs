@@ -26,6 +26,17 @@ namespace MazicPC.Controllers
         private readonly IMapper _mapper;
         private readonly PromotionHelper _promotionHelper;
 
+        private static readonly Dictionary<OrderStatus, OrderStatus[]> ValidTransitions = new()
+        {
+            { OrderStatus.Pending,    new[] { OrderStatus.Confirmed, OrderStatus.Cancelled } },
+            { OrderStatus.Confirmed,  new[] { OrderStatus.Delivering, OrderStatus.Cancelled } },
+            { OrderStatus.Delivering, new[] { OrderStatus.Completed, OrderStatus.Returning } },
+            { OrderStatus.Completed,  new[] { OrderStatus.Returning } },
+            { OrderStatus.Returning,  new[] { OrderStatus.Returned } },
+            { OrderStatus.Returned,   Array.Empty<OrderStatus>() },
+            { OrderStatus.Cancelled,  Array.Empty<OrderStatus>() }
+        };
+
         public OrdersController(MazicPcContext context, IMapper mapper, PromotionHelper promotionHelper)
         {
             _context = context;
@@ -110,14 +121,11 @@ namespace MazicPC.Controllers
                     return NotFound("Không tìm thấy đơn hàng.");
 
                 // 2️⃣ Kiểm tra trạng thái có thể hủy
-                if (order.Status == OrderStatus.Cancelled.ToString())
-                    return BadRequest("Đơn hàng đã bị hủy trước đó.");
+                var status = SysEnum.Parse<OrderStatus>(order.Status);
 
-                if (order.Status == OrderStatus.Delivering.ToString() ||
-                    order.Status == OrderStatus.Completed.ToString() ||
-                    order.Status == OrderStatus.Returning.ToString() ||
-                    order.Status == OrderStatus.Returned.ToString())
-                    return BadRequest("Đơn hàng đã giao, đang vận chuyển, đang hoàn hàng hoặc đã hoàn, không thể hủy.");
+                // Chỉ cho cancel ở Pending hoặc Confirmed
+                if (status != OrderStatus.Pending && status != OrderStatus.Confirmed)
+                    return BadRequest("Không thể hủy đơn hàng ở trạng thái hiện tại.");
 
                 // 3️⃣ Cập nhật trạng thái đơn hàng
                 order.Status = OrderStatus.Cancelled.ToString();
@@ -136,13 +144,12 @@ namespace MazicPC.Controllers
                 }
 
                 // 5️⃣ Cập nhật Payment
-                //var payment = order.Payments.FirstOrDefault();
-                //if (payment != null)
-                //{
-                //    payment.Status = PaymentStatus.Cancelled.ToString();
-                //    payment.UpdatedAt = DateTime.UtcNow;
-
-                //}
+                var payment = order.Payments.FirstOrDefault();
+                if (payment != null && payment.PaymentMethod == PaymentMethodType.cod.ToString())
+                {
+                    payment.Status = PaymentStatus.Cancelled.ToString();
+                    payment.UpdatedAt = DateTime.UtcNow;
+                }
 
                 // 6️⃣ Lưu tất cả thay đổi
                 await _context.SaveChangesAsync();
@@ -167,7 +174,7 @@ namespace MazicPC.Controllers
         public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusDto dto)
         {
             // 1️⃣ Kiểm tra trạng thái hợp lệ
-            if (!SysEnum.TryParse<OrderStatus>(dto.Status, true, out var parsedStatus))
+            if (!SysEnum.TryParse(dto.Status, true, out OrderStatus newStatus))
                 return BadRequest("Trạng thái không hợp lệ.");
 
             // 2️⃣ Lấy đơn hàng
@@ -179,51 +186,47 @@ namespace MazicPC.Controllers
             var currentStatus = SysEnum.Parse<OrderStatus>(order.Status);
 
             // 3️⃣ Không cho phép cập nhật ngược
-            if (currentStatus == OrderStatus.Completed || currentStatus == OrderStatus.Cancelled)
-                return BadRequest("Đơn hàng đã hoàn tất hoặc bị hủy, không thể thay đổi trạng thái.");
+            if (!ValidTransitions[currentStatus].Contains(newStatus))
+                return BadRequest($"Không thể đổi từ {currentStatus} → {newStatus}");
 
             // 4️⃣ Cập nhật trạng thái đơn hàng
-            order.Status = parsedStatus.ToString();
+            order.Status = newStatus.ToString();
             order.UpdatedAt = DateTime.Now;
 
             // 5️⃣ Đồng bộ trạng thái thanh toán
             var payment = order.Payments.FirstOrDefault();
-            if (payment != null)
+            if (payment != null && payment.PaymentMethod == PaymentMethodType.cod.ToString())
             {
-                if (payment.PaymentMethod.ToLower() == PaymentMethodType.cod.ToString())
+                switch (newStatus)
                 {
-                    // COD: xử lý nội bộ
-                    switch (parsedStatus)
-                    {
-                        case OrderStatus.Completed:
-                            payment.Status = PaymentStatus.Completed.ToString();
-                            payment.PaidAt = DateTime.Now;
-                            break;
-                        case OrderStatus.Cancelled:
-                            payment.Status = PaymentStatus.Cancelled.ToString();
-                            break;
-                        default:
-                            payment.Status = PaymentStatus.Pending.ToString();
-                            break;
-                    }
-                }
-                else
-                {
-                    // Ví điện tử: chỉ cập nhật khi hủy đơn
-                    if (parsedStatus == OrderStatus.Cancelled)
+                    case OrderStatus.Completed:
+                        payment.Status = PaymentStatus.Completed.ToString();
+                        payment.PaidAt = DateTime.UtcNow;
+                        break;
+
+                    case OrderStatus.Cancelled:
                         payment.Status = PaymentStatus.Cancelled.ToString();
+                        break;
+
+                    case OrderStatus.Returned:
+                        payment.Status = PaymentStatus.Refunded.ToString();
+                        break;
+
+                    default:
+                        payment.Status = PaymentStatus.Pending.ToString();
+                        break;
                 }
 
-                payment.UpdatedAt = DateTime.Now;
+                payment.UpdatedAt = DateTime.UtcNow;
             }
 
             await _context.SaveChangesAsync();
 
             return Ok(new
             {
-                message = $"Trạng thái đơn hàng đã được cập nhật thành '{parsedStatus}'.",
+                message = $"Trạng thái đơn hàng đã được cập nhật thành '{newStatus}'.",
                 orderId = order.Id,
-                newStatus = parsedStatus.ToString()
+                newStatus = newStatus.ToString()
             });
         }
 
@@ -285,13 +288,17 @@ namespace MazicPC.Controllers
                 };
 
                 // 5️⃣ Thêm sản phẩm
+                var reserved = new List<(Product p, int qty)>();
+
                 foreach (var item in dto.OrderItems)
                 {
                     var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == item.ProductId);
                     if (product == null)
-                        return BadRequest($"Sản phẩm ID {item.ProductId} không tồn tại.");
+                        return BadRequest($"Sản phẩm không tồn tại.");
                     if (item.Quantity > product.StockQty)
                         return BadRequest("Sản phẩm đã hết hàng!");
+
+                    reserved.Add((product, item.Quantity));
 
                     var (finalPrice, _, _, _, _) = await _promotionHelper.CalculateDiscountAsync(product);
 
@@ -301,9 +308,10 @@ namespace MazicPC.Controllers
                         Quantity = item.Quantity,
                         Price = finalPrice
                     });
-                    // Giảm số lượng sp
-                    product.StockQty -= item.Quantity;
                 }
+
+                // Giảm số lượng sp
+                foreach (var r in reserved) r.p.StockQty -= r.qty;
 
                 // 6️⃣ Tính tổng tiền hàng
                 var totalProductAmount = order.OrderItems.Sum(i => i.Price * i.Quantity);
@@ -381,10 +389,21 @@ namespace MazicPC.Controllers
             if (order == null)
                 return NotFound("Không tìm thấy đơn hàng.");
 
-            var status = System.Enum.Parse<OrderStatus>(order.Status);
+            var status = SysEnum.Parse<OrderStatus>(order.Status);
 
-            if (status != OrderStatus.Completed)
-                return BadRequest("Chỉ có thể yêu cầu trả hàng khi đơn đã giao thành công.");
+            if (status == OrderStatus.Pending ||
+                status == OrderStatus.Confirmed ||
+                status == OrderStatus.Delivering)
+                return BadRequest("Chỉ trả hàng khi đơn đã giao.");
+
+            if (status == OrderStatus.Returning)
+                return BadRequest("Đã gửi yêu cầu trả hàng.");
+
+            if (status == OrderStatus.Returned)
+                return BadRequest("Đơn đã được trả xong.");
+
+            if (status == OrderStatus.Cancelled)
+                return BadRequest("Không thể trả hàng đơn đã hủy.");
 
             // Cập nhật trạng thái
             order.Status = OrderStatus.Returning.ToString();
@@ -394,7 +413,5 @@ namespace MazicPC.Controllers
 
             return Ok("Yêu cầu trả hàng đã được gửi.");
         }
-
-
     }
 }
