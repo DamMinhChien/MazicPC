@@ -1,0 +1,74 @@
+{
+	"info": {
+		"_postman_id": "1239d1f3-b616-4835-8837-c6134df99127",
+		"name": "xoasanpham",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "45170661",
+		"_collection_link": "https://kien-9265660.postman.co/workspace/kien's-Workspace~99755ccb-67fd-4ec9-8f5c-dd398b125672/collection/45170661-1239d1f3-b616-4835-8837-c6134df99127?action=share&source=collection_link&creator=45170661"
+	},
+	"item": [
+		{
+			"name": "xoasanphamtontaikhongdungadmin",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7094/api/Products/6",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7094",
+					"path": [
+						"api",
+						"Products",
+						"6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "xoasanphamtontai",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7094/api/Products/1",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7094",
+					"path": [
+						"api",
+						"Products",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "xoasanphamtontaikhongtontai",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7094/api/Products/6",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7094",
+					"path": [
+						"api",
+						"Products",
+						"6"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,176 @@
+{
+	"info": {
+		"_postman_id": "300f53e9-0700-46fe-b878-c039edfc4437",
+		"name": "Themdanhmuc",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "45170661",
+		"_collection_link": "https://kien-9265660.postman.co/workspace/kien's-Workspace~99755ccb-67fd-4ec9-8f5c-dd398b125672/collection/45170661-300f53e9-0700-46fe-b878-c039edfc4437?action=share&source=collection_link&creator=45170661"
+	},
+	"item": [
+		{
+			"name": "ThemDanhmucdung",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjkiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTc2NDYwMzM1NSwiaXNzIjoiTWF6aWNQQyIsImF1ZCI6Ik1hemljUEMifQ.KJYCcLr08xS04TqC7f6qyso7nTl4HP2prRlc1FqLn7w",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "maytinhd",
+							"type": "text"
+						},
+						{
+							"key": "slug",
+							"value": "ddddg",
+							"type": "text"
+						},
+						{
+							"key": "parentName",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "imageUrl",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "https://localhost:7094/api/Categories",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7094",
+					"path": [
+						"api",
+						"Categories"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ThemDanhmucdung khongcapquen",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjkiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTc2NDYwMzM1NSwiaXNzIjoiTWF6aWNQQyIsImF1ZCI6Ik1hemljUEMifQ.KJYCcLr08xS04TqC7f6qyso7nTl4HP2prRlc1FqLn7w",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "maytinhd",
+							"type": "text"
+						},
+						{
+							"key": "slug",
+							"value": "ddddg",
+							"type": "text"
+						},
+						{
+							"key": "parentName",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "imageUrl",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "https://localhost:7094/api/Categories",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7094",
+					"path": [
+						"api",
+						"Categories"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Themdanhmuctrong",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjkiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTc2NDU2MTkxMywiaXNzIjoiTWF6aWNQQyIsImF1ZCI6Ik1hemljUEMifQ.z-4sJOK671plafUMp-wn0aMMDSB6XMahgtix4Bhs-2E",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "slug",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "parentName",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "imageUrl",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "https://localhost:7094/api/Categories",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7094",
+					"path": [
+						"api",
+						"Categories"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

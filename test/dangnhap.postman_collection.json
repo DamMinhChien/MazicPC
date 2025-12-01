@@ -1,0 +1,122 @@
+{
+	"info": {
+		"_postman_id": "3fcae122-f1de-4121-88fe-03e8587751cc",
+		"name": "dangnhap",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "45170661",
+		"_collection_link": "https://kien-9265660.postman.co/workspace/kien's-Workspace~99755ccb-67fd-4ec9-8f5c-dd398b125672/collection/45170661-3fcae122-f1de-4121-88fe-03e8587751cc?action=share&source=collection_link&creator=45170661"
+	},
+	"item": [
+		{
+			"name": "Dangnhapdung",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"admin\",\r\n  \"password\": \"abc123!@#\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7094/api/login",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7094",
+					"path": [
+						"api",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "dangnhapsaimk",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"kien2004\",\r\n  \"password\": \"abc123!@\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7094/api/login",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7094",
+					"path": [
+						"api",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "dangnhapsaitk",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"kien222\",\r\n  \"password\": \"abc123!@#\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7094/api/login",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7094",
+					"path": [
+						"api",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Dangnhapbotrong",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"kien2004\",\r\n  \"password\": \"\"\r\n}"
+				},
+				"url": {
+					"raw": "https://localhost:7094/api/login",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7094",
+					"path": [
+						"api",
+						"login"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,31 @@
+{
+	"info": {
+		"_postman_id": "10d830c0-9ed5-4bde-9848-693ed309eb37",
+		"name": "Dangxuat",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "45170661",
+		"_collection_link": "https://kien-9265660.postman.co/workspace/kien's-Workspace~99755ccb-67fd-4ec9-8f5c-dd398b125672/collection/45170661-10d830c0-9ed5-4bde-9848-693ed309eb37?action=share&source=collection_link&creator=45170661"
+	},
+	"item": [
+		{
+			"name": "Dangxuat",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7094/api/logout",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7094",
+					"path": [
+						"api",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

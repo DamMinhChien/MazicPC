@@ -1,0 +1,73 @@
+{
+	"info": {
+		"_postman_id": "882b3306-4ca9-4f06-9092-2e72eb300433",
+		"name": "Laydanhmuc",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "45170661",
+		"_collection_link": "https://kien-9265660.postman.co/workspace/kien's-Workspace~99755ccb-67fd-4ec9-8f5c-dd398b125672/collection/45170661-882b3306-4ca9-4f06-9092-2e72eb300433?action=share&source=collection_link&creator=45170661"
+	},
+	"item": [
+		{
+			"name": "Laydanhsachdanhmuc",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7094/api/Categories",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7094",
+					"path": [
+						"api",
+						"Categories"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Laydanhmuctheoid",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7094/api/Categories/3\n",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7094",
+					"path": [
+						"api",
+						"Categories",
+						"3\n"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Laydanhmucidtrong",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7094/api/Categories/20",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7094",
+					"path": [
+						"api",
+						"Categories",
+						"20"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
