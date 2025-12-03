@@ -190,7 +190,7 @@ const Purchase = () => {
   }
 
   const statusForCancelButton = ["PENDING", "CONFIRMED"];
-  const statusForRefundButton = ["CANCELLED", "RETURNED"];
+  const statusForRefundButton = ["CANCELLED"];
   const statusForReturnButton = ["COMPLETED"];
 
   return (
